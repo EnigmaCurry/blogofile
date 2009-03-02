@@ -1,0 +1,5 @@
+BeautifulSoup current doesn't work.
+BeautifulSoup==3.0.7a does.
+
+Wordpress converter outputs pages in addition to posts
+
