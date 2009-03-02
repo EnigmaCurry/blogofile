@@ -35,7 +35,7 @@ class Writer:
         self.do_prettify = eval(config.get("blogofile","pretty_html"))
         #Kodos, you rule (http://kodos.sourceforge.net/):
         self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^.*~$)")
-        self.dirs_exclude_regex = re.compile("(^\.git)|(^\.hg)|(^\.bzr)|(^\.svn)|(^\.CVS)")
+        self.dirs_exclude_regex = re.compile("(^\.git)|(^\.hg)|(^\.bzr)|(^\.svn)|(^\CVS)")
         
     def write_blog(self, posts):
         self.archive_links = self.__get_archive_links(posts)
