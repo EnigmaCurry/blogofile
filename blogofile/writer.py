@@ -133,10 +133,8 @@ class Writer:
             for d in list(dirs):
                 #Exclude some dirs
                 if d.startswith("_"):
-                    print "removing %s" % d
                     dirs.remove(d)
                 if self.dirs_exclude_regex.match(d):
-                    print "removing %s" % d
                     dirs.remove(d)
             try:
                 os.makedirs(os.path.join(self.output_dir, root))
