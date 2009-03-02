@@ -34,7 +34,8 @@ class Writer:
         #Behavioural settings:
         self.do_prettify = eval(config.get("blogofile","pretty_html"))
         #Kodos, you rule (http://kodos.sourceforge.net/):
-        self.files_exclude_regex = re.compile("(^_.*)|(^\..*)|(^#.*)|(^.*~$)",re.MULTILINE)
+        self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^.*~$)")
+        self.dirs_exclude_regex = re.compile("(^\.git)|(^\.hg)|(^\.svn)|(^\.CVS)")
         
     def write_blog(self, posts):
         self.archive_links = self.__get_archive_links(posts)
@@ -126,11 +127,17 @@ class Writer:
         Copy other non-template files directly"""
         #find mako templates in template_dir
         for root, dirs, files in os.walk("."):
+            excluded_roots = []
             if root.startswith("./"):
                 root = root[2:]
-            if root.startswith("_"):
-                #Ignore all _dirs (_site, _posts, _templates etc)
-                continue
+            for d in list(dirs):
+                #Exclude some dirs
+                if d.startswith("_"):
+                    print "removing %s" % d
+                    dirs.remove(d)
+                if self.dirs_exclude_regex.match(d):
+                    print "removing %s" % d
+                    dirs.remove(d)
             try:
                 os.makedirs(os.path.join(self.output_dir, root))
             except OSError:
