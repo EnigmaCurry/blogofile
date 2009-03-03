@@ -240,6 +240,7 @@ class Writer:
             except OSError:
                 pass
             html = perma_template.render(post=post,
+                                         posts=posts,
                                          config=self.config,
                                          archive_links=self.archive_links,
                                          all_categories=self.all_categories,
