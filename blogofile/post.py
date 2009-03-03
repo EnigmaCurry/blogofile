@@ -107,11 +107,11 @@ class Post:
             pass
         try:
             self.categories = set([x.strip() for x in y['categories'].split(",")])
-        except KeyError:
+        except:
             pass
         try:
             self.tags = set([x.strip() for x in y['tags'].split(",")])
-        except KeyError:
+        except:
             pass
         try:
             self.guid = y['guid']
