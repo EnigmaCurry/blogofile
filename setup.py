@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='Blogofile',
-      version='0.2',
+      version='0.3',
       description='A blog engine/compiler, inspired by Jekyll.',
       author='Ryan McGuire',
       author_email='ryan@enigmacurry.com',
