@@ -17,8 +17,12 @@ import urlparse
 import pytz
 import yaml
 import textile
+import markdown
 
 date_format = "%Y/%m/%d %H:%M:%S"
+
+class PostFormatException(Exception):
+    pass
 
 class Post:
     """
@@ -57,10 +61,10 @@ class Post:
         self.tags       = set()
         self.permalink  = None
         self.content    = u""
-        self.draft      = False
         self.format     = "html"
         self.author     = ""
         self.guid       = None #Default guid is permalink
+        self.draft      = False
         self.__parse()
         
     def __repr__(self):
@@ -81,9 +85,12 @@ class Post:
         #Convert post to HTML
         if self.format == "textile":
             self.content = textile.textile(post_src).decode("utf-8")
-        else:
-            #Assume it's raw html to begin with
+        elif self.format == "markdown":
+            self.content = markdown.markdown(post_src).decode("utf-8")
+        elif self.format == "html":
             self.content = post_src.decode("utf-8")
+        else:
+            raise PostFormatException("Post format '%s' not recognized." % self.format)
         
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
@@ -131,17 +138,16 @@ def parse_posts(directory, timezone):
 
     Returns a list of the posts sorted in reverse by date."""
     posts = []
-    textile_files = [f for f in os.listdir(directory) if f.endswith(".textile")]
-    for texi in textile_files:
-        src = open(os.path.join(directory,texi)).read()
+    post_filename_re = re.compile(".*((\.textile$)|(\.markdown$)|(\.html$))")
+    post_file_names = [f for f in os.listdir(directory) if post_filename_re.match(f)]
+    for post_fn in post_file_names:
+        src = open(os.path.join(directory,post_fn)).read()
         p = Post(src, timezone)
         #Exclude some posts
-        if not (p.draft == True or p.permalink == None):
+        if not (p.permalink == None):
             posts.append(p)
     posts.sort(key=operator.attrgetter('date'), reverse=True)
-    return posts
-
-    
+    return posts    
 
 if __name__ == '__main__':
     import doctest

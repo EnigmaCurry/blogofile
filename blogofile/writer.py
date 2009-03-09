@@ -37,14 +37,16 @@ class Writer:
         self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^.*~$)")
         self.dirs_exclude_regex = re.compile("(^\.git)|(^\.hg)|(^\.bzr)|(^\.svn)|(^\CVS)")
         
-    def write_blog(self, posts):
+    def write_blog(self, posts, drafts=None):
         self.archive_links = self.__get_archive_links(posts)
         self.all_categories = self.__get_all_categories(posts)
         self.category_link_names = self.__compute_category_link_names(self.all_categories)
         self.__setup_output_dir()
         self.__write_files(posts)
         self.__write_blog_chron(posts)
-        self.__write_blog_permanent(posts)
+        self.__write_permapage(posts)
+        if drafts:
+            self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
         self.__write_feed(posts, "/feed", "rss.mako")
@@ -224,7 +226,7 @@ class Writer:
         for link, posts in m.items():
             self.__write_blog_chron(posts,root=link)
 
-    def __write_blog_permanent(self, posts):
+    def __write_permapage(self, posts):
         """Write blog posts to their permalink locations"""
         perma_template = self.template_lookup.get_template("permapage.mako")
         perma_template.output_encoding = "utf-8"

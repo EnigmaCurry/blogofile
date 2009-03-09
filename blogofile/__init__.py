@@ -21,8 +21,6 @@ Please take a moment to read LICENSE.txt. It's short.
 """
 
 __author__  = "Ryan McGuire (ryan@enigmacurry.com)"
-__date__    = "Tue Feb  3 12:52:52 2009"
-__version__ = "0.1"
 
 import ConfigParser
 import os
@@ -43,6 +41,9 @@ def main():
     parser.add_option("-b","--build",dest="do_build",
                       help="Build the blog again from source",
                       default=False, action="store_true")
+    parser.add_option("-d","--include-drafts",dest="include_drafts",
+                      default=False, action="store_true",
+                      help="Writes permapages for drafts (but not in feeds or chronlogical blog)")
     (options, args) = parser.parse_args()
     
     #load config
@@ -56,8 +57,14 @@ def main():
         sys.exit(1)
 
     posts = post.parse_posts("_posts", timezone=config.get("blogofile","timezone"))
+    if options.include_drafts:
+        drafts = post.parse_posts("_drafts", timezone=config.get("blogofile","timezone"))
+        for p in drafts:
+            p.draft = True
+    else:
+        drafts = None
     writer = Writer(output_dir=os.path.join(config_dir,"_site"), config=config)
-    writer.write_blog(posts)
+    writer.write_blog(posts, drafts)
     
 if __name__ == '__main__':
     main()
