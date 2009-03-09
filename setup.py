@@ -1,7 +1,8 @@
 from setuptools import setup
+import blogofile
 
 setup(name='Blogofile',
-      version='0.3.1',
+      version=blogofile.__version__,
       description='A blog engine/compiler, inspired by Jekyll.',
       author='Ryan McGuire',
       author_email='ryan@enigmacurry.com',
@@ -14,9 +15,10 @@ setup(name='Blogofile',
                          'pytz',
                          'pyyaml',
                          'textile',
-                         'markdown'],
+                         'markdown',
+                         'pygments'],
       entry_points="""
       [console_scripts]
-      blogofile = blogofile:main
+      blogofile = blogofile.main:main
       """,
       )

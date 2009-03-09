@@ -18,6 +18,10 @@ import pytz
 import yaml
 import textile
 import markdown
+import pygments
+import pygments.formatters
+import pygments.lexers
+import BeautifulSoup
 
 date_format = "%Y/%m/%d %H:%M:%S"
 
@@ -50,12 +54,13 @@ class Post:
     >>> p.permalink
     u'/2008/10/20/first-post'
     """
-    def __init__(self, source, timezone):
+    def __init__(self, source, config):
         self.source     = source
+        self.config     = config
         self.yaml       = yaml
         self.title      = u"Untitled - " + datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        self.date       = datetime.datetime.now(pytz.timezone(timezone))
-        self.__timezone = timezone
+        self.__timezone = config.get("blogofile","timezone")
+        self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
         self.updated    = self.date
         self.categories = set([u'Uncategorized'])
         self.tags       = set()
@@ -91,6 +96,18 @@ class Post:
             self.content = post_src.decode("utf-8")
         else:
             raise PostFormatException("Post format '%s' not recognized." % self.format)
+        #Do syntax highlighting of <pre> tags
+        if self.config.get("syntax-highlighting","enabled"):
+            soup = BeautifulSoup.BeautifulSoup(self.content)
+            for pre in soup.findAll("pre"):
+                try:
+                    lexer = pygments.lexers.get_lexer_by_name(pre.get("lang"))
+                except ClassNotFound:
+                    continue
+                h_pre = pygments.highlight(
+                    str(pre.renderContents()), lexer, self.config.html_formatter)
+                pre.replaceWith(h_pre)
+            self.content = str(soup)
         
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
@@ -133,7 +150,7 @@ class Post:
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
             
-def parse_posts(directory, timezone):
+def parse_posts(directory, config):
     """Retrieve all the posts from the directory specified.
 
     Returns a list of the posts sorted in reverse by date."""
@@ -142,7 +159,7 @@ def parse_posts(directory, timezone):
     post_file_names = [f for f in os.listdir(directory) if post_filename_re.match(f)]
     for post_fn in post_file_names:
         src = open(os.path.join(directory,post_fn)).read()
-        p = Post(src, timezone)
+        p = Post(src, config)
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)

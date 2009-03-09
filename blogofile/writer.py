@@ -51,7 +51,8 @@ class Writer:
         self.__write_blog_categories(posts)
         self.__write_feed(posts, "/feed", "rss.mako")
         self.__write_feed(posts, "/feed/atom", "atom.mako")
-
+        self.__write_pygments_css()
+        
     def __get_archive_links(self, posts):
         """Return a list of monthly archive links and nice name:
         """
@@ -254,6 +255,16 @@ class Writer:
             f = open(os.path.join(path,"index.html"), "w")
             f.write(html)
             f.close()
+
+    def __write_pygments_css(self):
+        css_dir = os.path.join(self.output_dir, "css")
+        try:
+            os.makedirs(css_dir)
+        except OSError:
+            pass
+        f = open(os.path.join(css_dir,"pygments.css"),"w")
+        f.write(self.config.html_formatter.get_style_defs(".highlight"))
+        f.close()
 
     def __write_blog_categories(self, posts, root="/category", posts_per_page=5):
         """Write all the blog posts in categories"""
