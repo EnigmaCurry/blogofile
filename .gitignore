@@ -1,3 +1,6 @@
 *~
 *.pyc
 *.ropeproject/*
+/Blogofile.egg-info/*
+/build/*
+/dist/*
