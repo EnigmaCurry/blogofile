@@ -2,6 +2,8 @@
 ** BeautifulSoup current doesn't work.
    BeautifulSoup==3.0.7a does.
 ** Wordpress converter outputs pages in addition to posts
+** Trackbacks with disqus don't work
+   does Wordpress use it's own trackback system and call some undocumented API?
 
 * Todo:
 ** Add draft support
