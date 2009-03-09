@@ -63,7 +63,6 @@ def main():
 
     config.html_formatter = pygments.formatters.HtmlFormatter(
         style=config.get('syntax-highlighting','style'))
-    print config.html_formatter.style
                    
     posts = post.parse_posts("_posts", config)
     if options.include_drafts:
