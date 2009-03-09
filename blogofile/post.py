@@ -58,7 +58,7 @@ class Post:
         self.permalink  = None
         self.content    = u""
         self.draft      = False
-        self.format     = "textile"
+        self.format     = "html"
         self.author     = ""
         self.guid       = None #Default guid is permalink
         self.__parse()
