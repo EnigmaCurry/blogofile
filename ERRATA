@@ -3,3 +3,4 @@ BeautifulSoup==3.0.7a does.
 
 Wordpress converter outputs pages in addition to posts
 
+integrated geshi syntax highlighting
