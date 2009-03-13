@@ -12,10 +12,11 @@ Definition: Blogofile  --
 
 Blogofile transforms a set of templates into an entire blog consisting of static
 HTML files. All categories, tags, RSS/Atom feeds are automatically maintained by
-Blogofile. This blog can be hosted on any HTTP web server. Since the blog is just
-HTML, CSS, and Javascript, no CGI environment, or database is required. With the
-addition of a of third-party comment and trackback provider (like Disqus or
-IntenseDebate) a modern and interactive blog can be hosted very inexpensively.
+Blogofile. This blog can be hosted on any HTTP web server. Since the blog is
+just HTML, CSS, and Javascript, no CGI environment, or database is required.
+With the addition of a of third-party comment and trackback provider (like
+Disqus or IntenseDebate) a modern and interactive blog can be hosted very
+inexpensively.
 
 Please take a moment to read LICENSE.txt. It's short.
 """
@@ -39,7 +40,8 @@ def parse_config(config_file_path):
 
 def main():
     from optparse import OptionParser
-    parser = OptionParser(version="Blogofile "+__version__+" -- http://www.blogofile.com")
+    parser = OptionParser(version="Blogofile "+__version__+
+                          " -- http://www.blogofile.com")
     parser.add_option("-c","--config-file",dest="config_file",
                       help="The config file to load (default './_config.cfg')",
                       metavar="FILE", default="./_config.cfg")
@@ -48,7 +50,8 @@ def main():
                       default=False, action="store_true")
     parser.add_option("-d","--include-drafts",dest="include_drafts",
                       default=False, action="store_true",
-                      help="Writes permapages for drafts (but not in feeds or chronlogical blog)")
+                      help="Writes permapages for drafts "
+                      "(but not in feeds or chronlogical blog)")
     (options, args) = parser.parse_args()
     
     #load config

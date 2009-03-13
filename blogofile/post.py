@@ -58,7 +58,8 @@ class Post:
         self.source     = source
         self.config     = config
         self.yaml       = yaml
-        self.title      = u"Untitled - " + datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        self.title      = u"Untitled - " + datetime.datetime.now().strftime(
+            "%Y/%m/%d %H:%M:%S")
         self.__timezone = config.get("blogofile","timezone")
         self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
         self.updated    = self.date
@@ -95,7 +96,8 @@ class Post:
         elif self.format == "html":
             self.content = post_src.decode("utf-8")
         else:
-            raise PostFormatException("Post format '%s' not recognized." % self.format)
+            raise PostFormatException("Post format '%s' not recognized." %
+                                      self.format)
         #Do syntax highlighting of <pre> tags
         if self.config.get("syntax-highlighting","enabled"):
             soup = BeautifulSoup.BeautifulSoup(self.content)
@@ -105,7 +107,8 @@ class Post:
                 except ClassNotFound:
                     continue
                 h_pre = pygments.highlight(
-                    str(pre.renderContents()), lexer, self.config.html_formatter)
+                    str(pre.renderContents()), lexer,
+                    self.config.html_formatter)
                 pre.replaceWith(h_pre)
             self.content = str(soup)
         
@@ -130,7 +133,8 @@ class Post:
         except KeyError:
             pass
         try:
-            self.categories = set([x.strip() for x in y['categories'].split(",")])
+            self.categories = set([x.strip() for x in \
+                                       y['categories'].split(",")])
         except:
             pass
         try:
@@ -156,7 +160,8 @@ def parse_posts(directory, config):
     Returns a list of the posts sorted in reverse by date."""
     posts = []
     post_filename_re = re.compile(".*((\.textile$)|(\.markdown$)|(\.html$))")
-    post_file_names = [f for f in os.listdir(directory) if post_filename_re.match(f)]
+    post_file_names = [f for f in os.listdir(directory) \
+                           if post_filename_re.match(f)]
     for post_fn in post_file_names:
         src = open(os.path.join(directory,post_fn)).read()
         p = Post(src, config)
