@@ -15,7 +15,7 @@ setup(name='Blogofile',
                          'pytz',
                          'pyyaml',
                          'textile',
-                         'markdown',
+                         'markdown<2.0',
                          'pygments'],
       entry_points="""
       [console_scripts]
