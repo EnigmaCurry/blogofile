@@ -24,6 +24,10 @@ Please take a moment to read LICENSE.txt. It's short.
 __author__  = "Ryan McGuire (ryan@enigmacurry.com)"
 from blogofile import __version__ 
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger('main')
+
 import ConfigParser
 import os
 import sys
@@ -33,8 +37,6 @@ import pygments.styles
 import post
 from writer import Writer
         
-
-
 def parse_config(config_file_path):
     return config
 
@@ -52,7 +54,14 @@ def main():
                       default=False, action="store_true",
                       help="Writes permapages for drafts "
                       "(but not in feeds or chronlogical blog)")
+    parser.add_option("--debug",dest="debug",default=False,
+                      action="store_true",
+                      help="Enable extra debugging in log")
     (options, args) = parser.parse_args()
+
+    if options.debug:
+        logger.setLevel(logging.INFO)
+        logger.info("Setting DEBUG mode")
     
     #load config
     config = ConfigParser.ConfigParser()

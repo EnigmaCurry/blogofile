@@ -19,6 +19,8 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 import BeautifulSoup
 
+from main import logger
+
 class Writer:
     def __init__(self, output_dir, config):
         #Base templates are templates (usually in ./_templates) that are only
@@ -150,6 +152,7 @@ class Writer:
                     #Ignore this file.
                     continue
                 elif t_fn.endswith(".mako"):
+                    logger.info("Processing mako file: %s"%t_fn)
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(os.path.join(root, t_fn))

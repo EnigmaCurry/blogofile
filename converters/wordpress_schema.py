@@ -14,7 +14,7 @@ from sqlalchemy.ext.declarative import declarative_base
 ## Config
 #########################
 table_prefix = "ec"
-db_conn = "mysql://ryan:ryan@localhost/wordpressenigmacurry"
+db_conn = "mysql://root:root@localhost/wordpressenigmacurry"
 # End Config
 #########################
 
@@ -103,7 +103,7 @@ class WordpressOptions(Base):
     __table_args__ = {'autoload': True}
                             
 def get_published_posts(blog_id=0):
-    return [p for p in session.query(Post).all() if p.post_status=="publish"]
+    return [p for p in session.query(Post).all() if p.post_status=="publish" and p.post_type=="post"]
 
 def get_blog_url(blog_id=0):
     return session.query(WordpressOptions).filter(WordpressOptions.blog_id==blog_id).\

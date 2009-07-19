@@ -21,7 +21,13 @@ import markdown
 import pygments
 import pygments.formatters
 import pygments.lexers
-import BeautifulSoup
+import pygments.util
+
+from main import logger
+import util
+
+import IPython
+embedshell = IPython.Shell.IPShellEmbed()
 
 date_format = "%Y/%m/%d %H:%M:%S"
 
@@ -99,19 +105,24 @@ class Post:
             raise PostFormatException("Post format '%s' not recognized." %
                                       self.format)
         #Do syntax highlighting of <pre> tags
-        if self.config.get("syntax-highlighting","enabled"):
-            soup = BeautifulSoup.BeautifulSoup(self.content)
-            for pre in soup.findAll("pre"):
-                try:
-                    lexer = pygments.lexers.get_lexer_by_name(pre.get("lang"))
-                except ClassNotFound:
-                    continue
-                h_pre = pygments.highlight(
-                    str(pre.renderContents()), lexer,
-                    self.config.html_formatter)
-                pre.replaceWith(h_pre)
-            self.content = str(soup)
-        
+        if eval(self.config.get("syntax-highlighting","enabled")):
+            pre_tag_num = 0
+            while True:
+                pre_tag_num+=1
+                pre_tag_info = util.pre_tag_parser(self.content,pre_tag_num)
+                if pre_tag_info:
+                    pre_contents,attrs,start,end = pre_tag_info
+                    try:
+                        lexer = pygments.lexers.get_lexer_by_name(attrs['lang'])
+                    except KeyError, pygments.util.ClassNotFound:
+                        continue
+                    h_pre = pygments.highlight(
+                        pre_contents, lexer,
+                        self.config.html_formatter)
+                    #replace in content:
+                    self.content=self.content[:start]+h_pre+self.content[end+1:]
+                else:
+                    break
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
         try:
@@ -163,7 +174,9 @@ def parse_posts(directory, config):
     post_file_names = [f for f in os.listdir(directory) \
                            if post_filename_re.match(f)]
     for post_fn in post_file_names:
-        src = open(os.path.join(directory,post_fn)).read()
+        post_path = os.path.join(directory,post_fn)
+        logger.info("Parsing post: %s" % post_path)
+        src = open(post_path).read()
         p = Post(src, config)
         #Exclude some posts
         if not (p.permalink == None):
