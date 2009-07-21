@@ -60,7 +60,7 @@ def main():
     (options, args) = parser.parse_args()
 
     if options.debug:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
         logger.info("Setting DEBUG mode")
     
     #load config

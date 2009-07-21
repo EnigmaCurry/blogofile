@@ -18,12 +18,17 @@ import pytz
 import yaml
 import textile
 import markdown
+import logging
 import pygments
 import pygments.formatters
 import pygments.lexers
 import pygments.util
 
 from main import logger
+
+#Markdown logging is noisy, pot it down:
+logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
+
 import util
 
 date_format = "%Y/%m/%d %H:%M:%S"
