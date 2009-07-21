@@ -26,9 +26,6 @@ import pygments.util
 from main import logger
 import util
 
-import IPython
-embedshell = IPython.Shell.IPShellEmbed()
-
 date_format = "%Y/%m/%d %H:%M:%S"
 
 class PostFormatException(Exception):
