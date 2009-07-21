@@ -88,7 +88,7 @@ class Writer:
         root = root.lstrip("/")
         feed_template = self.template_lookup.get_template(template)
         feed_template.output_encoding = "utf-8"
-        xml = feed_template.render(posts=posts,config=self.config)
+        xml = feed_template.render(posts=posts,root=root,config=self.config)
         try:
             os.makedirs(os.path.join(self.output_dir,root))
         except OSError:
@@ -156,7 +156,7 @@ class Writer:
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(os.path.join(root, t_fn))
-                    template = Template(t_file.read(), output_encoding="utf-8",
+                    template = Template(t_file.read().decode("utf-8"), output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     t_file.close()
                     path = os.path.join(self.output_dir,root,t_name)
