@@ -1,5 +1,10 @@
 import re
 
+import pygments
+import pygments.formatters
+import pygments.lexers
+import pygments.util
+
 html_escape_table = {
     "&": "&amp;",
     '"': "&quot;",
@@ -49,3 +54,25 @@ def pre_tag_parser(text, occurance):
             elif match[3] != "":
                 attrs[match[0]] = match[3]
         return (contents,attrs,start_offset,end_of_end)
+
+def do_syntax_highlight(content,config):
+    pre_tag_num = 0
+    while True:
+        pre_tag_num+=1
+        pre_tag_info = pre_tag_parser(content,pre_tag_num)
+        if pre_tag_info:
+            pre_contents,attrs,start,end = pre_tag_info
+            print pre_contents
+            try:
+                lexer = pygments.lexers.get_lexer_by_name(attrs['lang'])
+            except KeyError, pygments.util.ClassNotFound:
+                continue
+            h_pre = pygments.highlight(
+                pre_contents, lexer,
+                config.html_formatter)
+            #replace in content:
+            content=content[:start]+h_pre+content[end+1:]
+        else:
+            break
+    return content
+    

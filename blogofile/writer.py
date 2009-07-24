@@ -20,6 +20,7 @@ from mako.lookup import TemplateLookup
 import BeautifulSoup
 
 from main import logger
+import util
 
 class Writer:
     def __init__(self, output_dir, config):
@@ -167,6 +168,9 @@ class Writer:
                         archive_links=self.archive_links,
                         all_categories=self.all_categories,
                         category_link_names=self.category_link_names)
+                    #Syntax highlighting
+                    if eval(self.config.get("syntax-highlighting","enabled")):
+                        html = util.do_syntax_highlight(html,self.config)
                     #Prettyify the html
                     if self.do_prettify:
                         soup = BeautifulSoup.BeautifulSoup(html)

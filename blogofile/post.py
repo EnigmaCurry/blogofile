@@ -19,10 +19,6 @@ import yaml
 import textile
 import markdown
 import logging
-import pygments
-import pygments.formatters
-import pygments.lexers
-import pygments.util
 
 from main import logger
 
@@ -108,23 +104,7 @@ class Post:
                                       self.format)
         #Do syntax highlighting of <pre> tags
         if eval(self.config.get("syntax-highlighting","enabled")):
-            pre_tag_num = 0
-            while True:
-                pre_tag_num+=1
-                pre_tag_info = util.pre_tag_parser(self.content,pre_tag_num)
-                if pre_tag_info:
-                    pre_contents,attrs,start,end = pre_tag_info
-                    try:
-                        lexer = pygments.lexers.get_lexer_by_name(attrs['lang'])
-                    except KeyError, pygments.util.ClassNotFound:
-                        continue
-                    h_pre = pygments.highlight(
-                        pre_contents, lexer,
-                        self.config.html_formatter)
-                    #replace in content:
-                    self.content=self.content[:start]+h_pre+self.content[end+1:]
-                else:
-                    break
+            self.content = util.do_syntax_highlight(self.content,self.config)
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
         try:
@@ -166,7 +146,7 @@ class Post:
     def permapath(self):
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
-            
+
 def parse_posts(directory, config):
     """Retrieve all the posts from the directory specified.
 
