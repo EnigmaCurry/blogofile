@@ -62,7 +62,6 @@ def do_syntax_highlight(content,config):
         pre_tag_info = pre_tag_parser(content,pre_tag_num)
         if pre_tag_info:
             pre_contents,attrs,start,end = pre_tag_info
-            print pre_contents
             try:
                 lexer = pygments.lexers.get_lexer_by_name(attrs['lang'])
             except KeyError, pygments.util.ClassNotFound:
