@@ -50,7 +50,11 @@ def main():
     parser.add_option("-b","--build",dest="do_build",
                       help="Build the blog again from source",
                       default=False, action="store_true")
-    parser.add_option("-d","--include-drafts",dest="include_drafts",
+    parser.add_option("--init",dest="do_init",
+                      help="Create a minimal blogofile configuration in the "\
+                      "current directory",
+                      default=False, action="store_true")
+    parser.add_option("--include-drafts",dest="include_drafts",
                       default=False, action="store_true",
                       help="Writes permapages for drafts "
                       "(but not in feeds or chronlogical blog)")
@@ -62,19 +66,36 @@ def main():
     if options.debug:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting DEBUG mode")
-    
-    #load config
-    config = ConfigParser.ConfigParser()
-    config.read(options.config_file)
-    config_dir = os.path.split(os.path.abspath(options.config_file))[0]
-    os.chdir(config_dir)
 
-    if not options.do_build:
+    options.config_dir = os.path.split(os.path.abspath(options.config_file))[0]
+    if not os.path.isdir(options.config_dir):
+        print("config dir does not exist : {0}".format(options.config_dir))
+        sys.exit(1)
+    os.chdir(options.config_dir)
+    
+    if options.do_build:
+        do_build(options)
+    elif options.do_init:
+        do_init(options)
+    else:
         parser.print_help()
         sys.exit(1)
 
-    config.html_formatter = pygments.formatters.HtmlFormatter(
-        style=config.get('syntax-highlighting','style'))
+def do_build(options):
+    #load config
+    config = ConfigParser.ConfigParser()
+    if os.path.isfile(options.config_file):
+        config.read(options.config_file)
+    else:
+        print("No configuration found at : {0} ".format(options.config_file))
+        print("If you want to make a new site, try --init")
+        return
+
+    try:
+        config.html_formatter = pygments.formatters.HtmlFormatter(
+            style=config.get('syntax-highlighting','style'))
+    except ConfigParser.NoSectionError:
+        pass
                    
     posts = post.parse_posts("_posts", config)
     if options.include_drafts:
@@ -85,6 +106,14 @@ def main():
         drafts = None
     writer = Writer(output_dir=os.path.join(config_dir,"_site"), config=config)
     writer.write_blog(posts, drafts)
+
+def do_init(options):
+    if len(os.listdir(options.config_dir)) > 0 :
+        print("This directory is not empty, will not attempt to initialize here : {0}".format(options.config_dir))
+        return
+    print("Building a minimal blogofile site at : {0}".format(options.config_dir))
+    os.mkdir("_posts")
+    print("This is a stub, this isn't complete yet.")
     
 if __name__ == '__main__':
     main()
