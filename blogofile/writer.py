@@ -262,9 +262,10 @@ class Writer:
             os.makedirs(css_dir)
         except OSError:
             pass
-        f = open(os.path.join(css_dir,"pygments.css"),"w")
-        f.write(self.config.html_formatter.get_style_defs(".highlight"))
-        f.close()
+        if self.config.has_section("syntax_highlighting"):
+            f = open(os.path.join(css_dir,"pygments.css"),"w")
+            f.write(self.config.html_formatter.get_style_defs(".highlight"))
+            f.close()
 
     def __write_blog_categories(self, posts, root="/category",
                                 posts_per_page=5):

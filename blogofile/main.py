@@ -36,14 +36,15 @@ import pygments.styles
 import post
 from writer import Writer
 import config
+import skeleton_init
 
 def main():
     from optparse import OptionParser
     parser = OptionParser(version="Blogofile "+__version__+
                           " -- http://www.blogofile.com")
     parser.add_option("-c","--config-file",dest="config_file",
-                      help="The config file to load (default './_config.cfg')",
-                      metavar="FILE", default="./_config.cfg")
+                      help="The config file to load (default './_config.py')",
+                      metavar="FILE", default="./_config.py")
     parser.add_option("-b","--build",dest="do_build",
                       help="Build the blog again from source",
                       default=False, action="store_true")
@@ -103,7 +104,8 @@ def do_build(options):
             style=config.get('syntax-highlighting','style'))
     except config.UnknownConfigSectionException:
         pass
-    
+    logger.info("Running user's pre_build() function..")
+    config.do_pre_build()
     posts = post.parse_posts("_posts", config)
     if options.include_drafts:
         drafts = post.parse_posts("_drafts", config)
@@ -113,14 +115,11 @@ def do_build(options):
         drafts = None
     writer = Writer(output_dir="_site", config=config)
     writer.write_blog(posts, drafts)
+    logger.info("Running user's post_build() function..")
+    config.do_post_build()
 
 def do_init(options):
-    if len(os.listdir(options.config_dir)) > 0 :
-        print("This directory is not empty, will not attempt to initialize here : {0}".format(options.config_dir))
-        return
-    print("Building a minimal blogofile site at : {0}".format(options.config_dir))
-    os.mkdir("_posts")
-    print("This is a stub, this isn't complete yet.")
-    
+    skeleton_init.do_init(options)
+
 if __name__ == '__main__':
     main()
