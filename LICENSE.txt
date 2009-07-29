@@ -4,8 +4,8 @@
 
 Blogofile is released both under an MIT style license as well as to the
 public domain directly. The two methods are virtually identical excepting the
-MIT licence's requirement for copyright and licence republication, both of which
-will not be enforced by Ryan McGuire in a legal setting.
+MIT licence's requirement for copyright and licence republication, which
+simply means they will not be enforced by Ryan McGuire in a legal setting.
 
 Any contributors to Blogofile understand that they relinquish their code to be 
 released under the MIT license as well as to the public domain.
