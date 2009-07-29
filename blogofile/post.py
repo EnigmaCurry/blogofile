@@ -103,8 +103,9 @@ class Post:
             raise PostFormatException("Post format '%s' not recognized." %
                                       self.format)
         #Do syntax highlighting of <pre> tags
-        if eval(self.config.get("syntax-highlighting","enabled")):
-            self.content = util.do_syntax_highlight(self.content,self.config)
+        if self.config.has_section("syntax_highlighting"):
+            if self.config.get("syntax_highlighting","enabled"):
+                self.content = util.do_syntax_highlight(self.content,self.config)
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
         try:

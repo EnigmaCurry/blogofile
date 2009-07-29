@@ -34,8 +34,6 @@ class Writer:
             encoding_errors='replace')
         self.config=config
 
-        #Behavioural settings:
-        self.do_prettify = eval(config.get("blogofile","pretty_html"))
         #Kodos, you rule (http://kodos.sourceforge.net/):
         self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^.*~$)")
         self.dirs_exclude_regex = re.compile(
@@ -169,12 +167,9 @@ class Writer:
                         all_categories=self.all_categories,
                         category_link_names=self.category_link_names)
                     #Syntax highlighting
-                    if eval(self.config.get("syntax-highlighting","enabled")):
-                        html = util.do_syntax_highlight(html,self.config)
-                    #Prettyify the html
-                    if self.do_prettify:
-                        soup = BeautifulSoup.BeautifulSoup(html)
-                        html = soup.prettify()
+                    if self.config.has_section("syntax_highlighting"):
+                        if self.config.get("syntax_highlighting","enabled"):
+                            html = util.do_syntax_highlight(html,self.config)
                     #Write to disk
                     html_file.write(html)
                 else:
@@ -218,10 +213,6 @@ class Writer:
                 archive_links=self.archive_links,
                 all_categories=self.all_categories,
                 category_link_names=self.category_link_names)
-            #Prettify html
-            if self.do_prettify:
-                soup = BeautifulSoup.BeautifulSoup(html)
-                html = soup.prettify()
             f.write(html)
             f.close()
             page_num += 1
@@ -261,10 +252,6 @@ class Writer:
                 archive_links=self.archive_links,
                 all_categories=self.all_categories,
                 category_link_names=self.category_link_names)
-            #Prettify html
-            if self.do_prettify:
-                soup = BeautifulSoup.BeautifulSoup(html)
-                html = soup.prettify()
             f = open(os.path.join(path,"index.html"), "w")
             f.write(html)
             f.close()
@@ -329,10 +316,6 @@ class Writer:
                     archive_links=self.archive_links,
                     all_categories=self.all_categories,
                     category_link_names=self.category_link_names)
-                #Prettify html
-                if self.do_prettify:
-                    soup = BeautifulSoup.BeautifulSoup(html)
-                    html = soup.prettify()
                 f.write(html)
                 f.close()
                 #Copy category/1 to category/index.html

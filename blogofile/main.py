@@ -28,7 +28,6 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger('main')
 
-import ConfigParser
 import os
 import sys
 import pygments.formatters
@@ -36,9 +35,7 @@ import pygments.styles
 
 import post
 from writer import Writer
-        
-def parse_config(config_file_path):
-    return config
+import config
 
 def main():
     from optparse import OptionParser
@@ -54,6 +51,10 @@ def main():
                       help="Create a minimal blogofile configuration in the "\
                       "current directory",
                       default=False, action="store_true")
+    parser.add_option("--serve",dest="do_serve",
+                      help="Host the _site dir with the builtin webserver. Don't"\
+                          "use this outside of a firewall!",
+                      metavar="PORT")
     parser.add_option("--include-drafts",dest="include_drafts",
                       default=False, action="store_true",
                       help="Writes permapages for drafts "
@@ -77,26 +78,32 @@ def main():
         do_build(options)
     elif options.do_init:
         do_init(options)
+    elif options.do_serve:
+        do_serve(options)
     else:
         parser.print_help()
         sys.exit(1)
 
+def do_serve(options):
+    os.chdir("_site")
+    import SimpleHTTPServer
+    sys.argv = [None, options.do_serve]
+    SimpleHTTPServer.test()
+
 def do_build(options):
     #load config
-    config = ConfigParser.ConfigParser()
-    if os.path.isfile(options.config_file):
-        config.read(options.config_file)
-    else:
+    try:
+        config.init(options.config_file)
+    except config.ConfigNotFoundException:
         print("No configuration found at : {0} ".format(options.config_file))
         print("If you want to make a new site, try --init")
         return
-
     try:
         config.html_formatter = pygments.formatters.HtmlFormatter(
             style=config.get('syntax-highlighting','style'))
-    except ConfigParser.NoSectionError:
+    except config.UnknownConfigSectionException:
         pass
-                   
+    
     posts = post.parse_posts("_posts", config)
     if options.include_drafts:
         drafts = post.parse_posts("_drafts", config)
@@ -104,7 +111,7 @@ def do_build(options):
             p.draft = True
     else:
         drafts = None
-    writer = Writer(output_dir=os.path.join(config_dir,"_site"), config=config)
+    writer = Writer(output_dir="_site", config=config)
     writer.write_blog(posts, drafts)
 
 def do_init(options):
