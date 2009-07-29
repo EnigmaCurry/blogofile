@@ -2,13 +2,13 @@
 ### Blogofile is written by Ryan McGuire (EnigmaCurry.com)
 ################################################################################
 
-Blogofile is released both under an MIT style license as well as to the
-public domain directly. The two methods are virtually identical excepting the
-MIT licence's requirement for copyright and licence republication, which
-simply means they will not be enforced by Ryan McGuire in a legal setting.
+Blogofile is released under an MIT style license. However, this author chooses
+to not enforce any violations of the license. 
 
-Any contributors to Blogofile understand that they relinquish their code to be 
-released under the MIT license as well as to the public domain.
+Any contributors to Blogofile must agree that they relinquish their code to 
+Ryan McGuire to be released under the MIT license with the understanding that 
+he has no intention of enforcing the copyright and permission notice 
+republication requirement.
 
 ################################################################################
 ### MIT License
@@ -35,21 +35,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ################################################################################
-### Public Domain Statement
+### A statement about Free Software
 ################################################################################
 
 I believe in free software. For me, this also means that I do not believe in
 copyrights, trademarks, patents, nor any other government enforced monopoly
-privilege. Accordingly, this software claims none of these privileges and is
-released to the public domain.
+privilege. 
 
 You probably downloaded this software from my website. By doing so, you did not
 first enter into any sort of agreement or contract with me. There were no rules
 established before you downloaded it -- I simply offered the file on my website
-and you simply downloaded it. I am not your master -- it is immoral for me to use
-any (initiated) force against you, including the force of government.
-
-This software is now completely yours to do with as you please.
+and you simply downloaded it. I am not your master -- it is immoral for me to 
+use any (initiated) force against you, including the force of government.
 
 However, I am a human being. I enjoy praise, attribution, and other rewards for
 my work. If you find this software useful, I appreciate comments to that effect.
@@ -59,5 +56,9 @@ software into a product of your own, I like to know about it, and I like being
 mentioned in your product's documentation or website. But again, I am not your
 master -- It is wrong for me to force you to do anything. I can only ask.
 
--- Ryan McGuire, aka "EnigmaCurry"
+I have chosen to release this software under the MIT license for the convenience
+of contributers and users who are accustomed to working with software released
+under traditional open source licenses, but I pledge that I will not pursue any
+legal recourse for violations of the MIT license.
 
+-- Ryan McGuire, aka "EnigmaCurry"
