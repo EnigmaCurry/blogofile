@@ -35,7 +35,7 @@ class Writer:
         self.config=config
 
         #Kodos, you rule (http://kodos.sourceforge.net/):
-        self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^.*~$)")
+        self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^[.*~$])")
         self.dirs_exclude_regex = re.compile(
             "(^\.git)|(^\.hg)|(^\.bzr)|(^\.svn)|(^\CVS)")
         
