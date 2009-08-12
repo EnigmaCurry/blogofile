@@ -8,53 +8,7 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 __date__   = "Tue Jul 28 22:03:21 2009"
 
 import os
-
-__config_py_src = """# This is a minimal Blogofile configuration, showing pretty much just the bare
-# essentials to get Blogofile to compile a blank site. See the Blogofile.com
-# source for a much more fleshed out example site:
-# http://github.com/EnigmaCurry/blogofile.com/tree/master
-
-# This blogofile_config block is the only thing you need for a minimal site:
-
-blogofile_config = {
-    "blog_name" : "Your Blog's Name",
-    "blog_url"  : "http://www.your-blogs-full-url.com/path/to/homepage",
-    "blog_description" : "Your Blog's Description",
-    "timezone"  : "US/Eastern"
-    }
-
-### Note: This file is regular python code, so you can script whatever you want
-### in this file (or even import other files). That said, blogofile is hardcoded
-### to look for specific things in this file, but other than the blogofile_config
-### object, they are all optional.
-###
-### Other objects that blogofile (optionally) looks for:
-###
-###      #Disqus comment integration:
-###      disqus_config = {
-###         "enabled" = True,
-###         "disqus_name" = "your_disqus_account_name"
-###         }
-###
-###      #Syntax Highlighting with Pygments (http://pygments.org/):
-###      syntax_highlighting_config = {
-###         "enabled" = True,
-###         "style" = "murphy"
-###         }
-###
-### Blogofile can also do things before and after building your _site directory.
-### If either of these two functions are defined in this file, they will
-### automatically be run at the appropriate time.
-###
-###      def pre_build():
-###          #Do whatever you want before the _site is built
-###          pass
-###
-###      def post_build():
-###          #Do whatever you want after the _site is built
-###          pass
-###
-"""
+import config
 
 __base_mako = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -102,12 +56,12 @@ __site_mako = """<%inherit file="base.mako" />
 </%def>
 """
 
-__head_mako = """<title>${config.get("blogofile","blog_name")}</title>
+__head_mako = """<title>${config.blog_name}</title>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feed" />
 <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/feed/atom" />
 """
 
-__header_mako = """<h1><a href="/">${config.get('blogofile','blog_name')}</a></h1>
+__header_mako = """<h1><a href="/">${config.blog_name}</a></h1>
 This is a header that goes on every page.
 """
 
@@ -138,9 +92,9 @@ __rss_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import da
      xmlns:wfw="http://wellformedweb.org/CommentAPI/"
      >
   <channel>
-    <title>${config.get("blogofile","blog_name")}</title>
-    <link>${config.get("blogofile","blog_url")}</link>
-    <description>${config.get("blogofile","blog_description")}</description>
+    <title>${config.blog_name}</title>
+    <link>${config.blog_url}</link>
+    <description>${config.blog_description}</description>
     <pubDate>${datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")}</pubDate>
     <generator>Blogofile</generator>
     <sy:updatePeriod>hourly</sy:updatePeriod>
@@ -172,20 +126,20 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
   xmlns:thr="http://purl.org/syndication/thread/1.0"
   xml:lang="en"
    >
-  <title type="text">${config.get("blogofile","blog_name")}</title>
-  <subtitle type="text">${config.get("blogofile","blog_description")}</subtitle>
+  <title type="text">${config.blog_name}</title>
+  <subtitle type="text">${config.blog_description}</subtitle>
 
   <updated>${datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <generator uri="http://blogofile.com/">Blogofile</generator>
 
-  <link rel="alternate" type="text/html" href="${config.get('blogofile','blog_url')}" />
-  <id>${config.get("blogofile","blog_url")}/feed/atom/</id>
-  <link rel="self" type="application/atom+xml" href="${config.get('blogofile','blog_url')}/feed/atom/" />
+  <link rel="alternate" type="text/html" href="${config.blog_url}" />
+  <id>${config.blog_url}/feed/atom/</id>
+  <link rel="self" type="application/atom+xml" href="${config.blog_url}/feed/atom/" />
 % for post in posts[:10]:
   <entry>
     <author>
       <name>${post.author}</name>
-      <uri>${config.get("blogofile","blog_url")}</uri>
+      <uri>${config.blog_url}</uri>
     </author>
     <title type="html"><![CDATA[${post.title}]]></title>
     <link rel="alternate" type="text/html" href="${post.permalink}" />
@@ -193,7 +147,7 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
     <updated>${post.updated.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
     <published>${post.date.strftime("%Y-%m-%dT%H:%M:%SZ")}</published>
 % for category in post.categories:
-    <category scheme="${config.get('blogofile','blog_url')}" term="${category}" />
+    <category scheme="${config.blog_url}" term="${category}" />
 % endfor
     <summary type="html"><![CDATA[${post.title}]]></summary>
     <content type="html" xml:base="${post.permalink}"><![CDATA[${post.content}]]></content>
@@ -260,7 +214,7 @@ def do_init(options):
         return
     print("Building a minimal blogofile site at : {0}".format(options.config_dir))
     config_f = open("_config.py","w")
-    config_f.write(__config_py_src)
+    config_f.write(config.default_config)
     config_f.close()
     os.mkdir("_templates")
     #Write reusable templates

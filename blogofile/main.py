@@ -30,6 +30,8 @@ logger = logging.getLogger('main')
 
 import os
 import sys
+import shlex
+
 import pygments.formatters
 import pygments.styles
 
@@ -38,7 +40,7 @@ from writer import Writer
 import config
 import skeleton_init
 
-def main():
+def get_options(cmd=None):
     from optparse import OptionParser
     parser = OptionParser(version="Blogofile "+__version__+
                           " -- http://www.blogofile.com")
@@ -60,12 +62,20 @@ def main():
                       default=False, action="store_true",
                       help="Writes permapages for drafts "
                       "(but not in feeds or chronlogical blog)")
-    parser.add_option("--debug",dest="debug",default=False,
+    parser.add_option("-v","--verbose",dest="verbose",default=False,
                       action="store_true",
-                      help="Enable extra debugging in log")
-    (options, args) = parser.parse_args()
+                      help="Enable extra verboseness")
+    if not cmd:
+        (options, args) = parser.parse_args()
+    else:
+        args = shlex.split(cmd)
+        (options, args) = parser.parse_args(args)
+    return (parser, options, args)
 
-    if options.debug:
+def main(cmd=None):
+    (parser, options, args) = get_options(cmd)
+    
+    if options.verbose:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting DEBUG mode")
 
@@ -99,24 +109,20 @@ def do_build(options):
         print("No configuration found at : {0} ".format(options.config_file))
         print("If you want to make a new site, try --init")
         return
-    try:
-        config.html_formatter = pygments.formatters.HtmlFormatter(
-            style=config.get('syntax-highlighting','style'))
-    except config.UnknownConfigSectionException:
-        pass
+
     logger.info("Running user's pre_build() function..")
-    config.do_pre_build()
-    posts = post.parse_posts("_posts", config)
+    config.pre_build()
+    posts = post.parse_posts("_posts")
     if options.include_drafts:
         drafts = post.parse_posts("_drafts", config)
         for p in drafts:
             p.draft = True
     else:
         drafts = None
-    writer = Writer(output_dir="_site", config=config)
+    writer = Writer(output_dir="_site")
     writer.write_blog(posts, drafts)
     logger.info("Running user's post_build() function..")
-    config.do_post_build()
+    config.post_build()
 
 def do_init(options):
     skeleton_init.do_init(options)

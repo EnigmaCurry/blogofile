@@ -5,6 +5,8 @@ import pygments.formatters
 import pygments.lexers
 import pygments.util
 
+import config
+
 html_escape_table = {
     "&": "&amp;",
     '"': "&quot;",
@@ -75,3 +77,9 @@ def do_syntax_highlight(content,config):
             break
     return content
     
+def should_ignore_path(path):
+    """See if a given path matches the ignore patterns"""
+    for p in config.compiled_ignore_patterns:
+        if p.match(path):
+            return True
+    return False

@@ -21,9 +21,10 @@ import BeautifulSoup
 
 from main import logger
 import util
+import config
 
 class Writer:
-    def __init__(self, output_dir, config):
+    def __init__(self, output_dir):
         #Base templates are templates (usually in ./_templates) that are only
         #referenced by other templates.
         self.base_template_dir = os.path.join(".","_templates")
@@ -32,13 +33,7 @@ class Writer:
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
             encoding_errors='replace')
-        self.config=config
 
-        #Kodos, you rule (http://kodos.sourceforge.net/):
-        self.files_exclude_regex = re.compile("(^_.*)|(^#.*)|(^[.*~$])")
-        self.dirs_exclude_regex = re.compile(
-            "(^\.git)|(^\.hg)|(^\.bzr)|(^\.svn)|(^\CVS)")
-        
     def write_blog(self, posts, drafts=None):
         self.archive_links = self.__get_archive_links(posts)
         self.all_categories = self.__get_all_categories(posts)
@@ -87,7 +82,7 @@ class Writer:
         root = root.lstrip("/")
         feed_template = self.template_lookup.get_template(template)
         feed_template.output_encoding = "utf-8"
-        xml = feed_template.render(posts=posts,root=root,config=self.config)
+        xml = feed_template.render(posts=posts,root=root,config=config)
         try:
             os.makedirs(os.path.join(self.output_dir,root))
         except OSError:
@@ -138,23 +133,25 @@ class Writer:
                 root = root[2:]
             for d in list(dirs):
                 #Exclude some dirs
-                if d.startswith("_"):
-                    dirs.remove(d)
-                if self.dirs_exclude_regex.match(d):
+                d_path = os.path.join(root,d)
+                if util.should_ignore_path(d_path):
+                    logger.info("Ignoring directory : "+d_path)
                     dirs.remove(d)
             try:
                 os.makedirs(os.path.join(self.output_dir, root))
             except OSError:
                 pass
             for t_fn in files:
-                if self.files_exclude_regex.match(t_fn):
+                t_fn_path = os.path.join(root,t_fn)
+                if util.should_ignore_path(t_fn_path):
                     #Ignore this file.
+                    logger.info("Ignoring file : "+t_fn_path)
                     continue
                 elif t_fn.endswith(".mako"):
-                    logger.info("Processing mako file: %s"%t_fn)
+                    logger.info("Processing mako file: "+t_fn_path)
                     #Process this template file
                     t_name = t_fn[:-5]
-                    t_file = open(os.path.join(root, t_fn))
+                    t_file = open(t_fn_path)
                     template = Template(t_file.read().decode("utf-8"), output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     t_file.close()
@@ -162,19 +159,19 @@ class Writer:
                     html_file = open(path,"w")
                     html = template.render(
                         posts=posts,
-                        config=self.config,
+                        config=config,
                         archive_links=self.archive_links,
                         all_categories=self.all_categories,
                         category_link_names=self.category_link_names)
                     #Syntax highlighting
-                    if self.config.has_section("syntax_highlighting"):
-                        if self.config.get("syntax_highlighting","enabled"):
-                            html = util.do_syntax_highlight(html,self.config)
+                    if config.syntax_highlight_enabled:
+                        html = util.do_syntax_highlight(html,config)
                     #Write to disk
                     html_file.write(html)
                 else:
                     #Copy this non-template file
                     f_path = os.path.join(root, t_fn)
+                    logger.info("Copying file : "+f_path)
                     shutil.copyfile(f_path,os.path.join(self.output_dir,f_path))
 
     def __write_blog_chron(self, posts, num_per_page=5, root="/page"):
@@ -209,7 +206,7 @@ class Writer:
                 posts=page_posts,
                 next_link=next_link,
                 prev_link=prev_link,
-                config=self.config,
+                config=config,
                 archive_links=self.archive_links,
                 all_categories=self.all_categories,
                 category_link_names=self.category_link_names)
@@ -248,7 +245,7 @@ class Writer:
             html = perma_template.render(
                 post=post,
                 posts=posts,
-                config=self.config,
+                config=config,
                 archive_links=self.archive_links,
                 all_categories=self.all_categories,
                 category_link_names=self.category_link_names)
@@ -262,9 +259,9 @@ class Writer:
             os.makedirs(css_dir)
         except OSError:
             pass
-        if self.config.has_section("syntax_highlighting"):
+        if config.syntax_highlight_enabled:
             f = open(os.path.join(css_dir,"pygments.css"),"w")
-            f.write(self.config.html_formatter.get_style_defs(".highlight"))
+            f.write(config.html_formatter.get_style_defs(".highlight"))
             f.close()
 
     def __write_blog_categories(self, posts, root="/category",
@@ -313,7 +310,7 @@ class Writer:
                     posts=page_posts,
                     prev_link=prev_link,
                     next_link=next_link,
-                    config=self.config,
+                    config=config,
                     archive_links=self.archive_links,
                     all_categories=self.all_categories,
                     category_link_names=self.category_link_names)

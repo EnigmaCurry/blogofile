@@ -21,6 +21,7 @@ import markdown
 import logging
 
 from main import logger
+import config
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
@@ -58,13 +59,12 @@ class Post:
     >>> p.permalink
     u'/2008/10/20/first-post'
     """
-    def __init__(self, source, config):
+    def __init__(self, source):
         self.source     = source
-        self.config     = config
         self.yaml       = yaml
         self.title      = u"Untitled - " + datetime.datetime.now().strftime(
             "%Y/%m/%d %H:%M:%S")
-        self.__timezone = config.get("blogofile","timezone")
+        self.__timezone = config.blog_timezone
         self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
         self.updated    = self.date
         self.categories = set([u'Uncategorized'])
@@ -103,9 +103,8 @@ class Post:
             raise PostFormatException("Post format '%s' not recognized." %
                                       self.format)
         #Do syntax highlighting of <pre> tags
-        if self.config.has_section("syntax_highlighting"):
-            if self.config.get("syntax_highlighting","enabled"):
-                self.content = util.do_syntax_highlight(self.content,self.config)
+        if config.syntax_highlight_enabled:
+            self.content = util.do_syntax_highlight(self.content,config)
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
         try:
@@ -148,7 +147,7 @@ class Post:
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
 
-def parse_posts(directory, config):
+def parse_posts(directory):
     """Retrieve all the posts from the directory specified.
 
     Returns a list of the posts sorted in reverse by date."""
@@ -160,7 +159,7 @@ def parse_posts(directory, config):
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
         src = open(post_path).read()
-        p = Post(src, config)
+        p = Post(src)
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)
