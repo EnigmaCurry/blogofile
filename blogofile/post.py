@@ -122,9 +122,13 @@ class Post:
         if len(self.excerpt) == 0:
              """Retrieve excerpt from article"""
              s = BeautifulSoup.BeautifulSoup(self.content)
+             # get rid of javascript, noscript and css
+             [[tree.extract() for tree in s(elem)] for elem in ('script','noscript','style')]
+             # get rid of doctype
+             subtree = s.findAll(text=re.compile("DOCTYPE|xml"))
+             [tree.extract() for tree in subtree]
              # remove headers
-             [[tree.extract() for tree in s(elem)] for elem in \
-                  ('h1','h2','h3','h4','h5','h6')]
+             [[tree.extract() for tree in s(elem)] for elem in ('h1','h2','h3','h4','h5','h6')]
              text = ''.join(s.findAll(text=True))\
                                  .replace("\n","").split(" ")
              return " ".join(text[:num_words]) + '...'
