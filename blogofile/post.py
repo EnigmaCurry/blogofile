@@ -19,6 +19,7 @@ import yaml
 import textile
 import markdown
 import logging
+import BeautifulSoup
 
 from main import logger
 import config
@@ -71,6 +72,7 @@ class Post:
         self.tags       = set()
         self.permalink  = None
         self.content    = u""
+        self.excerpt    = u""
         self.format     = "html"
         self.author     = ""
         self.guid       = None #Default guid is permalink
@@ -105,6 +107,28 @@ class Post:
         #Do syntax highlighting of <pre> tags
         if config.syntax_highlight_enabled:
             self.content = util.do_syntax_highlight(self.content,config)
+        #Do post excerpting
+        if config.post_excerpt_enabled:
+            try:
+                self.excerpt = config.post_excerpt(
+                    self.content,config.post_excerpt_word_length)
+            except AttributeError:
+                self.excerpt = self.__excerpt(config.post_excerpt_word_length)
+                
+    def __excerpt(self, num_words=50):
+        #Default post excerpting function
+        #Can be overridden in _config.py by
+        #defining post_excerpt(content,num_words)
+        if len(self.excerpt) == 0:
+             """Retrieve excerpt from article"""
+             s = BeautifulSoup.BeautifulSoup(self.content)
+             # remove headers
+             [[tree.extract() for tree in s(elem)] for elem in \
+                  ('h1','h2','h3','h4','h5','h6')]
+             text = ''.join(s.findAll(text=True))\
+                                 .replace("\n","").split(" ")
+             return " ".join(text[:num_words]) + '...'
+        
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
         try:

@@ -84,7 +84,7 @@ class Writer:
         feed_template.output_encoding = "utf-8"
         xml = feed_template.render(posts=posts,root=root,config=config)
         try:
-            os.makedirs(os.path.join(self.output_dir,root))
+            util.mkdir(os.path.join(self.output_dir,root))
         except OSError:
             pass
         f = open(os.path.join(self.output_dir,root,"index.xml"),"w")
@@ -107,7 +107,7 @@ class Writer:
         # retain it's same inode on the filesystem to be compatible with some
         # HTTP servers. So this just deletes the *contents* of output_dir
         try:
-            os.makedirs(self.output_dir)
+            util.mkdir(self.output_dir)
         except OSError:
             pass
         for f in os.listdir(self.output_dir):
@@ -138,7 +138,7 @@ class Writer:
                     logger.info("Ignoring directory : "+d_path)
                     dirs.remove(d)
             try:
-                os.makedirs(os.path.join(self.output_dir, root))
+                util.mkdir(os.path.join(self.output_dir, root))
             except OSError:
                 pass
             for t_fn in files:
@@ -199,7 +199,7 @@ class Writer:
             else:
                 next_link = None
             page_dir = os.path.join(self.output_dir,root,str(page_num))
-            os.makedirs(page_dir)
+            util.mkdir(page_dir)
             fn = os.path.join(page_dir,"index.html")
             f = open(fn,"w")
             html = chron_template.render(
@@ -239,7 +239,7 @@ class Writer:
                 #Permalinks MUST be specified. No permalink, no page.
                 continue
             try:
-                os.makedirs(path)
+                util.mkdir(path)
             except OSError:
                 pass
             html = perma_template.render(
@@ -256,7 +256,7 @@ class Writer:
     def __write_pygments_css(self):
         css_dir = os.path.join(self.output_dir, "css")
         try:
-            os.makedirs(css_dir)
+            util.mkdir(css_dir)
         except OSError:
             pass
         if config.syntax_highlight_enabled:
@@ -289,7 +289,7 @@ class Writer:
                 path = os.path.join(self.output_dir,root,category_link_name,
                                     str(page_num),"index.html")
                 try:
-                    os.makedirs(os.path.split(path)[0])
+                    util.mkdir(os.path.split(path)[0])
                 except OSError:
                     pass
                 f = open(path, "w")
