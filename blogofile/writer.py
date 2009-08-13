@@ -165,6 +165,7 @@ class Writer:
                         archive_links=self.archive_links,
                         all_categories=self.all_categories,
                         category_link_names=self.category_link_names)
+                    
                     #Syntax highlighting
                     if config.syntax_highlight_enabled:
                         html = util.do_syntax_highlight(html,config)

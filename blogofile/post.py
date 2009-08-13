@@ -149,6 +149,8 @@ class Post:
             import uuid
             self.permalink = re.sub(":uuid",  str(uuid.uuid4()), self.permalink)
             self.permalink = self.permalink.lower()
+            
+            self.path = urlparse.urlparse(self.permalink).path
                 
     def __excerpt(self, num_words=50):
         #Default post excerpting function

@@ -129,7 +129,7 @@ def __post_load_tasks():
         global html_formatter
         import pygments
         html_formatter = pygments.formatters.HtmlFormatter(
-            style=syntax_highlight_style)
+            style=syntax_highlight_style, encoding='utf-8')
     #Compile ignore_patterns
     import re
     global compiled_ignore_patterns
