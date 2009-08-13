@@ -81,7 +81,7 @@ def main(cmd=None):
 
     options.config_dir = os.path.split(os.path.abspath(options.config_file))[0]
     if not os.path.isdir(options.config_dir):
-        print("config dir does not exist : {0}".format(options.config_dir))
+        print("config dir does not exist : %s" % options.config_dir)
         sys.exit(1)
     os.chdir(options.config_dir)
     
@@ -106,7 +106,7 @@ def do_build(options):
     try:
         config.init(options.config_file)
     except config.ConfigNotFoundException:
-        print("No configuration found at : {0} ".format(options.config_file))
+        print("No configuration found at : %s" % options.config_file)
         print("If you want to make a new site, try --init")
         return
 
