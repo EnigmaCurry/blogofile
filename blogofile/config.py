@@ -40,6 +40,8 @@ blog_url         = "http://www.your-blogs-full-url.com/path/to/blog"
 blog_description = "Your Blog's short description"
 #The timezone that you normally write your blog posts from
 blog_timezone    = "US/Eastern"
+#Blog posts per page
+blog_posts_per_page = 5
 
 ######################################################################
 # Intermediate Settings
@@ -54,14 +56,28 @@ syntax_highlight_enabled = True
 # or, make your own: http://pygments.org/docs/styles
 syntax_highlight_style   = "murphy"
 
-#Post excerpts
-#If you want to generate excerpts of your posts in addition to the
-#full post content turn this feature on
+#### Custom blog index ####
+# If you want to create your own index page at your blog root
+# turn this on. Otherwise blogofile assumes you want the
+# first X posts displayed instead
+blog_custom_index = False
+
+#### Post excerpts ####
+# If you want to generate excerpts of your posts in addition to the
+# full post content turn this feature on
 post_excerpt_enabled     = True
 post_excerpt_word_length = 25
 #Also, if you don't like the way the post excerpt is generated
 #You can define a new function
 #below called post_excerpt(content, num_words)
+
+#### Blog pagination directory ####
+# blogofile places extra pages of your blog or category in
+# a secondary directory like the following:
+# http://www.yourblog.com/blog_root/page/4
+# http://www.yourblog.com/blog_root/category_1/page/4
+# You can rename the "page" part here:
+blog_pagination_dir = "page"
 
 ######################################################################
 # Advanced Settings
@@ -106,22 +122,30 @@ def __post_load_tasks():
             compiled_ignore_patterns.append(re.compile(p,re.IGNORECASE))
         else:
             compiled_ignore_patterns.append(p)
+    #Calculate the absoulte blog path (ie, minus the domain)
+    global blog_path
+    from urlparse import urlparse
+    blog_path = urlparse(blog_url).path
             
-def __load_config():
+def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.
     #This will make sure that we have good default values if the user's
     #config is missing something.
     exec(default_config)
-    execfile(__path)
+    if path:
+        execfile(path)
     #config is now in locals() but needs to be in globals()
     for k,v in locals().items():
         globals()[k] = v
     __post_load_tasks()
     __loaded = True
     
-def init(config_file_path):
-    if not os.path.isfile(config_file_path):
-        raise ConfigNotFoundException
-    global __path
-    __path = config_file_path
-    __load_config()
+def init(config_file_path=None):
+    #Initialize the config, if config_file_path is None,
+    #just load the default config
+    if config_file_path:
+        if not os.path.isfile(config_file_path):
+            raise ConfigNotFoundException
+        __load_config(config_file_path)
+    else:
+        __load_config()

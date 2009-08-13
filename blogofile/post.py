@@ -137,6 +137,7 @@ class Post:
             pass
         try:
             self.permalink = y['permalink']
+            self.path = urlparse.urlparse(self.permalink).path
         except KeyError:
             pass
         try:

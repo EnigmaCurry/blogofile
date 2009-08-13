@@ -104,3 +104,7 @@ def mkdir(newdir):
         if tail:
             os.mkdir(newdir)
                                             
+def get_blog_dir(root):
+    from urlparse import urlparse
+    url_path = urlparse(config.blog_url).path.lstrip("/")
+    return os.path.join(root,url_path)

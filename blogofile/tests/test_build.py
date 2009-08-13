@@ -12,16 +12,20 @@ class TestBuild(unittest.TestCase):
         self.build_path = tempfile.mkdtemp()
         #Change to that directory just like a user would
         os.chdir(self.build_path)
+        #Reinitialize the configuration
+        main.config.init()
     def tearDown(self):
         #go back to the directory we used to be in
         os.chdir(self.previous_dir)
         #Clean up the build directory
         shutil.rmtree(self.build_path)
-    def testBuildDefault(self):
-        """Initialize and build the default site, just doing a cursory look to see if _site was built"""
+    def testBlogSubDir(self):
+        """Test to make sure blogs hosted in subdirectorys off the root work"""
         main.main("--init")
+        main.config.blog_url = "http://www.test.com/path/to/blog"
         main.main("--build")
-        lsdir = os.listdir(os.path.join(self.build_path,"_site"))
-        for fn in ("index.html","feed","category"):
+        lsdir = os.listdir(os.path.join(self.build_path,"_site","path","to","blog"))
+        print "LSDIR: ",lsdir
+        for fn in ("category","page","feed"):
             assert(fn in lsdir)
-    
+        

@@ -29,6 +29,7 @@ class Writer:
         #referenced by other templates.
         self.base_template_dir = os.path.join(".","_templates")
         self.output_dir        = output_dir
+        self.blog_dir          = util.get_blog_dir(output_dir)
         self.template_lookup = TemplateLookup(
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
@@ -41,14 +42,15 @@ class Writer:
             self.all_categories)
         self.__setup_output_dir()
         self.__write_files(posts)
-        self.__write_blog_chron(posts)
+        self.__write_blog_chron(posts, root=config.blog_pagination_dir)
+        self.__write_blog_first_page(posts)
         self.__write_permapage(posts)
         if drafts:
             self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
-        self.__write_feed(posts, "/feed", "rss.mako")
-        self.__write_feed(posts, "/feed/atom", "atom.mako")
+        self.__write_feed(posts, "feed", "rss.mako")
+        self.__write_feed(posts, "feed/atom", "atom.mako")
         self.__write_pygments_css()
         
     def __get_archive_links(self, posts):
@@ -84,10 +86,10 @@ class Writer:
         feed_template.output_encoding = "utf-8"
         xml = feed_template.render(posts=posts,root=root,config=config)
         try:
-            util.mkdir(os.path.join(self.output_dir,root))
+            util.mkdir(os.path.join(self.blog_dir,root))
         except OSError:
             pass
-        f = open(os.path.join(self.output_dir,root,"index.xml"),"w")
+        f = open(os.path.join(self.blog_dir,root,"index.xml"),"w")
         f.write(xml)
         f.close()
     
@@ -174,7 +176,7 @@ class Writer:
                     logger.info("Copying file : "+f_path)
                     shutil.copyfile(f_path,os.path.join(self.output_dir,f_path))
 
-    def __write_blog_chron(self, posts, num_per_page=5, root="/page"):
+    def __write_blog_chron(self, posts, root="page"):
         """Write all the blog posts in reverse chronological order
 
         Writes the first num_per_page posts to /root/1
@@ -188,8 +190,8 @@ class Writer:
         html = []
         while len(posts) > post_num:
             #Write the pages, num_per_page posts per page:
-            page_posts = posts[post_num:post_num+num_per_page]
-            post_num += num_per_page
+            page_posts = posts[post_num:post_num+config.blog_posts_per_page]
+            post_num += config.blog_posts_per_page
             if page_num > 1:
                 prev_link = "../" + str(page_num - 1)
             else:
@@ -198,7 +200,7 @@ class Writer:
                 next_link = "../" + str(page_num + 1)
             else:
                 next_link = None
-            page_dir = os.path.join(self.output_dir,root,str(page_num))
+            page_dir = os.path.join(self.blog_dir,root,str(page_num))
             util.mkdir(page_dir)
             fn = os.path.join(page_dir,"index.html")
             f = open(fn,"w")
@@ -214,6 +216,29 @@ class Writer:
             f.close()
             page_num += 1
         
+    def __write_blog_first_page(self, posts):
+        if not config.blog_custom_index:
+            chron_template = self.template_lookup.get_template("chronological.mako")
+            chron_template.output_encoding = "utf-8"
+            page_posts = posts[:config.blog_posts_per_page]
+            path = os.path.join(self.blog_dir,"index.html")
+            logger.info("Writing blog index page: "+path)
+            f = open(path,"w")
+            if len(posts) > config.blog_posts_per_page:
+                next_link = os.path.join(
+                    self.blog_dir,config.blog_pagination_dir,"2")
+            else:
+                next_link = None
+            html = chron_template.render(
+                posts=page_posts,
+                next_link=next_link,
+                prev_link=None,
+                config=config,
+                archive_links=self.archive_links,
+                all_categories=self.all_categories,
+                category_link_names=self.category_link_names)
+            f.write(html)
+            f.close()          
 
     def __write_monthly_archives(self, posts):
         m = {} # "/%Y/%m" -> [post, post, ... ]
@@ -232,11 +257,12 @@ class Writer:
         perma_template.output_encoding = "utf-8"
         for post in posts:
             if post.permalink:
-                path = os.path.join(self.output_dir,
-                                    urlparse.urlparse(
-                                            post.permalink)[2].lstrip("/"))
+                path = os.path.join(
+                    self.output_dir, urlparse.urlparse(
+                        post.permalink)[2].lstrip("/"))
             else:
                 #Permalinks MUST be specified. No permalink, no page.
+                logger.info("Post has no permalink: "+post.title)
                 continue
             try:
                 util.mkdir(path)
@@ -250,6 +276,7 @@ class Writer:
                 all_categories=self.all_categories,
                 category_link_names=self.category_link_names)
             f = open(os.path.join(path,"index.html"), "w")
+            logger.info("Writing permapage for post: "+path)
             f.write(html)
             f.close()
 
@@ -264,11 +291,10 @@ class Writer:
             f.write(config.html_formatter.get_style_defs(".highlight"))
             f.close()
 
-    def __write_blog_categories(self, posts, root="/category",
+    def __write_blog_categories(self, posts, root="category",
                                 posts_per_page=5):
         """Write all the blog posts in categories"""
-        #TODO: Paginate this.
-        root = root.lstrip("/")
+        root = os.path.join(self.blog_dir,root.lstrip("/"))
         chron_template = self.template_lookup.get_template("chronological.mako")
         chron_template.output_encoding = "utf-8"
         #Find all the categories:
@@ -286,7 +312,7 @@ class Writer:
                     root,category_link_name,"feed","atom"),"atom.mako")
             page_num = 1
             while True:
-                path = os.path.join(self.output_dir,root,category_link_name,
+                path = os.path.join(root,category_link_name,
                                     str(page_num),"index.html")
                 try:
                     util.mkdir(os.path.split(path)[0])
@@ -319,7 +345,7 @@ class Writer:
                 #Copy category/1 to category/index.html
                 if page_num == 1:
                     shutil.copyfile(path,os.path.join(
-                            self.output_dir,root,category_link_name,
+                            root,category_link_name,
                             "index.html"))
                 #Prepare next iteration
                 page_num += 1
