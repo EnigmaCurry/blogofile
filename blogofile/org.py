@@ -33,7 +33,7 @@ class org:
     """
     Convert org file into html
     """
-    def __init__(self, source, config):
+    def __init__(self, source):
         self.source    = source
         return self.__convert()
         
@@ -61,6 +61,8 @@ class org:
         tempFile.write(self.source)
         tempFile.flush()
 
+        #emacs = """/Applications/Emacs.app/Contents/MacOS/Emacs --load=/tmp/htmlize.el --batch --visit=%s --funcall org-export-as-html-batch"""
+
         pname = ""
 
         try:
@@ -69,18 +71,20 @@ class org:
             raise EmacsNotFoundException, "Emacs binary is not defined"
 
         try:
-            pname += " --load=%s" % config.emacs_preload_elisp
+            if config.emacs_preload_elisp:
+                pname += " --load=%s" % config.emacs_preload_elisp
         except AttributeError:
             pass
 
-        pname += " --funcall org-export-as-html-batch --visit=%s"
+        pname += " --batch --visit=%s --funcall org-export-as-html-batch"
+        print pname
         pname = pname % tempFile.name
         logger.info(pname)
 
         status, output = commands.getstatusoutput(pname)
-        logger.debug("Orgfile convering output ===\n %s"%output)
+        logger.debug("Convert output:::\n\t%s"%output)
         if status:
-            raise EmacsNotFoundException, "orgfile converting failed"
+            raise EmacsNotFoundException, "orgfile filter failed"
         
         html = tempFile.name[:-4] + '.html'
         tempFile.close()

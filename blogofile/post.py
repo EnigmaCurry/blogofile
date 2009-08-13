@@ -20,6 +20,7 @@ import textile
 import markdown
 import logging
 import BeautifulSoup
+import org
 
 from main import logger
 import config
@@ -109,9 +110,9 @@ class Post:
                 # if title is not set, extracted '*' head is used for title
                 if not self.title:
                     self.title   = org_info.title
-                    # if categories is not set, extracted "*"'s tag is used for categories
-                    if not org_info.categories:
-                        self.categories = org_info.categories
+                # if categories is not set, extracted "*"'s tag is used for categories
+                if not org_info.categories:
+                    self.categories = org_info.categories
             else:
                 self.content = post_src
         else:
@@ -146,8 +147,8 @@ class Post:
             self.permalink = re.sub(":title",  self.title.replace(' ', '-'), self.permalink)
 
             import uuid
-            self.permalink = re.sub(":uuid",  uuid.uuid4(), self.permalink)
-            self.permalink = self.permaflink.lower()
+            self.permalink = re.sub(":uuid",  str(uuid.uuid4()), self.permalink)
+            self.permalink = self.permalink.lower()
                 
     def __excerpt(self, num_words=50):
         #Default post excerpting function
