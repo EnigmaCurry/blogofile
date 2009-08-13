@@ -125,7 +125,7 @@ def __post_load_tasks():
     #Calculate the absoulte blog path (ie, minus the domain)
     global blog_path
     from urlparse import urlparse
-    blog_path = urlparse(blog_url).path
+    blog_path = "/"+urlparse(blog_url).path
             
 def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.

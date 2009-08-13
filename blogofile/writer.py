@@ -291,10 +291,10 @@ class Writer:
             f.write(config.html_formatter.get_style_defs(".highlight"))
             f.close()
 
-    def __write_blog_categories(self, posts, root="category",
+    def __write_blog_categories(self, posts,
                                 posts_per_page=5):
         """Write all the blog posts in categories"""
-        root = os.path.join(self.blog_dir,root.lstrip("/"))
+        root = os.path.join(self.blog_dir,"category")
         chron_template = self.template_lookup.get_template("chronological.mako")
         chron_template.output_encoding = "utf-8"
         #Find all the categories:
@@ -323,13 +323,17 @@ class Writer:
                 category_posts = category_posts[posts_per_page:]
                 #Forward and back links
                 if page_num > 1:
-                    prev_link = "/%s/%s/%s" % (root, category_link_name,
+                    prev_link = os.path.join(
+                        config.blog_path, "category", category_link_name,
                                                str(page_num - 1))
+                    logger.info("Prev link: "+prev_link)
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
-                    next_link = "/%s/%s/%s" % (root, category_link_name,
+                    next_link = os.path.join(
+                        config.blog_path, "category", category_link_name,
                                                str(page_num + 1))
+                    logger.info("Next link: "+next_link)
                 else:
                     next_link = None
                 html = chron_template.render(
