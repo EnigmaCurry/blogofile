@@ -72,12 +72,18 @@ post_excerpt_word_length = 25
 #below called post_excerpt(content, num_words)
 
 #### Blog pagination directory ####
-# blogofile places extra pages of your blog or category in
+# blogofile places extra pages of your blog in
 # a secondary directory like the following:
 # http://www.yourblog.com/blog_root/page/4
-# http://www.yourblog.com/blog_root/category_1/page/4
 # You can rename the "page" part here:
 blog_pagination_dir = "page"
+
+#### Blog category directory ####
+# blogofile places extra pages of your or categories in
+# a secondary directory like the following:
+# http://www.yourblog.com/blog_root/category/your-topic/4
+# You can rename the "category" part here:
+blog_category_dir = "category"
 
 ######################################################################
 # Advanced Settings

@@ -226,7 +226,7 @@ class Writer:
             f = open(path,"w")
             if len(posts) > config.blog_posts_per_page:
                 next_link = os.path.join(
-                    self.blog_dir,config.blog_pagination_dir,"2")
+                    config.blog_path,config.blog_pagination_dir,"2")
             else:
                 next_link = None
             html = chron_template.render(
@@ -294,7 +294,7 @@ class Writer:
     def __write_blog_categories(self, posts,
                                 posts_per_page=5):
         """Write all the blog posts in categories"""
-        root = os.path.join(self.blog_dir,"category")
+        root = os.path.join(self.blog_dir,config.blog_category_dir)
         chron_template = self.template_lookup.get_template("chronological.mako")
         chron_template.output_encoding = "utf-8"
         #Find all the categories:
@@ -324,14 +324,14 @@ class Writer:
                 #Forward and back links
                 if page_num > 1:
                     prev_link = os.path.join(
-                        config.blog_path, "category", category_link_name,
+                        config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num - 1))
                     logger.info("Prev link: "+prev_link)
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
                     next_link = os.path.join(
-                        config.blog_path, "category", category_link_name,
+                        config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num + 1))
                     logger.info("Next link: "+next_link)
                 else:
