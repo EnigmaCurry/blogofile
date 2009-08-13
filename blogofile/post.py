@@ -218,8 +218,7 @@ def parse_posts(directory):
 
     Returns a list of the posts sorted in reverse by date."""
     posts = []
-    # post_filename_re = re.compile(".*((\.textile$)|(\.markdown$)|(\.html$))")
-    post_filename_re = re.compile(".*(\.org$)")
+    post_filename_re = re.compile(".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$))")
     post_file_names = [f for f in os.listdir(directory) \
                            if post_filename_re.match(f)]
     for post_fn in post_file_names:
