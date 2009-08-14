@@ -32,6 +32,8 @@ default_config = """############################################################
 # Basic Settings
 #  (almost all sites will want to configure these settings)
 ######################################################################
+#Blog enabled. (You don't _have_ to use blogofile to build blogs)
+blog_enabled = True
 #Your Blog's name. This is used repeatedly in default blog templates
 blog_name        = "Your Blog's Name"
 #Your Blog's full URL

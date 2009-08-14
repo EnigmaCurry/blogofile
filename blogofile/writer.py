@@ -35,7 +35,11 @@ class Writer:
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
             encoding_errors='replace')
-
+        
+    def write_site(self):
+        self.__setup_output_dir()
+        self.__write_files()
+        
     def write_blog(self, posts, drafts=None):
         self.archive_links = self.__get_archive_links(posts)
         self.all_categories = self.__get_all_categories(posts)
