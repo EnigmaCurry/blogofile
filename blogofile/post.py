@@ -230,7 +230,7 @@ def parse_posts(directory):
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
         src = open(post_path).read()
-        p = Post(src, filename=os.path.splitext(post_path)[0], format=os.path.splitext(post_path)[1][1:])
+        p = Post(src, filename=os.path.splitext(post_fn)[0], format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)
