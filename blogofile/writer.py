@@ -25,6 +25,7 @@ import config
 
 class Writer:
     def __init__(self, output_dir):
+        self.config = config
         #Base templates are templates (usually in ./_templates) that are only
         #referenced by other templates.
         self.base_template_dir = os.path.join(".","_templates")
@@ -84,7 +85,7 @@ class Writer:
         root = root.lstrip("/")
         feed_template = self.template_lookup.get_template(template)
         feed_template.output_encoding = "utf-8"
-        xml = feed_template.render(posts=posts,root=root,config=config)
+        xml = self.__template_render(feed_template,{"posts":posts,"root":root})
         try:
             util.mkdir(os.path.join(self.blog_dir,root))
         except OSError:
@@ -123,7 +124,7 @@ class Writer:
             except OSError:
                 pass
             
-    def __write_files(self, posts):
+    def __write_files(self, posts=None):
         """Write all files for the blog to _site
 
         Convert all templates to straight HTML
@@ -159,12 +160,7 @@ class Writer:
                     t_file.close()
                     path = os.path.join(self.output_dir,root,t_name)
                     html_file = open(path,"w")
-                    html = template.render(
-                        posts=posts,
-                        config=config,
-                        archive_links=self.archive_links,
-                        all_categories=self.all_categories,
-                        category_link_names=self.category_link_names)
+                    html = self.__template_render(template)
                     #Syntax highlighting
                     if config.syntax_highlight_enabled:
                         html = util.do_syntax_highlight(html,config)
@@ -204,14 +200,11 @@ class Writer:
             util.mkdir(page_dir)
             fn = os.path.join(page_dir,"index.html")
             f = open(fn,"w")
-            html = chron_template.render(
-                posts=page_posts,
-                next_link=next_link,
-                prev_link=prev_link,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                chron_template,
+                { "posts":page_posts,
+                  "next_link":next_link,
+                  "prev_link":prev_link })
             f.write(html)
             f.close()
             page_num += 1
@@ -229,14 +222,11 @@ class Writer:
                     config.blog_path,config.blog_pagination_dir,"2")
             else:
                 next_link = None
-            html = chron_template.render(
-                posts=page_posts,
-                next_link=next_link,
-                prev_link=None,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                chron_template,
+                { "posts": page_posts,
+                  "next_link": next_link,
+                  "prev_link": None })
             f.write(html)
             f.close()          
 
@@ -268,13 +258,10 @@ class Writer:
                 util.mkdir(path)
             except OSError:
                 pass
-            html = perma_template.render(
-                post=post,
-                posts=posts,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                perma_template,
+                { "post": post,
+                  "posts": posts })
             f = open(os.path.join(path,"index.html"), "w")
             logger.info("Writing permapage for post: "+path)
             f.write(html)
@@ -336,14 +323,11 @@ class Writer:
                     logger.info("Next link: "+next_link)
                 else:
                     next_link = None
-                html = chron_template.render(
-                    posts=page_posts,
-                    prev_link=prev_link,
-                    next_link=next_link,
-                    config=config,
-                    archive_links=self.archive_links,
-                    all_categories=self.all_categories,
-                    category_link_names=self.category_link_names)
+                html = self.__template_render(
+                    chron_template,
+                    { "posts": page_posts,
+                      "prev_link": prev_link,
+                      "next_link": next_link })
                 f.write(html)
                 f.close()
                 #Copy category/1 to category/index.html
@@ -356,3 +340,8 @@ class Writer:
                 if len(category_posts) == 0:
                     break
 
+    def __template_render(self, template, attrs={}):
+        for k,v in self.__dict__.items():
+            attrs[k] = v
+        return template.render(**attrs)
+    
