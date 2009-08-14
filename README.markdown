@@ -2,9 +2,7 @@ Blogofile is a simple blog engine that requires no database and no special hosti
 
 See the [main blogofile website](http://www.blogofile.com) for usage instructions.
 
-* * * * *
-
-# Changelog
+# Org Branch Changelog
 
 - Org branch : support orgmode of emacs as markup language
   - Todo : latex fragment, image, syntax highligting
