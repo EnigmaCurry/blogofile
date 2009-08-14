@@ -160,12 +160,13 @@ class Writer:
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(t_fn_path)
-                    template = Template(t_file.read().decode("utf-8"), output_encoding="utf-8",
+                    template = Template(t_file.read().decode("utf-8"),
+                                        output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     t_file.close()
                     path = os.path.join(self.output_dir,root,t_name)
                     html_file = open(path,"w")
-                    html = self.__template_render(template)
+                    html = self.__template_render(template,{"posts":posts})
                     #Syntax highlighting
                     if config.syntax_highlight_enabled:
                         html = util.do_syntax_highlight(html,config)
