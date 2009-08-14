@@ -54,8 +54,9 @@ class Writer:
             self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
-        self.__write_feed(posts, "feed", "rss.mako")
-        self.__write_feed(posts, "feed/atom", "atom.mako")
+        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed"), "rss.mako")
+        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed","atom"),
+                          "atom.mako")
         self.__write_pygments_css()
         
     def __get_archive_links(self, posts):
@@ -63,8 +64,7 @@ class Writer:
         """
         d = {} #(link, name) -> number that month
         for post in posts:
-            link = post.date.strftime(os.path.join(config.blog_path,"/%Y/%m/1"))
-            logger.info("Archive Link: "+link)
+            link = post.date.strftime(os.path.join(config.blog_path,"/archive/%Y/%m/1"))
             name = post.date.strftime("%B %Y")
             try:
                 d[(link, name)] += 1
@@ -92,7 +92,7 @@ class Writer:
         feed_template.output_encoding = "utf-8"
         xml = self.__template_render(feed_template,{"posts":posts,"root":root})
         try:
-            util.mkdir(os.path.join(self.blog_dir,root))
+            util.mkdir(os.path.join(self.output_dir,root))
         except OSError:
             pass
         d = os.path.join(self.output_dir,root)
@@ -241,9 +241,9 @@ class Writer:
             f.close()          
 
     def __write_monthly_archives(self, posts):
-        m = {} # "/%Y/%m" -> [post, post, ... ]
+        m = {} # "/archive/%Y/%m" -> [post, post, ... ]
         for post in posts:
-            link = post.date.strftime("/%Y/%m")
+            link = post.date.strftime("/archive/%Y/%m")
             try:
                 m[link].append(post)
             except KeyError:

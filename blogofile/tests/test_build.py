@@ -34,7 +34,10 @@ class TestBuild(unittest.TestCase):
         main.main("--build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
-                         "to","blog","2009","07","1"))
+                         "to","blog","2009","07","23","post-one"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","2009","07","23","post-two"))
     def testCategoryPages(self):
         """Test that permapages are written"""
         main.main("--init")
