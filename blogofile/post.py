@@ -74,7 +74,7 @@ class Post:
         self.content    = u""
         self.excerpt    = u""
         self.format     = format
-        self.finename   = filename
+        self.filename   = filename
         self.author     = ""
         self.guid       = None #Default guid is permalink
         self.draft      = False
