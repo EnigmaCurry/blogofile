@@ -118,12 +118,20 @@ class org:
         soup = BeautifulSoup(content.decode('utf-8'))
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
-        if soup.h2.span.findAll(text=True) != None:
-            self.categories = set(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;'))
-        else:
-            self.categories = None
+        try:
+            if soup.h2.span != None:
+                if soup.h2.span.findAll(text=True):
+                    self.categories = set(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;'))
+                else:
+                    self.categories = None
+            else:
+                self.categories = None
         
+        except AttributeError:
+            pass
+
         soup.body.div.h2.extract()  # delete h2 section (title and category)
+        
         self.content = soup.body.div.prettify()
         
 if __name__ == '__main__':
