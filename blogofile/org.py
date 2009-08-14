@@ -39,7 +39,7 @@ class org:
         
     def __convert(self):
         """
-        Convert org file into html file
+        Class to Convert org file into html file
 
         It composes org-content with source, preamble, and postample.
         Launches emacs and convert the org-content into html file.
@@ -51,6 +51,30 @@ class org:
         self.title    = title (which is first '*' in org-file)
         self.category = categories (which is tags in first '*' in org-file)
         self.date     = date (which is scheduled file?)
+
+    >>> src = '''
+    ... ---
+    ... * Title                                 :emacs:blog:
+    ... some text
+    ... ** First section
+    ... some more text
+    ... ** Second section
+    ... 
+    ... This is *bold* /italics/ _underline_ [[http://emacs.org][Emacs]]
+    ...
+    ... | name   | qty |
+    ... | apple  | 5   |
+    ... | banana | 10  |
+    ... '''
+    >>> p = Org(src)
+    >>> p.title
+    u'Title'
+    >>> p.categories == set([u'emacs',u'blog'])
+    True
+    # >>> p.date
+    # datetime.datetime(2008, 10, 20, 0, 0)
+    # >>> p.permalink
+    # u'/2008/10/20/first-post'
         """
         tempFile = tempfile.NamedTemporaryFile(suffix='.org')
         try:
@@ -70,13 +94,14 @@ class org:
         except AttributeError:
             raise EmacsNotFoundException, "Emacs binary is not defined"
 
+        pname += " --batch"
         try:
             if config.emacs_preload_elisp:
                 pname += " --load=%s" % config.emacs_preload_elisp
         except AttributeError:
             pass
 
-        pname += " --batch --visit=%s --funcall org-export-as-html-batch"
+        pname += " --visit=%s --funcall org-export-as-html-batch"
         print pname
         pname = pname % tempFile.name
         logger.info(pname)

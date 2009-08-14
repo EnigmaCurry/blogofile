@@ -146,8 +146,9 @@ class Post:
             self.permalink = re.sub(":day",  self.date.strftime("%d"), self.permalink)
             self.permalink = re.sub(":title",  self.title.replace(' ', '-'), self.permalink)
 
-            import uuid
-            self.permalink = re.sub(":uuid",  str(uuid.uuid4()), self.permalink)
+            import sha
+            # Generate sha hash based on title
+            self.permalink = re.sub(":uuid",  sha.sha(self.title.encode('utf-8')).hexdigest(), self.permalink)
             self.permalink = self.permalink.lower()
             
             self.path = urlparse.urlparse(self.permalink).path
