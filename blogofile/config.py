@@ -45,7 +45,7 @@ blog_posts_per_page = 5
 #If permalink is not defined in post article, this value is used
 # :year, :month, :day -> post's date
 # :title              -> post's title
-# :uuid               -> universally unique identifier(random)
+# :uuid               -> sha hash based on title
 permalink        = "/blog/:uuid"
 
 ######################################################################
@@ -57,8 +57,9 @@ disqus_name    = "blogofile"
 
 #### Emacs org-mode Converter ####
 orgmode_enabled = True
+# emacs binary (orgmode must be installed)
 emacs_binary    = "/usr/bin/emacs"               # emacs 22 or 23 is recommended
-emacs_preload_elisp = ""                         # preloaded elisp file
+emacs_preload_elisp = "_emacs/setup.el"          # preloaded elisp file
 orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added in preamble
 
 #### Blog post syntax highlighting ####

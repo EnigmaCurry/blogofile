@@ -208,6 +208,11 @@ title: Post 2
 ---
 This is post #2"""
 
+__setup_el = """
+(require 'org)
+(add-to-list 'auto-mode-alist '("\\.\\(org\\)$" . org-mode))
+"""
+
 def do_init(options):
     if len(os.listdir(options.config_dir)) > 0 :
         print("This directory is not empty, will not attempt to initialize here : %s" % format(options.config_dir))
@@ -259,5 +264,10 @@ def do_init(options):
     p.close()
     p = open(os.path.join("_posts","002 - post #2.markdown"),"w")
     p.write(__post_2)
+    p.close()
+    #Write orgmode template
+    os.mkdir("_emacs")
+    p = open(os.path.join("_emacs","setup.el"),"w")
+    p.write(_setup_el)
     p.close()
     print("This is a stub, this isn't complete yet.")
