@@ -25,8 +25,6 @@ logging.getLogger("org").setLevel(logging.DEBUG)
 class EmacsNotFoundException(Exception):
     pass
 
-# emacs = """/Applications/Emacs.app/Contents/MacOS/Emacs --load=/tmp/htmlize.el --batch --visit=%s --funcall org-export-as-html-batch"""
-
 import util
 
 class org:
@@ -85,8 +83,6 @@ class org:
             pass
         tempFile.write(self.source)
         tempFile.flush()
-
-        #emacs = """/Applications/Emacs.app/Contents/MacOS/Emacs --load=/tmp/htmlize.el --batch --visit=%s --funcall org-export-as-html-batch"""
 
         pname = ""
 
