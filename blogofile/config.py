@@ -48,7 +48,8 @@ blog_posts_per_page = 5
 # :year, :month, :day -> post's date
 # :title              -> post's title
 # :uuid               -> sha hash based on title
-permalink        = "/blog/:uuid"
+# :filename           -> article's filename without suffix
+permalink        = "/blog/:filename"
 
 ######################################################################
 # Intermediate Settings

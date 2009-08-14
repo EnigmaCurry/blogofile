@@ -61,7 +61,7 @@ class Post:
     >>> p.permalink
     u'/2008/10/20/first-post'
     """
-    def __init__(self, source, format="html"):
+    def __init__(self, source, filename='unnamed', format="html"):
         self.source     = source
         self.yaml       = yaml
         self.title      = None
@@ -74,6 +74,7 @@ class Post:
         self.content    = u""
         self.excerpt    = u""
         self.format     = format
+        self.finename   = filename
         self.author     = ""
         self.guid       = None #Default guid is permalink
         self.draft      = False
@@ -146,10 +147,13 @@ class Post:
             self.permalink = re.sub(":day",  self.date.strftime("%d"), self.permalink)
             self.permalink = re.sub(":title",  self.title.replace(' ', '-'), self.permalink)
 
+            self.permalink = re.sub(":filename",  self.filename.replace(' ', '-'), self.permalink)
+
             import sha
             # Generate sha hash based on title
             self.permalink = re.sub(":uuid",  sha.sha(self.title.encode('utf-8')).hexdigest(), self.permalink)
             self.permalink = self.permalink.lower()
+
             
             self.path = urlparse.urlparse(self.permalink).path
                 
@@ -226,7 +230,7 @@ def parse_posts(directory):
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
         src = open(post_path).read()
-        p = Post(src, format=os.path.splitext(post_path)[1][1:])
+        p = Post(src, filename=os.path.splitext(post_path)[0], format=os.path.splitext(post_path)[1][1:])
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)
