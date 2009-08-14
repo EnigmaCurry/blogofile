@@ -325,14 +325,12 @@ class Writer:
                     prev_link = os.path.join(
                         config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num - 1))
-                    logger.info("Prev link: "+prev_link)
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
                     next_link = os.path.join(
                         config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num + 1))
-                    logger.info("Next link: "+next_link)
                 else:
                     next_link = None
                 html = self.__template_render(
