@@ -134,6 +134,8 @@ def __post_load_tasks():
     global blog_path
     from urlparse import urlparse
     blog_path = "/"+urlparse(blog_url).path.strip("/")
+    if blog_path == "/":
+        blog_path = ""
             
 def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.
