@@ -20,7 +20,7 @@ from BeautifulSoup import BeautifulSoup
 from main import logger
 import config
 
-logging.getLogger("org").setLevel(logging.ERROR)
+logging.getLogger("org").setLevel(logging.DEBUG)
 
 class EmacsNotFoundException(Exception):
     pass
@@ -66,7 +66,8 @@ class org:
     ... | apple  | 5   |
     ... | banana | 10  |
     ... '''
-    >>> p = Org(src)
+    >>> config.emacs_binary = '/usr/bin/emacs'
+    >>> p = org(src)
     >>> p.title
     u'Title'
     >>> p.categories == set([u'emacs',u'blog'])
@@ -102,9 +103,9 @@ class org:
             pass
 
         pname += " --visit=%s --funcall org-export-as-html-batch"
-        print pname
         pname = pname % tempFile.name
         logger.info(pname)
+        print pname
 
         status, output = commands.getstatusoutput(pname)
         logger.debug("Convert output:::\n\t%s"%output)
@@ -123,6 +124,7 @@ class org:
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
         if soup.h2.span != None:
+            print soup.h2.span.string
             self.categories = set(soup.h2.span.string.split('&nbsp;'))
         else:
             self.categories = None

@@ -111,7 +111,7 @@ class Post:
                 if not self.title:
                     self.title   = org_info.title
                 # if categories is not set, extracted "*"'s tag is used for categories
-                if not org_info.categories:
+                if not self.categories:
                     self.categories = org_info.categories
             else:
                 self.content = post_src
