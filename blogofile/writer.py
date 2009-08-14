@@ -95,7 +95,11 @@ class Writer:
             util.mkdir(os.path.join(self.blog_dir,root))
         except OSError:
             pass
-        f = open(os.path.join(self.blog_dir,root,"index.xml"),"w")
+        d = os.path.join(self.output_dir,root)
+        util.mkdir(d)
+        path = os.path.join(d,"index.xml")
+        logger.info("Writing RSS/Atom feed: "+path)
+        f = open(path,"w")
         f.write(xml)
         f.close()
     
@@ -300,9 +304,11 @@ class Writer:
             category_link_name = self.category_link_names[category]
             #Write category RSS feed
             self.__write_feed(category_posts,os.path.join(
-                    root,category_link_name,"feed"),"rss.mako")
+                    config.blog_path, config.blog_category_dir,
+                    category_link_name,"feed"),"rss.mako")
             self.__write_feed(category_posts,os.path.join(
-                    root,category_link_name,"feed","atom"),"atom.mako")
+                    config.blog_path, config.blog_category_dir,
+                    category_link_name,"feed","atom"),"atom.mako")
             page_num = 1
             while True:
                 path = os.path.join(root,category_link_name,
