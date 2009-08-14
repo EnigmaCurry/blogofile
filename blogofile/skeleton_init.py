@@ -215,9 +215,9 @@ __setup_el = """
 
 def do_init(options):
     if len(os.listdir(options.config_dir)) > 0 :
-        print("This directory is not empty, will not attempt to initialize here : %s" % format(options.config_dir))
+        print("This directory is not empty, will not attempt to initialize here : %s" % options.config_dir)
         return
-    print("Building a minimal blogofile site at : %s" % format(options.config_dir))
+    print("Building a minimal blogofile site at : %s" % options.config_dir)
     config_f = open("_config.py","w")
     config_f.write(config.default_config)
     config_f.close()
