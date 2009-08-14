@@ -58,7 +58,7 @@ class Writer:
         """
         d = {} #(link, name) -> number that month
         for post in posts:
-            link = post.date.strftime("/%Y/%m/1")
+            link = post.date.strftime(config.blog_path+"/%Y/%m/1")
             name = post.date.strftime("%B %Y")
             try:
                 d[(link, name)] += 1
