@@ -111,16 +111,20 @@ def do_build(options):
         return
 
     logger.info("Running user's pre_build() function..")
-    config.pre_build()
-    posts = post.parse_posts("_posts")
-    if options.include_drafts:
-        drafts = post.parse_posts("_drafts", config)
-        for p in drafts:
-            p.draft = True
-    else:
-        drafts = None
     writer = Writer(output_dir="_site")
-    writer.write_blog(posts, drafts)
+    if config.blog_enabled == True:
+        config.pre_build()
+        posts = post.parse_posts("_posts")
+        if options.include_drafts:
+            drafts = post.parse_posts("_drafts", config)
+            for p in drafts:
+                p.draft = True
+        else:
+            drafts = None
+        writer.write_blog(posts, drafts)
+    else:
+        #Build the site without a blog
+        writer.write_site()
     logger.info("Running user's post_build() function..")
     config.post_build()
 

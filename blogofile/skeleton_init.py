@@ -172,7 +172,10 @@ __post_mako = """<%page args="post"/>
            #For drafts, we don't write to the category dirs, so just write the categories as text
            category_links.append(category)
        else:
-           category_links.append("<a href='/category/%s'>%s</a>" % (category_link_names[category], category))
+           category_links.append("<a href='"+config.blog_path+"/"
+                                 +config.blog_category_dir+"/"
+                                 +category_link_names[category]
+                                 +"'>"+category+"</a>")
 %>
 ${", ".join(category_links)}
 </small><p/>
@@ -193,7 +196,7 @@ __post_1 = """
 categories: Category 1
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/2009/07/23/post-one
+permalink: http://www.your-full-site-url.com/path/to/blog/2009/07/23/post-one
 title: Post 1
 ---
 This is post #1"""
@@ -203,7 +206,7 @@ __post_2 = """
 categories: Category 2
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/2009/07/23/post-two
+permalink: http://www.your-full-site-url.com/path/to/blog/2009/07/23/post-two
 title: Post 2
 ---
 This is post #2"""

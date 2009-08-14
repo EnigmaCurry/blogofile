@@ -32,6 +32,8 @@ default_config = r"""###########################################################
 # Basic Settings
 #  (almost all sites will want to configure these settings)
 ######################################################################
+#Blog enabled. (You don't _have_ to use blogofile to build blogs)
+blog_enabled = True
 #Your Blog's name. This is used repeatedly in default blog templates
 blog_name        = "Your Blog's Name"
 #Your Blog's full URL
@@ -143,7 +145,7 @@ def __post_load_tasks():
     #Calculate the absoulte blog path (ie, minus the domain)
     global blog_path
     from urlparse import urlparse
-    blog_path = "/"+urlparse(blog_url).path.lstrip("/")
+    blog_path = "/"+urlparse(blog_url).path.strip("/")
             
 def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.

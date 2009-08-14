@@ -20,12 +20,58 @@ class TestBuild(unittest.TestCase):
         #Clean up the build directory
         shutil.rmtree(self.build_path)
     def testBlogSubDir(self):
-        """Test to make sure blogs hosted in subdirectorys off the root work"""
+        """Test to make sure blogs hosted in subdirectories off the root work"""
         main.main("--init")
         main.config.blog_url = "http://www.test.com/path/to/blog"
         main.main("--build")
         lsdir = os.listdir(os.path.join(self.build_path,"_site","path","to","blog"))
-        print "LSDIR: ",lsdir
         for fn in ("category","page","feed"):
             assert(fn in lsdir)
+    def testPermaPages(self):
+        """Test that permapages are written"""
+        main.main("--init")
+        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.main("--build")
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","2009","07","23","post-one"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","2009","07","23","post-two"))
+    def testCategoryPages(self):
+        """Test that permapages are written"""
+        main.main("--init")
+        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.main("--build")
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-1","1"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-1"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-2"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-2","1"))
+    def testFeeds(self):
+        """Test that RSS/Atom feeds are written"""
+        main.main("--init")
+        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.main("--build")
+        #Whole blog feeds
+        assert "index.xml" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","feed"))
+        assert "index.xml" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","feed","atom"))
+        #Per category feeds
+        assert "index.xml" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-1","feed"))
+        assert "index.xml" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","category","category-1","feed","atom"))
         

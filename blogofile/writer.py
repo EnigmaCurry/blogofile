@@ -25,6 +25,7 @@ import config
 
 class Writer:
     def __init__(self, output_dir):
+        self.config = config
         #Base templates are templates (usually in ./_templates) that are only
         #referenced by other templates.
         self.base_template_dir = os.path.join(".","_templates")
@@ -34,7 +35,11 @@ class Writer:
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
             encoding_errors='replace')
-
+        
+    def write_site(self):
+        self.__setup_output_dir()
+        self.__write_files()
+        
     def write_blog(self, posts, drafts=None):
         self.archive_links = self.__get_archive_links(posts)
         self.all_categories = self.__get_all_categories(posts)
@@ -49,8 +54,9 @@ class Writer:
             self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
-        self.__write_feed(posts, "feed", "rss.mako")
-        self.__write_feed(posts, "feed/atom", "atom.mako")
+        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed"), "rss.mako")
+        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed","atom"),
+                          "atom.mako")
         self.__write_pygments_css()
         
     def __get_archive_links(self, posts):
@@ -58,7 +64,7 @@ class Writer:
         """
         d = {} #(link, name) -> number that month
         for post in posts:
-            link = post.date.strftime(config.blog_path+"/%Y/%m/1")
+            link = post.date.strftime(os.path.join(config.blog_path,"archive/%Y/%m/1"))
             name = post.date.strftime("%B %Y")
             try:
                 d[(link, name)] += 1
@@ -84,12 +90,16 @@ class Writer:
         root = root.lstrip("/")
         feed_template = self.template_lookup.get_template(template)
         feed_template.output_encoding = "utf-8"
-        xml = feed_template.render(posts=posts,root=root,config=config)
+        xml = self.__template_render(feed_template,{"posts":posts,"root":root})
         try:
-            util.mkdir(os.path.join(self.blog_dir,root))
+            util.mkdir(os.path.join(self.output_dir,root))
         except OSError:
             pass
-        f = open(os.path.join(self.blog_dir,root,"index.xml"),"w")
+        d = os.path.join(self.output_dir,root)
+        util.mkdir(d)
+        path = os.path.join(d,"index.xml")
+        logger.info("Writing RSS/Atom feed: "+path)
+        f = open(path,"w")
         f.write(xml)
         f.close()
     
@@ -123,7 +133,7 @@ class Writer:
             except OSError:
                 pass
             
-    def __write_files(self, posts):
+    def __write_files(self, posts=None):
         """Write all files for the blog to _site
 
         Convert all templates to straight HTML
@@ -154,18 +164,13 @@ class Writer:
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(t_fn_path)
-                    template = Template(t_file.read().decode("utf-8"), output_encoding="utf-8",
+                    template = Template(t_file.read().decode("utf-8"),
+                                        output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     t_file.close()
                     path = os.path.join(self.output_dir,root,t_name)
                     html_file = open(path,"w")
-                    html = template.render(
-                        posts=posts,
-                        config=config,
-                        archive_links=self.archive_links,
-                        all_categories=self.all_categories,
-                        category_link_names=self.category_link_names)
-                    
+                    html = self.__template_render(template,{"posts":posts})
                     #Syntax highlighting
                     if config.syntax_highlight_enabled:
                         html = util.do_syntax_highlight(html,config)
@@ -205,14 +210,11 @@ class Writer:
             util.mkdir(page_dir)
             fn = os.path.join(page_dir,"index.html")
             f = open(fn,"w")
-            html = chron_template.render(
-                posts=page_posts,
-                next_link=next_link,
-                prev_link=prev_link,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                chron_template,
+                { "posts":page_posts,
+                  "next_link":next_link,
+                  "prev_link":prev_link })
             f.write(html)
             f.close()
             page_num += 1
@@ -230,21 +232,18 @@ class Writer:
                     config.blog_path,config.blog_pagination_dir,"2")
             else:
                 next_link = None
-            html = chron_template.render(
-                posts=page_posts,
-                next_link=next_link,
-                prev_link=None,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                chron_template,
+                { "posts": page_posts,
+                  "next_link": next_link,
+                  "prev_link": None })
             f.write(html)
             f.close()          
 
     def __write_monthly_archives(self, posts):
-        m = {} # "/%Y/%m" -> [post, post, ... ]
+        m = {} # "/archive/%Y/%m" -> [post, post, ... ]
         for post in posts:
-            link = post.date.strftime("/%Y/%m")
+            link = post.date.strftime("/archive/%Y/%m")
             try:
                 m[link].append(post)
             except KeyError:
@@ -269,13 +268,10 @@ class Writer:
                 util.mkdir(path)
             except OSError:
                 pass
-            html = perma_template.render(
-                post=post,
-                posts=posts,
-                config=config,
-                archive_links=self.archive_links,
-                all_categories=self.all_categories,
-                category_link_names=self.category_link_names)
+            html = self.__template_render(
+                perma_template,
+                { "post": post,
+                  "posts": posts })
             f = open(os.path.join(path,"index.html"), "w")
             logger.info("Writing permapage for post: "+path)
             f.write(html)
@@ -308,9 +304,11 @@ class Writer:
             category_link_name = self.category_link_names[category]
             #Write category RSS feed
             self.__write_feed(category_posts,os.path.join(
-                    root,category_link_name,"feed"),"rss.mako")
+                    config.blog_path, config.blog_category_dir,
+                    category_link_name,"feed"),"rss.mako")
             self.__write_feed(category_posts,os.path.join(
-                    root,category_link_name,"feed","atom"),"atom.mako")
+                    config.blog_path, config.blog_category_dir,
+                    category_link_name,"feed","atom"),"atom.mako")
             page_num = 1
             while True:
                 path = os.path.join(root,category_link_name,
@@ -327,24 +325,19 @@ class Writer:
                     prev_link = os.path.join(
                         config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num - 1))
-                    logger.info("Prev link: "+prev_link)
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
                     next_link = os.path.join(
                         config.blog_path, config.blog_category_dir, category_link_name,
                                                str(page_num + 1))
-                    logger.info("Next link: "+next_link)
                 else:
                     next_link = None
-                html = chron_template.render(
-                    posts=page_posts,
-                    prev_link=prev_link,
-                    next_link=next_link,
-                    config=config,
-                    archive_links=self.archive_links,
-                    all_categories=self.all_categories,
-                    category_link_names=self.category_link_names)
+                html = self.__template_render(
+                    chron_template,
+                    { "posts": page_posts,
+                      "prev_link": prev_link,
+                      "next_link": next_link })
                 f.write(html)
                 f.close()
                 #Copy category/1 to category/index.html
@@ -357,3 +350,8 @@ class Writer:
                 if len(category_posts) == 0:
                     break
 
+    def __template_render(self, template, attrs={}):
+        for k,v in self.__dict__.items():
+            attrs[k] = v
+        return template.render(**attrs)
+    
