@@ -172,7 +172,10 @@ __post_mako = """<%page args="post"/>
            #For drafts, we don't write to the category dirs, so just write the categories as text
            category_links.append(category)
        else:
-           category_links.append("<a href='/category/%s'>%s</a>" % (category_link_names[category], category))
+           category_links.append("<a href='"+config.blog_path+"/"
+                                 +config.blog_category_dir+"/"
+                                 +category_link_names[category]
+                                 +"'>"+category+"</a>")
 %>
 ${", ".join(category_links)}
 </small><p/>
