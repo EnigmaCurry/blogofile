@@ -105,7 +105,6 @@ class org:
         pname += " --visit=%s --funcall org-export-as-html-batch"
         pname = pname % tempFile.name
         logger.info(pname)
-        print pname
 
         status, output = commands.getstatusoutput(pname)
         logger.debug("Convert output:::\n\t%s"%output)
@@ -124,7 +123,6 @@ class org:
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
         if soup.h2.span != None:
-            print soup.h2.span.string
             self.categories = set(soup.h2.span.string.split('&nbsp;'))
         else:
             self.categories = None
