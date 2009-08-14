@@ -122,8 +122,8 @@ class org:
         soup = BeautifulSoup(content.decode('utf-8'))
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
-        if soup.h2.span != None:
-            self.categories = set(soup.h2.span.string.split('&nbsp;'))
+        if soup.h2.span.findAll(text=True) != None:
+            self.categories = set(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;'))
         else:
             self.categories = None
         

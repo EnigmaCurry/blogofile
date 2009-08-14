@@ -208,9 +208,9 @@ title: Post 2
 ---
 This is post #2"""
 
-__setup_el = """
-(require 'org)
-(add-to-list 'auto-mode-alist '("\\.\\(org\\)$" . org-mode))
+__setup_el = """;;; add load path for orgmode
+;;;    and intialize code and prehandling routine
+
 """
 
 def do_init(options):
