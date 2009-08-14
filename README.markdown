@@ -11,4 +11,5 @@ See the [main blogofile website](http://www.blogofile.com) for usage instruction
 - Fix a bug : article without yaml header is not properly generated
 - post.format is generated base not on yaml header, but on filename suffix 
 - config.permalink configuration is added, which is used for the article without permalink yaml header
+  available macro is ':title, :year, :month, :day, :uuid, :filename'
 - refine __except function
