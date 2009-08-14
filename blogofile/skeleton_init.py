@@ -268,6 +268,6 @@ def do_init(options):
     #Write orgmode template
     os.mkdir("_emacs")
     p = open(os.path.join("_emacs","setup.el"),"w")
-    p.write(_setup_el)
+    p.write(__setup_el)
     p.close()
     print("This is a stub, this isn't complete yet.")
