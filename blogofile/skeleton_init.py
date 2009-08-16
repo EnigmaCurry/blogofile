@@ -164,7 +164,7 @@ __post_mako = """<%page args="post"/>
 <div class="blog_post">
   <a name="${post.title}" />
   <h2 class="blog_post_title"><a href="${post.permapath()}" rel="bookmark" title="Permanent Link to ${post.title}">${post.title}</a></h2>
-  <small>${post.date.strftime("%B %-d, %Y at %-I:%M %p")} | categories: 
+  <small>${post.date.strftime("%B %d, %Y at %I:%M %p")} | categories: 
 <% 
    category_links = []
    for category in post.categories:
@@ -211,11 +211,18 @@ title: Post 2
 ---
 This is post #2"""
 
+__setup_el = """;;; add load path for orgmode
+;;;    and intialize code and prehandling routine
+(setq load-path (cons "~/path/to/orgdir/lisp" load-path))
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+"""
+
 def do_init(options):
     if len(os.listdir(options.config_dir)) > 0 :
-        print("This directory is not empty, will not attempt to initialize here : %s" % format(options.config_dir))
+        print("This directory is not empty, will not attempt to initialize here : %s" % options.config_dir)
         return
-    print("Building a minimal blogofile site at : %s" % format(options.config_dir))
+    print("Building a minimal blogofile site at : %s" % options.config_dir)
     config_f = open("_config.py","w")
     config_f.write(config.default_config)
     config_f.close()
@@ -262,5 +269,10 @@ def do_init(options):
     p.close()
     p = open(os.path.join("_posts","002 - post #2.markdown"),"w")
     p.write(__post_2)
+    p.close()
+    #Write orgmode template
+    os.mkdir("_emacs")
+    p = open(os.path.join("_emacs","setup.el"),"w")
+    p.write(__setup_el)
     p.close()
     print("This is a stub, this isn't complete yet.")

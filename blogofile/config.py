@@ -16,7 +16,7 @@ class UnknownConfigSectionException(Exception):
 class ConfigNotFoundException(Exception):
     pass
 
-default_config = """######################################################################
+default_config = r"""######################################################################
 # This is the main Blogofile configuration file.
 # www.Blogofile.com
 #
@@ -44,6 +44,12 @@ blog_description = "Your Blog's short description"
 blog_timezone    = "US/Eastern"
 #Blog posts per page
 blog_posts_per_page = 5
+#If permalink is not defined in post article, this value is used
+# :year, :month, :day -> post's date
+# :title              -> post's title
+# :uuid               -> sha hash based on title
+# :filename           -> article's filename without suffix
+permalink        = "/blog/:filename"
 
 ######################################################################
 # Intermediate Settings
@@ -51,6 +57,13 @@ blog_posts_per_page = 5
 #### Disqus.com comment integration ####
 disqus_enabled = True
 disqus_name    = "blogofile"
+
+#### Emacs org-mode Converter ####
+orgmode_enabled = True
+# emacs binary (orgmode must be installed)
+emacs_binary    = "/usr/bin/emacs"               # emacs 22 or 23 is recommended
+emacs_preload_elisp = "_emacs/setup.el"          # preloaded elisp file
+orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added in preamble
 
 #### Blog post syntax highlighting ####
 syntax_highlight_enabled = True
@@ -120,7 +133,7 @@ def __post_load_tasks():
         global html_formatter
         import pygments
         html_formatter = pygments.formatters.HtmlFormatter(
-            style=syntax_highlight_style)
+            style=syntax_highlight_style, encoding='utf-8')
     #Compile ignore_patterns
     import re
     global compiled_ignore_patterns
