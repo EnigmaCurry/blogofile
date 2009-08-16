@@ -270,7 +270,7 @@ def do_init(options):
     p = open(os.path.join("_posts","002 - post #2.markdown"),"w")
     p.write(__post_2)
     p.close()
-    #Write orgmode template
+    #Write orgmode helpers
     os.mkdir("_emacs")
     p = open(os.path.join("_emacs","setup.el"),"w")
     p.write(__setup_el)

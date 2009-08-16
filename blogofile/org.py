@@ -77,7 +77,7 @@ class org:
         """
         tempFile = tempfile.NamedTemporaryFile(suffix='.org')
         try:
-            tempFile.write(config.orgmode_preamble)
+            tempFile.write(config.emacs_orgmode_preamble)
             tempFile.write("\n")
         except AttributeError:
             pass

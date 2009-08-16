@@ -37,14 +37,17 @@ blog_enabled = True
 #Your Blog's name. This is used repeatedly in default blog templates
 blog_name        = "Your Blog's Name"
 #Your Blog's full URL
-blog_url         = "http://www.your-blogs-full-url.com/path/to/blog"
+blog_url         = "http://www.yoursite.com/blog"
 #A short one line description of the blog, used in the RSS/Atom feeds.
 blog_description = "Your Blog's short description"
 #The timezone that you normally write your blog posts from
 blog_timezone    = "US/Eastern"
 #Blog posts per page
 blog_posts_per_page = 5
-#If permalink is not defined in post article, this value is used
+
+# Automatic Permalink
+# (If permalink is not defined in post article, it's generated
+#  automatically based on the following format:)
 # :year, :month, :day -> post's date
 # :title              -> post's title
 # :uuid               -> sha hash based on title
@@ -55,15 +58,15 @@ permalink        = "/blog/:filename"
 # Intermediate Settings
 ######################################################################
 #### Disqus.com comment integration ####
-disqus_enabled = True
-disqus_name    = "blogofile"
+disqus_enabled = False
+disqus_name    = "your_disqus_name"
 
-#### Emacs org-mode Converter ####
-orgmode_enabled = True
+#### Emacs Integration ####
+emacs_orgmode_enabled = False
 # emacs binary (orgmode must be installed)
 emacs_binary    = "/usr/bin/emacs"               # emacs 22 or 23 is recommended
 emacs_preload_elisp = "_emacs/setup.el"          # preloaded elisp file
-orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added in preamble
+emacs_orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added in preamble
 
 #### Blog post syntax highlighting ####
 syntax_highlight_enabled = True

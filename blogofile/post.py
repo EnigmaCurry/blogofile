@@ -13,6 +13,7 @@ import datetime
 import re
 import operator
 import urlparse
+import hashlib
 
 import pytz
 import yaml
@@ -61,7 +62,7 @@ class Post:
     >>> p.permalink
     u'/2008/10/20/first-post'
     """
-    def __init__(self, source, filename='unnamed', format="html"):
+    def __init__(self, source, filename="Untitled", format="html"):
         self.source     = source
         self.yaml       = yaml
         self.title      = None
@@ -111,7 +112,8 @@ class Post:
                 # if title is not set, extracted '*' head is used for title
                 if not self.title:
                     self.title   = org_info.title
-                # if categories is not set, extracted "*"'s tag is used for categories
+                # if categories is not set, extracted "*"'s
+                # tag is used for categories
                 if not self.categories:
                     self.categories = org_info.categories
             else:
@@ -136,22 +138,28 @@ class Post:
     def __post_process(self):
         # fill in empty default value
         if not self.title:
-            self.title      = u"Untitled - " + datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        if not self.categories:
+            self.title      = u"Untitled - " + \
+                datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        if not self.categories or len(self.categories) == 0:
             self.categories = set([u'Uncategorized'])
         if not self.permalink:
             self.permalink = config.permalink
 
-            self.permalink = re.sub(":year",  self.date.strftime("%Y"), self.permalink)
-            self.permalink = re.sub(":month",  self.date.strftime("%m"), self.permalink)
-            self.permalink = re.sub(":day",  self.date.strftime("%d"), self.permalink)
-            self.permalink = re.sub(":title",  self.title.replace(' ', '-'), self.permalink)
+            self.permalink = re.sub(":year",  self.date.strftime("%Y"),
+                                    self.permalink)
+            self.permalink = re.sub(":month",  self.date.strftime("%m"),
+                                    self.permalink)
+            self.permalink = re.sub(":day",  self.date.strftime("%d"),
+                                    self.permalink)
+            self.permalink = re.sub(":title",  self.title.replace(' ', '-'),
+                                    self.permalink)
 
-            self.permalink = re.sub(":filename",  self.filename.replace(' ', '-'), self.permalink)
+            self.permalink = re.sub(
+                ":filename",  self.filename.replace(' ', '-'), self.permalink)
 
-            import sha
             # Generate sha hash based on title
-            self.permalink = re.sub(":uuid",  sha.sha(self.title.encode('utf-8')).hexdigest(), self.permalink)
+            self.permalink = re.sub(":uuid",  hashlib.sha1(
+                    self.title.encode('utf-8')).hexdigest(), self.permalink)
             self.permalink = self.permalink.lower()
 
             
@@ -165,12 +173,14 @@ class Post:
              """Retrieve excerpt from article"""
              s = BeautifulSoup.BeautifulSoup(self.content)
              # get rid of javascript, noscript and css
-             [[tree.extract() for tree in s(elem)] for elem in ('script','noscript','style')]
+             [[tree.extract() for tree in s(elem)] for elem in (
+                     'script','noscript','style')]
              # get rid of doctype
              subtree = s.findAll(text=re.compile("DOCTYPE|xml"))
              [tree.extract() for tree in subtree]
              # remove headers
-             [[tree.extract() for tree in s(elem)] for elem in ('h1','h2','h3','h4','h5','h6')]
+             [[tree.extract() for tree in s(elem)] for elem in (
+                     'h1','h2','h3','h4','h5','h6')]
              text = ''.join(s.findAll(text=True))\
                                  .replace("\n","").split(" ")
              return " ".join(text[:num_words]) + '...'
@@ -223,14 +233,16 @@ def parse_posts(directory):
 
     Returns a list of the posts sorted in reverse by date."""
     posts = []
-    post_filename_re = re.compile(".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$))")
+    post_filename_re = re.compile(
+        ".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$))")
     post_file_names = [f for f in os.listdir(directory) \
                            if post_filename_re.match(f)]
     for post_fn in post_file_names:
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
         src = open(post_path).read()
-        p = Post(src, filename=os.path.splitext(post_fn)[0], format=os.path.splitext(post_fn)[1][1:])
+        p = Post(src, filename=os.path.splitext(post_fn)[0],
+                 format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)
