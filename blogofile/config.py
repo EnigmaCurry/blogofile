@@ -16,6 +16,8 @@ class UnknownConfigSectionException(Exception):
 class ConfigNotFoundException(Exception):
     pass
 
+override_options = {} #override config options (mostly from unit tests)
+
 default_config = r"""######################################################################
 # This is the main Blogofile configuration file.
 # www.Blogofile.com
@@ -152,7 +154,10 @@ def __post_load_tasks():
     blog_path = "/"+urlparse(blog_url).path.strip("/")
     if blog_path == "/":
         blog_path = ""
-            
+    #Override any options (from unit tests)
+    for k,v in override_options.items():
+        globals()[k] = v
+        
 def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.
     #This will make sure that we have good default values if the user's

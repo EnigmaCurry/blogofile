@@ -22,7 +22,9 @@ class TestBuild(unittest.TestCase):
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories off the root work"""
         main.main("--init")
-        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/path/to/blog",
+            "blog_path":"/path/to/blog" }
         main.main("--build")
         lsdir = os.listdir(os.path.join(self.build_path,"_site","path","to","blog"))
         for fn in ("category","page","feed"):
@@ -30,7 +32,9 @@ class TestBuild(unittest.TestCase):
     def testPermaPages(self):
         """Test that permapages are written"""
         main.main("--init")
-        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/path/to/blog",
+            "blog_path":"/path/to/blog" }
         main.main("--build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
@@ -41,7 +45,9 @@ class TestBuild(unittest.TestCase):
     def testCategoryPages(self):
         """Test that permapages are written"""
         main.main("--init")
-        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/path/to/blog",
+            "blog_path":"/path/to/blog" }
         main.main("--build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
@@ -58,7 +64,9 @@ class TestBuild(unittest.TestCase):
     def testFeeds(self):
         """Test that RSS/Atom feeds are written"""
         main.main("--init")
-        main.config.blog_url = "http://www.test.com/path/to/blog"
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/path/to/blog",
+            "blog_path":"/path/to/blog" }
         main.main("--build")
         #Whole blog feeds
         assert "index.xml" in os.listdir(
