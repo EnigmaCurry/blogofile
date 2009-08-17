@@ -43,30 +43,40 @@ import skeleton_init
 
 def get_options(cmd=None):
     parser = argparse.ArgumentParser()
+    parser.version = "Blogofile " +__version__+ " -- http://www.blogofile.com"
     parser.add_argument("-c","--config-file",dest="config_file",
-                      help="The config file to load (default './_config.py')",
-                      metavar="FILE", default="./_config.py")
-    parser.add_argument("-b","--build",dest="do_build",
-                      help="Build the blog again from source",
-                      default=False, action="store_true")
-    parser.add_argument("--init",dest="do_init",
-                      help="Create a minimal blogofile configuration in the "\
-                      "current directory",
-                      default=False, action="store_true")
-    parser.add_argument("--serve",dest="do_serve",
-                      help="Host the _site dir with the builtin webserver. Don't"\
-                          "use this outside of a firewall!",
-                      metavar="PORT")
-    parser.add_argument("--include-drafts",dest="include_drafts",
-                      default=False, action="store_true",
-                      help="Writes permapages for drafts "
-                      "(but not in feeds or chronlogical blog)")
-    parser.add_argument("-V","--version",dest="do_version",
-                      help="show program's version number and exit",
-                      default=False, action="store_true")
+                        help="config file to load (default './_config.py')",
+                        metavar="FILE", default="./_config.py")
+    parser.add_argument("-V","--version",action="version")
     parser.add_argument("-v","--verbose",dest="verbose",default=False,
-                      action="store_true",
-                      help="Enable extra verboseness")
+                        action="store_true", help="Enable extra verboseness")
+    subparsers = parser.add_subparsers()
+
+    parser_build = subparsers.add_parser('build',
+                                         help="Build the blog from source")
+    parser_build.add_argument("--include-drafts", dest="include_drafts",
+                              default=False, action="store_true",
+                              help="Writes permapages for drafts "
+                              "(but not in feeds or chronlogical blog)")
+    parser_build.set_defaults(func=do_build)
+
+    parser_init = subparsers.add_parser('init',
+                                        help="Create a minimal blogofile "
+                                        "configuration in the current "
+                                        "directory")
+    parser_init.set_defaults(func=do_init)
+
+    parser_serve = subparsers.add_parser("serve",
+                                         help="Host the _site dir with the "
+                                         "builtin webserver. Don't use this "
+                                         "outside of a firewall!")
+    parser_serve.add_argument("PORT", help="port on which to serve")
+    parser_serve.set_defaults(func=do_serve)
+
+    if len(sys.argv) <= 1:
+        parser.print_help()
+        sys.exit(1)
+
     if not cmd:
         args = parser.parse_args()
     else:
@@ -87,22 +97,8 @@ def main(cmd=None):
         print("config dir does not exist : %s" % options.config_dir)
         sys.exit(1)
     os.chdir(options.config_dir)
-    
-    if options.do_version:
-        do_version(options)
-    elif options.do_build:
-        do_build(options)
-    elif options.do_init:
-        do_init(options)
-    elif options.do_serve:
-        do_serve(options)
-    else:
-        parser.print_help()
-        sys.exit(1)
 
-def do_version(options=None):
-    print "Blogofile " + __version__ + " -- http://www.blogofile.com"
-    sys.exit(1)
+    args.func(options)
 
 def do_serve(options):
     os.chdir("_site")
@@ -116,7 +112,7 @@ def do_build(options):
         config.init(options.config_file)
     except config.ConfigNotFoundException:
         print("No configuration found at : %s" % options.config_file)
-        print("If you want to make a new site, try --init")
+        print("If you want to make a new site, try `blogofile init`")
         return
 
     logger.info("Running user's pre_build() function..")
