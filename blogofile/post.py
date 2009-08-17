@@ -23,11 +23,11 @@ import logging
 import BeautifulSoup
 import org
 
-from main import logger
 import config
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
+logger = logging.getLogger("post")
 
 import util
 

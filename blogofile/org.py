@@ -17,10 +17,10 @@ import sys
 import commands
 from BeautifulSoup import BeautifulSoup
 
-from main import logger
 import config
 
-logging.getLogger("org").setLevel(logging.DEBUG)
+logger = logging.getLogger("org")
+logger.setLevel(logging.DEBUG)
 
 class EmacsNotFoundException(Exception):
     pass

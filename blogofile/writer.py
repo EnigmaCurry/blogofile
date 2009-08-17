@@ -9,6 +9,7 @@ current working directory.
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 __date__   = "Tue Feb  3 12:50:17 2009"
 
+import logging
 import os
 import shutil
 import urlparse
@@ -19,9 +20,10 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 import BeautifulSoup
 
-from main import logger
 import util
 import config
+
+logger = logging.getLogger("writer")
 
 class Writer:
     def __init__(self, output_dir):
