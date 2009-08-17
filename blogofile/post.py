@@ -142,8 +142,8 @@ class Post:
                 datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         if not self.categories or len(self.categories) == 0:
             self.categories = set([u'Uncategorized'])
-        if not self.permalink:
-            self.permalink = config.permalink
+        if not self.permalink and config.blog_auto_permalink_enabled:
+            self.permalink = config.blog_auto_permalink
 
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
@@ -164,7 +164,7 @@ class Post:
 
             
             self.path = urlparse.urlparse(self.permalink).path
-                
+
     def __excerpt(self, num_words=50):
         #Default post excerpting function
         #Can be overridden in _config.py by
