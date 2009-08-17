@@ -151,17 +151,17 @@ class Post:
                                     self.permalink)
             self.permalink = re.sub(":day",  self.date.strftime("%d"),
                                     self.permalink)
-            self.permalink = re.sub(":title",  self.title.replace(' ', '-'),
+            self.permalink = re.sub(":title",
+                                    self.title.replace(' ', '-').lower(),
                                     self.permalink)
 
             self.permalink = re.sub(
-                ":filename",  self.filename.replace(' ', '-'), self.permalink)
+                ":filename",  self.filename.replace(' ', '-').lower(),
+                self.permalink)
 
             # Generate sha hash based on title
             self.permalink = re.sub(":uuid",  hashlib.sha1(
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
-            self.permalink = self.permalink.lower()
-
             
             self.path = urlparse.urlparse(self.permalink).path
 
