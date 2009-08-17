@@ -39,28 +39,6 @@ class PostFormatException(Exception):
 class Post:
     """
     Class to describe a blog post and associated metadata
-    
-    A simple post:
-    
-    >>> src = '''
-    ... ---
-    ... title: First Post
-    ... date: 2008/10/20
-    ... categories: Cool Stuff , Emacs, Python,   other stuff
-    ... permalink: /2008/10/20/first-post
-    ... ---
-    ... 
-    ... This is a test.
-    ... '''
-    >>> p = Post(src)
-    >>> p.title
-    u'First Post'
-    >>> p.date
-    datetime.datetime(2008, 10, 20, 0, 0)
-    >>> p.categories == set([u'Cool Stuff',u'Emacs',u'Python',u'other stuff'])
-    True
-    >>> p.permalink
-    u'/2008/10/20/first-post'
     """
     def __init__(self, source, filename="Untitled", format="html"):
         self.source     = source
@@ -143,7 +121,7 @@ class Post:
         if not self.categories or len(self.categories) == 0:
             self.categories = set([u'Uncategorized'])
         if not self.permalink and config.blog_auto_permalink_enabled:
-            self.permalink = config.blog_auto_permalink
+            self.permalink = urlparse.urljoin(config.blog_domain,config.blog_auto_permalink)
 
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
@@ -164,7 +142,7 @@ class Post:
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
             self.path = urlparse.urlparse(self.permalink).path
-
+        print "Permalink: ",self.permalink
     def __excerpt(self, num_words=50):
         #Default post excerpting function
         #Can be overridden in _config.py by
@@ -193,6 +171,8 @@ class Post:
             pass
         try:
             self.permalink = y['permalink']
+            if self.permalink.startswith("/"):
+                self.permalink = urlparse.urljoin(config.blog_url,self.permalink)
             self.path = urlparse.urlparse(self.permalink).path
         except KeyError:
             pass

@@ -2,6 +2,7 @@ import unittest
 import tempfile
 import shutil
 import os
+import BeautifulSoup
 from .. import main
 
 class TestContent(unittest.TestCase):
@@ -90,3 +91,55 @@ This is a test post without a permalink
                                      "16","this-is-a-test-post","index.html"
                                      )).read()
     
+    def testPathOnlyPermalink(self):
+        """Test to make sure path only permalinks are generated correctly"""
+        main.main("--init")
+        #Write a post to the _posts dir:
+        permalink = "/blog/2009/08/16/this-is-a-test-post"
+        src = """---
+title: This is a test post
+permalink: %(permalink)s
+date: 2009/08/16 00:00:00
+---
+This is a test post
+""" %{'permalink':permalink}
+        f = open(os.path.join(self.build_path,"_posts","01. Test post.html"),"w")
+        f.write(src)
+        f.close()
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/blog",
+            "blog_path":"/blog",
+            "blog_auto_permalink_enabled": True,
+            "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
+        main.main("--build")
+        rendered = open(os.path.join(self.build_path,"_site","blog","2009","08",
+                                     "16","this-is-a-test-post","index.html"
+                                     )).read()
+
+    def testFeedLinksAreURLs(self):
+        """Make sure feed links are full URLs and not just paths"""
+        main.main("--init")
+        #Write a post to the _posts dir:
+        permalink = "/blog/2009/08/16/test-post"
+        src = """---
+title: This is a test post
+permalink: %(permalink)s
+date: 2009/08/16 00:00:00
+---
+This is a test post
+""" %{'permalink':permalink}
+        f = open(os.path.join(self.build_path,"_posts","01. Test post.html"),"w")
+        f.write(src)
+        f.close()
+        main.config.override_options = {
+            "blog_url":"http://www.test.com/blog",
+            "blog_path":"/blog",
+            "blog_auto_permalink_enabled": True,
+            "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
+        main.main("--build")
+        feed = open(os.path.join(self.build_path,"_site","blog","feed",
+                                 "index.xml")).read()
+        soup = BeautifulSoup.BeautifulStoneSoup(feed)
+        for link in soup.findAll("link"):
+            assert(link.contents[0].startswith("http://"))
+

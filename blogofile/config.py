@@ -155,6 +155,9 @@ def __post_load_tasks():
     blog_path = "/"+urlparse(blog_url).path.strip("/")
     if blog_path == "/":
         blog_path = ""
+    #Calculate the domain (without path) with the network type (http://):
+    global blog_domain
+    blog_domain = blog_url.rstrip(urlparse(blog_url).path)
     #Override any options (from unit tests)
     for k,v in override_options.items():
         globals()[k] = v
