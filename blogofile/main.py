@@ -32,6 +32,7 @@ import os
 import sys
 import shlex
 
+import argparse
 import pygments.formatters
 import pygments.styles
 
@@ -41,40 +42,42 @@ import config
 import skeleton_init
 
 def get_options(cmd=None):
-    from optparse import OptionParser
-    parser = OptionParser(version="Blogofile "+__version__+
-                          " -- http://www.blogofile.com")
-    parser.add_option("-c","--config-file",dest="config_file",
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c","--config-file",dest="config_file",
                       help="The config file to load (default './_config.py')",
                       metavar="FILE", default="./_config.py")
-    parser.add_option("-b","--build",dest="do_build",
+    parser.add_argument("-b","--build",dest="do_build",
                       help="Build the blog again from source",
                       default=False, action="store_true")
-    parser.add_option("--init",dest="do_init",
+    parser.add_argument("--init",dest="do_init",
                       help="Create a minimal blogofile configuration in the "\
                       "current directory",
                       default=False, action="store_true")
-    parser.add_option("--serve",dest="do_serve",
+    parser.add_argument("--serve",dest="do_serve",
                       help="Host the _site dir with the builtin webserver. Don't"\
                           "use this outside of a firewall!",
                       metavar="PORT")
-    parser.add_option("--include-drafts",dest="include_drafts",
+    parser.add_argument("--include-drafts",dest="include_drafts",
                       default=False, action="store_true",
                       help="Writes permapages for drafts "
                       "(but not in feeds or chronlogical blog)")
-    parser.add_option("-v","--verbose",dest="verbose",default=False,
+    parser.add_argument("-V","--version",dest="do_version",
+                      help="show program's version number and exit",
+                      default=False, action="store_true")
+    parser.add_argument("-v","--verbose",dest="verbose",default=False,
                       action="store_true",
                       help="Enable extra verboseness")
     if not cmd:
-        (options, args) = parser.parse_args()
+        args = parser.parse_args()
     else:
         args = shlex.split(cmd)
         (options, args) = parser.parse_args(args)
-    return (parser, options, args)
+    return (parser, args)
 
 def main(cmd=None):
-    (parser, options, args) = get_options(cmd)
-    
+    (parser, args) = get_options(cmd)
+    options = args
+
     if options.verbose:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting DEBUG mode")
@@ -85,7 +88,9 @@ def main(cmd=None):
         sys.exit(1)
     os.chdir(options.config_dir)
     
-    if options.do_build:
+    if options.do_version:
+        do_version(options)
+    elif options.do_build:
         do_build(options)
     elif options.do_init:
         do_init(options)
@@ -94,6 +99,10 @@ def main(cmd=None):
     else:
         parser.print_help()
         sys.exit(1)
+
+def do_version(options=None):
+    print "Blogofile " + __version__ + " -- http://www.blogofile.com"
+    sys.exit(1)
 
 def do_serve(options):
     os.chdir("_site")

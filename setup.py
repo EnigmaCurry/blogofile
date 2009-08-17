@@ -16,7 +16,8 @@ setup(name='Blogofile',
                          'pyyaml',
                          'textile',
                          'markdown<2.0',
-                         'pygments'],
+                         'argparse',
+                         'pygments',],
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main
