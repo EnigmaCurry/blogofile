@@ -27,6 +27,7 @@ from blogofile import __version__
 import logging
 import os
 import sys
+import shlex
 
 import argparse
 import pygments.formatters
@@ -40,11 +41,11 @@ import skeleton_init
 logging.basicConfig()
 logger = logging.getLogger("main")
 
-parser = argparse.ArgumentParser()
-parser.version = "Blogofile " + __version__ + " -- http://www.blogofile.com"
-subparsers = parser.add_subparsers()
-
-def get_options():
+def get_args(cmd=None):
+    global parser, subparsers
+    parser = argparse.ArgumentParser()
+    parser.version = "Blogofile " + __version__ + " -- http://www.blogofile.com"
+    subparsers = parser.add_subparsers()
     parser.add_argument("-c", "--config-file", dest="config_file",
                         help="config file to load (default './_config.py')",
                         metavar="FILE", default="./_config.py")
@@ -75,15 +76,18 @@ def get_options():
     p_serve.add_argument("PORT", help="port on which to serve")
     p_serve.set_defaults(func=do_serve)
 
-    if len(sys.argv) <= 1:
-        parser.print_help()
-        parser.exit(1)
-
-    args = parser.parse_args()
+    if not cmd:
+        if len(sys.argv) <= 1:
+            parser.print_help()
+            parser.exit(1)
+        args = parser.parse_args()
+    else:
+        args = shlex.split(cmd)
+        args = parser.parse_args(args)
     return (parser, args)
 
-def main():
-    parser, args = get_options()
+def main(cmd=None):
+    parser, args = get_args(cmd)
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
@@ -123,7 +127,7 @@ def do_help(args):
 def do_serve(args):
     os.chdir("_site")
     import SimpleHTTPServer
-    sys.argv = [None, args.do_serve]
+    sys.argv = [None, args.PORT]
     SimpleHTTPServer.test()
 
 def do_build(args):

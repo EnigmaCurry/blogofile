@@ -21,21 +21,21 @@ class TestBuild(unittest.TestCase):
         shutil.rmtree(self.build_path)
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories off the root work"""
-        main.main("--init")
+        main.main("init")
         main.config.override_options = {
             "blog_url":"http://www.test.com/path/to/blog",
             "blog_path":"/path/to/blog" }
-        main.main("--build")
+        main.main("build")
         lsdir = os.listdir(os.path.join(self.build_path,"_site","path","to","blog"))
         for fn in ("category","page","feed"):
             assert(fn in lsdir)
     def testPermaPages(self):
         """Test that permapages are written"""
-        main.main("--init")
+        main.main("init")
         main.config.override_options = {
             "blog_url":"http://www.test.com/path/to/blog",
             "blog_path":"/path/to/blog" }
-        main.main("--build")
+        main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
                          "to","blog","2009","07","23","post-one"))
@@ -44,11 +44,11 @@ class TestBuild(unittest.TestCase):
                          "to","blog","2009","07","23","post-two"))
     def testCategoryPages(self):
         """Test that permapages are written"""
-        main.main("--init")
+        main.main("init")
         main.config.override_options = {
             "blog_url":"http://www.test.com/path/to/blog",
             "blog_path":"/path/to/blog" }
-        main.main("--build")
+        main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
                          "to","blog","category","category-1","1"))
@@ -63,11 +63,11 @@ class TestBuild(unittest.TestCase):
                          "to","blog","category","category-2","1"))
     def testFeeds(self):
         """Test that RSS/Atom feeds are written"""
-        main.main("--init")
+        main.main("init")
         main.config.override_options = {
             "blog_url":"http://www.test.com/path/to/blog",
             "blog_path":"/path/to/blog" }
-        main.main("--build")
+        main.main("build")
         #Whole blog feeds
         assert "index.xml" in os.listdir(
             os.path.join(self.build_path,"_site","path",

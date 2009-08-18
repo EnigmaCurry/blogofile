@@ -142,7 +142,7 @@ class Post:
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
             self.path = urlparse.urlparse(self.permalink).path
-        print "Permalink: ",self.permalink
+        logger.info("Permalink: ",self.permalink)
     def __excerpt(self, num_words=50):
         #Default post excerpting function
         #Can be overridden in _config.py by
