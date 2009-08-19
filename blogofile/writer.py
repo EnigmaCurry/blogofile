@@ -23,7 +23,7 @@ import BeautifulSoup
 import util
 import config
 
-logger = logging.getLogger("writer")
+logger = logging.getLogger("blf.writer")
 
 class Writer:
     def __init__(self, output_dir):

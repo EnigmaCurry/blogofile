@@ -19,8 +19,8 @@ from BeautifulSoup import BeautifulSoup
 
 import config
 
-logger = logging.getLogger("org")
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger("blf.org")
+# logger.setLevel(logging.DEBUG)
 
 class EmacsNotFoundException(Exception):
     pass
@@ -100,7 +100,7 @@ class org:
 
         pname += " --visit=%s --funcall org-export-as-html-batch"
         pname = pname % tempFile.name
-        logger.info(pname)
+        # logger.debug(pname)
 
         status, output = commands.getstatusoutput(pname)
         logger.debug("Convert output:::\n\t%s"%output)

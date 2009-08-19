@@ -27,7 +27,7 @@ import config
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
-logger = logging.getLogger("post")
+logger = logging.getLogger("blf.post")
 
 import util
 
@@ -142,7 +142,7 @@ class Post:
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
             self.path = urlparse.urlparse(self.permalink).path
-        logger.info("Permalink: ",self.permalink)
+        logger.info("Permalink: %s" % self.permalink)
     def __excerpt(self, num_words=50):
         #Default post excerpting function
         #Can be overridden in _config.py by
