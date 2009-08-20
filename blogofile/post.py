@@ -83,7 +83,7 @@ class Post:
         elif self.format == "html":
             self.content = post_src
         elif self.format == "org":
-            if config.orgmode_enabled:
+            if config.emacs_orgmode_enabled:
                 org_info = org.org(post_src)
                 # content field
                 self.content = org_info.content
