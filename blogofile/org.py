@@ -100,7 +100,7 @@ class org:
 
         pname += " --visit=%s --funcall org-export-as-html-batch"
         pname = pname % tempFile.name
-        # logger.debug(pname)
+        logger.debug("Exec name::: %s" % pname)
 
         status, output = commands.getstatusoutput(pname)
         logger.debug("Convert output:::\n\t%s"%output)
@@ -132,7 +132,7 @@ class org:
 
         soup.body.div.h2.extract()  # delete h2 section (title and category)
         
-        self.content = soup.body.div.prettify()
+        self.content = str(soup.body.div)
         
 if __name__ == '__main__':
     import doctest
