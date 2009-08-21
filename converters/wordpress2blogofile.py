@@ -13,8 +13,6 @@ import sys
 import yaml
 import wordpress_schema
 
-post_format = "html" # textile, ReST etc
-
 if __name__ == '__main__':
     #Output textile files in ./_posts
     if os.path.isdir("_posts"):
@@ -30,10 +28,9 @@ if __name__ == '__main__':
             "permalink": post.permalink(),
             "categories": ", ".join(post.categories()),
             "tags": ", ".join(post.tags()),
-            "format": post_format,
             "guid": post.guid
             }
-        fn = "%s. %s.textile" % (str(post.id).zfill(4), post.post_name.strip())
+        fn = "%s. %s.html" % (str(post.id).zfill(4), post.post_name.strip())
         print "writing %s" % fn
         f = open(os.path.join("_posts",fn),"w")
         f.write("---\n")
