@@ -27,7 +27,7 @@ import config
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
-logger = logging.getLogger("blf.post")
+logger = logging.getLogger("blogofile.post")
 
 import util
 

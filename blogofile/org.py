@@ -19,8 +19,7 @@ from BeautifulSoup import BeautifulSoup
 
 import config
 
-logger = logging.getLogger("blf.org")
-# logger.setLevel(logging.DEBUG)
+logger = logging.getLogger("blogofile.org")
 
 class EmacsNotFoundException(Exception):
     pass

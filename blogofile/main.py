@@ -39,7 +39,7 @@ import config
 import skeleton_init
 
 logging.basicConfig()
-logger = logging.getLogger("blf")
+logger = logging.getLogger("blogofile")
 
 def get_args(cmd=None):
     global parser, subparsers
@@ -49,11 +49,11 @@ def get_args(cmd=None):
     parser.add_argument("-c", "--config-file", dest="config_file",
                         help="config file to load (default './_config.py')",
                         metavar="FILE", default="./_config.py")
-    parser.add_argument("-V", "--version", action="version")
+    parser.add_argument("--version", action="version")
     parser.add_argument("-v", "--verbose", dest="verbose", default=False,
-                        action="store_true", help="Enable verboseness")
+                        action="store_true", help="Be verbose")
     parser.add_argument("-vv", "--veryverbose", dest="veryverbose", default=False,
-                        action="store_true", help="Enable extra verboseness")
+                        action="store_true", help="Be extra verbose")
     
 
     p_help = subparsers.add_parser("help", help="Show help for a command",
@@ -94,10 +94,10 @@ def main(cmd=None):
 
     if args.verbose:
         logger.setLevel(logging.INFO)
-        logger.info("Setting DEBUG(brief) mode")
+        logger.info("Setting verbose mode")
     if args.veryverbose:
         logger.setLevel(logging.DEBUG)
-        logger.info("Setting DEBUG(detail) mode")
+        logger.info("Setting very verbose mode")
 
     args.config_dir = os.path.split(os.path.abspath(args.config_file))[0]
     if not os.path.isdir(args.config_dir):
