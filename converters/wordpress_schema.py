@@ -13,8 +13,8 @@ from sqlalchemy.ext.declarative import declarative_base
 #########################
 ## Config
 #########################
-table_prefix = "ec"
-db_conn = "mysql://root:root@localhost/wordpressenigmacurry"
+table_prefix = ""
+db_conn = "mysql://username:password@localhost/database_name"
 # End Config
 #########################
 
