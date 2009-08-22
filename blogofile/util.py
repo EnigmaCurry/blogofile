@@ -1,5 +1,7 @@
 import re
 import os
+import urlparse
+import logging
 
 import pygments
 import pygments.formatters
@@ -7,6 +9,9 @@ import pygments.lexers
 import pygments.util
 
 import config
+
+logger = logging.getLogger("blogofile.util")
+
 
 html_escape_table = {
     "&": "&amp;",
@@ -103,3 +108,16 @@ def mkdir(newdir):
         #print "mkdir %s" % repr(newdir)
         if tail:
             os.mkdir(newdir)
+            
+def blog_path_helper(path_parts):
+    """Make an absolute path for something on the blog
+    """
+    if type(path_parts) in (str, unicode):
+        path_parts = (path_parts,)
+    a_path = urlparse.urlsplit(config.site_url).path
+    a_path = "/".join((a_path,config.blog_path))
+    a_path = a_path + "/" + "/".join(path_parts)
+    if not a_path.startswith("/"):
+        a_path = "/"+a_path
+    logger.debug("ABS path: "+a_path)
+    return a_path

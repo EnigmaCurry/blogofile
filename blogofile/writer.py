@@ -56,9 +56,8 @@ class Writer:
             self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
-        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed"), "rss.mako")
-        self.__write_feed(posts, os.path.join(self.config.blog_path,"feed","atom"),
-                          "atom.mako")
+        self.__write_feed(posts, util.blog_path_helper("feed"),"rss.mako")
+        self.__write_feed(posts, util.blog_path_helper("feed/atom"),"atom.mako")
         self.__write_pygments_css()
         
     def __get_archive_links(self, posts):
@@ -66,7 +65,7 @@ class Writer:
         """
         d = {} #(link, name) -> number that month
         for post in posts:
-            link = post.date.strftime(os.path.join(config.blog_path,"archive/%Y/%m/1"))
+            link = post.date.strftime(util.blog_path_helper("archive/%Y/%m/1"))
             name = post.date.strftime("%B %Y")
             try:
                 d[(link, name)] += 1
@@ -220,8 +219,7 @@ class Writer:
             logger.info("Writing blog index page: "+path)
             f = open(path,"w")
             if len(posts) > config.blog_posts_per_page:
-                next_link = os.path.join(
-                    config.blog_path,config.blog_pagination_dir,"2")
+                next_link = util.blog_path_helper(config.blog_pagination_dir+"/2")
             else:
                 next_link = None
             html = self.__template_render(
@@ -280,8 +278,7 @@ class Writer:
             f.write(config.html_formatter.get_style_defs(".highlight"))
             f.close()
 
-    def __write_blog_categories(self, posts,
-                                posts_per_page=5):
+    def __write_blog_categories(self, posts):
         """Write all the blog posts in categories"""
         root = os.path.join(self.blog_dir,config.blog_category_dir)
         chron_template = self.template_lookup.get_template("chronological.mako")
@@ -294,12 +291,12 @@ class Writer:
             category_posts = [post for post in posts \
                                   if category in post.categories]
             #Write category RSS feed
-            self.__write_feed(category_posts,os.path.join(
-                    config.blog_path, config.blog_category_dir,
-                    category.url_name,"feed"),"rss.mako")
-            self.__write_feed(category_posts,os.path.join(
-                    config.blog_path, config.blog_category_dir,
-                    category.url_name,"feed","atom"),"atom.mako")
+            self.__write_feed(category_posts,util.blog_path_helper(
+                    (config.blog_category_dir,category.url_name,"feed")),
+                              "rss.mako")
+            self.__write_feed(category_posts,util.blog_path_helper(
+                    (config.blog_category_dir,category.url_name,"feed","atom"))
+                              ,"atom.mako")
             page_num = 1
             while True:
                 path = os.path.join(root,category.url_name,
@@ -309,19 +306,17 @@ class Writer:
                 except OSError:
                     pass
                 f = open(path, "w")
-                page_posts = category_posts[:posts_per_page]
-                category_posts = category_posts[posts_per_page:]
+                page_posts = category_posts[:config.blog_posts_per_page]
+                category_posts = category_posts[config.blog_posts_per_page:]
                 #Forward and back links
                 if page_num > 1:
-                    prev_link = os.path.join(
-                        config.blog_path, config.blog_category_dir, category.url_name,
-                                               str(page_num - 1))
+                    prev_link = util.blog_path_helper(
+                        (config.blog_category_dir, category.url_name, str(page_num -1)))
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
-                    next_link = os.path.join(
-                        config.blog_path, config.blog_category_dir, category.url_name,
-                                               str(page_num + 1))
+                    next_link = util.blog_path_helper(
+                        (config.blog_category_dir, category.url_name, str(page_num + 1)))
                 else:
                     next_link = None
                 html = self.__template_render(
@@ -340,7 +335,7 @@ class Writer:
                 page_num += 1
                 if len(category_posts) == 0:
                     break
-
+        
     def __template_render(self, template, attrs={}):
         for k,v in self.__dict__.items():
             attrs[k] = v
