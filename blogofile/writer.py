@@ -18,6 +18,7 @@ import operator
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
+from mako import exceptions as mako_exceptions
 import BeautifulSoup
 
 import util
@@ -32,7 +33,8 @@ class Writer:
         #referenced by other templates.
         self.base_template_dir = os.path.join(".","_templates")
         self.output_dir        = output_dir
-        self.blog_dir          = util.get_blog_dir(output_dir)
+        self.blog_dir          = os.path.join(self.output_dir,self.config.blog_path)
+        logger.debug("Blog dir is: %s" % self.blog_dir)
         self.template_lookup = TemplateLookup(
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
@@ -45,8 +47,6 @@ class Writer:
     def write_blog(self, posts, drafts=None):
         self.archive_links = self.__get_archive_links(posts)
         self.all_categories = self.__get_all_categories(posts)
-        self.category_link_names = self.__compute_category_link_names(
-            self.all_categories)
         self.__setup_output_dir()
         self.__write_files(posts)
         self.__write_blog_chron(posts, root=config.blog_pagination_dir)
@@ -78,7 +78,7 @@ class Writer:
 
     def __get_all_categories(self, posts):
         """Return a list of all the categories of all posts"""
-        d = {} #category -> number of posts
+        d = {} #category object -> number of posts
         for post in posts:
             for category in post.categories:
                 try:
@@ -104,16 +104,6 @@ class Writer:
         f = open(path,"w")
         f.write(xml)
         f.close()
-    
-    def __compute_category_link_names(self, categories):
-        """Transform category names into URL friendly names
-
-        example: "Cool Stuff" -> "cool-stuff"     """
-        d = {} #name->nice_name
-        for category, n in categories:
-            nice_name = category.lower().replace(" ","-")
-            d[category] = nice_name
-        return d
     
     def __setup_output_dir(self):
         # Clear out the old staging directory.  I *would* just shutil.rmtree
@@ -280,7 +270,7 @@ class Writer:
             f.close()
 
     def __write_pygments_css(self):
-        css_dir = os.path.join(self.output_dir, "css")
+        css_dir = os.path.join(self.output_dir, self.config.site_css_dir.lstrip("/"))
         try:
             util.mkdir(css_dir)
         except OSError:
@@ -303,17 +293,16 @@ class Writer:
         for category in categories:
             category_posts = [post for post in posts \
                                   if category in post.categories]
-            category_link_name = self.category_link_names[category]
             #Write category RSS feed
             self.__write_feed(category_posts,os.path.join(
                     config.blog_path, config.blog_category_dir,
-                    category_link_name,"feed"),"rss.mako")
+                    category.url_name,"feed"),"rss.mako")
             self.__write_feed(category_posts,os.path.join(
                     config.blog_path, config.blog_category_dir,
-                    category_link_name,"feed","atom"),"atom.mako")
+                    category.url_name,"feed","atom"),"atom.mako")
             page_num = 1
             while True:
-                path = os.path.join(root,category_link_name,
+                path = os.path.join(root,category.url_name,
                                     str(page_num),"index.html")
                 try:
                     util.mkdir(os.path.split(path)[0])
@@ -325,13 +314,13 @@ class Writer:
                 #Forward and back links
                 if page_num > 1:
                     prev_link = os.path.join(
-                        config.blog_path, config.blog_category_dir, category_link_name,
+                        config.blog_path, config.blog_category_dir, category.url_name,
                                                str(page_num - 1))
                 else:
                     prev_link = None
                 if len(category_posts) > 0:
                     next_link = os.path.join(
-                        config.blog_path, config.blog_category_dir, category_link_name,
+                        config.blog_path, config.blog_category_dir, category.url_name,
                                                str(page_num + 1))
                 else:
                     next_link = None
@@ -345,7 +334,7 @@ class Writer:
                 #Copy category/1 to category/index.html
                 if page_num == 1:
                     shutil.copyfile(path,os.path.join(
-                            root,category_link_name,
+                            root,category.url_name,
                             "index.html"))
                 #Prepare next iteration
                 page_num += 1
@@ -355,5 +344,9 @@ class Writer:
     def __template_render(self, template, attrs={}):
         for k,v in self.__dict__.items():
             attrs[k] = v
-        return template.render(**attrs)
+        try:
+            return template.render(**attrs)
+        except:
+            logger.error("Error rendering template")
+            print(mako_exceptions.text_error_template().render())
     

@@ -35,7 +35,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "blog_url":"http://www.test.com/blog",
+            "site_url":"http://www.test.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -59,7 +59,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "blog_url":"http://www.test.com/blog",
+            "site_url":"http://www.test.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -69,7 +69,7 @@ This is a test post
                                      )).read()
     def testUpperCaseAutoPermalink(self):
         """Auto generated permalinks should have title and filenames lower case
-        (but not blog_url)"""
+        (but not the rest of the URL)"""
         main.main("init")
         #Write a post to the _posts dir:
         src = """---
@@ -82,7 +82,7 @@ This is a test post without a permalink
         f.write(src)
         f.close()
         main.config.override_options = {
-            "blog_url":"http://www.BlogoFile.com/Blog",
+            "site_url":"http://www.BlogoFile.com",
             "blog_path":"/Blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/Blog/:year/:month/:day/:title" }
@@ -107,7 +107,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "blog_url":"http://www.test.com/blog",
+            "site_url":"http://www.test.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -132,7 +132,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "blog_url":"http://www.test.com/blog",
+            "site_url":"http://www.test.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -143,3 +143,29 @@ This is a test post
         for link in soup.findAll("link"):
             assert(link.contents[0].startswith("http://"))
 
+    def testCategoryLinksInPosts(self):
+        """Make sure category links in posts are correct"""
+        main.main("init")
+        main.config.override_options = {
+            "site_url":"http://www.test.com",
+            "blog_path":"/blog"
+            }
+        #Write a blog post with categories:
+        src = """---
+title: This is a test post
+categories: Category 1, Category 2
+date: 2009/08/16 00:00:00
+---
+This is a test post
+"""
+        f = open(os.path.join(self.build_path,"_posts","01. Test post.html"),"w")
+        f.write(src)
+        f.close()
+        main.main("build")
+        #Open up one of the permapages:
+        page = open(os.path.join(self.build_path,"_site","blog","2009",
+                                 "08","16","this-is-a-test-post","index.html")).read()
+        soup = BeautifulSoup.BeautifulStoneSoup(page)
+        print soup.findAll("a")
+        assert soup.find("a",attrs={'href':'/blog/category/category-1'})
+        assert soup.find("a",attrs={'href':'/blog/category/category-2'})

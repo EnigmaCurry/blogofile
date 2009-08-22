@@ -105,7 +105,7 @@ __rss_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import da
       <link>${post.permalink}</link>
       <pubDate>${post.date.strftime("%a, %d %b %Y %H:%M:%S %Z")}</pubDate>
 % for category in post.categories:
-      <category><![CDATA[${category}]]></category>
+      <category><![CDATA[${category.name}]]></category>
 % endfor
 % if post.guid:
       <guid>${post.guid}</guid>
@@ -147,7 +147,7 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
     <updated>${post.updated.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
     <published>${post.date.strftime("%Y-%m-%dT%H:%M:%SZ")}</published>
 % for category in post.categories:
-    <category scheme="${config.blog_url}" term="${category}" />
+    <category scheme="${config.blog_url}" term="${category.name}" />
 % endfor
     <summary type="html"><![CDATA[${post.title}]]></summary>
     <content type="html" xml:base="${post.permalink}"><![CDATA[${post.content}]]></content>
@@ -170,12 +170,9 @@ __post_mako = """<%page args="post"/>
    for category in post.categories:
        if post.draft:
            #For drafts, we don't write to the category dirs, so just write the categories as text
-           category_links.append(category)
+           category_links.append(category.name)
        else:
-           category_links.append("<a href='"+config.blog_path+"/"
-                                 +config.blog_category_dir+"/"
-                                 +category_link_names[category]
-                                 +"'>"+category+"</a>")
+           category_links.append("<a href='"+category.path+"'>"+category.name+"</a>")
 %>
 ${", ".join(category_links)}
 </small><p/>
@@ -196,17 +193,17 @@ __post_1 = """
 categories: Category 1
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/path/to/blog/2009/07/23/post-one
+permalink: http://www.your-full-site-url.com/blog/2009/07/23/post-one
 title: Post 1
 ---
 This is post #1"""
 
 __post_2 = """
 ---
-categories: Category 2
+categories: Category 1, Category 2
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/path/to/blog/2009/07/23/post-two
+permalink: http://www.your-full-site-url.com/blog/2009/07/23/post-two
 title: Post 2
 ---
 This is post #2"""

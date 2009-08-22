@@ -17,6 +17,7 @@ import sys
 import commands
 from BeautifulSoup import BeautifulSoup
 
+import post
 import config
 
 logger = logging.getLogger("blogofile.org")
@@ -67,7 +68,7 @@ class org:
     >>> p = org(src)
     >>> p.title
     u'Title'
-    >>> p.categories == set([u'emacs',u'blog'])
+    >>> p.categories == set([post.Category('emacs'),post.Category('blog')])
     True
     # >>> p.date
     # datetime.datetime(2008, 10, 20, 0, 0)
@@ -120,7 +121,7 @@ class org:
         try:
             if soup.h2.span != None:
                 if soup.h2.span.findAll(text=True):
-                    self.categories = set(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;'))
+                    self.categories = set(post.Category(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;')))
                 else:
                     self.categories = None
             else:

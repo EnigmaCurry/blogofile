@@ -119,9 +119,9 @@ class Post:
             self.title      = u"Untitled - " + \
                 datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         if not self.categories or len(self.categories) == 0:
-            self.categories = set([u'Uncategorized'])
+            self.categories = set([Category('Uncategorized')])
         if not self.permalink and config.blog_auto_permalink_enabled:
-            self.permalink = urlparse.urljoin(config.blog_domain,config.blog_auto_permalink)
+            self.permalink = urlparse.urljoin(config.site_url,config.blog_auto_permalink)
 
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
@@ -142,7 +142,7 @@ class Post:
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
             self.path = urlparse.urlparse(self.permalink).path
-        logger.info("Permalink: %s" % self.permalink)
+        logger.debug("Permalink: %s" % self.permalink)
     def __excerpt(self, num_words=50):
         #Default post excerpting function
         #Can be overridden in _config.py by
@@ -172,7 +172,7 @@ class Post:
         try:
             self.permalink = y['permalink']
             if self.permalink.startswith("/"):
-                self.permalink = urlparse.urljoin(config.blog_url,self.permalink)
+                self.permalink = urlparse.urljoin(config.site_url,self.permalink)
             self.path = urlparse.urlparse(self.permalink).path
         except KeyError:
             pass
@@ -187,7 +187,7 @@ class Post:
         except KeyError:
             pass
         try:
-            self.categories = set([x.strip() for x in \
+            self.categories = set([Category(x.strip()) for x in \
                                        y['categories'].split(",")])
         except:
             pass
@@ -208,6 +208,22 @@ class Post:
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
 
+class Category:
+    def __init__(self, name):
+        self.name = unicode(name)
+        self.url_name = self.name.lower().replace(" ","-")
+        url = unicode(urlparse.urljoin(config.site_url,"/".join((config.blog_path,config.blog_category_dir,self.url_name))))
+        self.path = urlparse.urlparse(url).path
+    def __eq__(self, other):
+        if self.name == other.name:
+            return True
+        else:
+            return False
+    def __hash__(self):
+        return hash(self.name)
+    def __repr__(self):
+        return self.name
+                                  
 def parse_posts(directory):
     """Retrieve all the posts from the directory specified.
 
