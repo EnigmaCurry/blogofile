@@ -56,8 +56,8 @@ class Writer:
             self.__write_permapage(drafts)
         self.__write_monthly_archives(posts)
         self.__write_blog_categories(posts)
-        self.__write_feed(posts, util.blog_path_helper("feed"),"rss.mako")
-        self.__write_feed(posts, util.blog_path_helper("feed/atom"),"atom.mako")
+        self.__write_feed(posts, os.path.join(config.blog_path,"feed"),"rss.mako")
+        self.__write_feed(posts, os.path.join(config.blog_path,"feed","atom"),"atom.mako")
         self.__write_pygments_css()
         
     def __get_archive_links(self, posts):
@@ -291,12 +291,12 @@ class Writer:
             category_posts = [post for post in posts \
                                   if category in post.categories]
             #Write category RSS feed
-            self.__write_feed(category_posts,util.blog_path_helper(
-                    (config.blog_category_dir,category.url_name,"feed")),
-                              "rss.mako")
-            self.__write_feed(category_posts,util.blog_path_helper(
-                    (config.blog_category_dir,category.url_name,"feed","atom"))
-                              ,"atom.mako")
+            self.__write_feed(category_posts,os.path.join(
+                    config.blog_path,config.blog_category_dir,
+                    category.url_name,"feed"),"rss.mako")
+            self.__write_feed(category_posts,os.path.join(
+                    config.blog_path,config.blog_category_dir,
+                    category.url_name,"feed","atom"),"rss.mako")
             page_num = 1
             while True:
                 path = os.path.join(root,category.url_name,

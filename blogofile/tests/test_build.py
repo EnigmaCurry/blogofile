@@ -21,7 +21,7 @@ class TestBuild(unittest.TestCase):
         shutil.rmtree(self.build_path)
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories
-        off the root work"""
+        off the webroot work"""
         main.main("init")
         main.config.override_options = {
             "site_url":"http://www.test.com/~username",
