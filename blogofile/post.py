@@ -14,6 +14,7 @@ import re
 import operator
 import urlparse
 import hashlib
+import codecs
 
 import pytz
 import yaml
@@ -99,8 +100,6 @@ class Post:
         else:
             raise PostFormatException("Post format '%s' not recognized." %
                                       self.format)
-
-        self.content = self.content.decode("utf-8")
 
         #Do syntax highlighting of <pre> tags
         if config.syntax_highlight_enabled:
@@ -236,7 +235,7 @@ def parse_posts(directory):
     for post_fn in post_file_names:
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
-        src = open(post_path).read()
+        src = codecs.open(post_path,"r",config.blog_post_encoding).read()
         p = Post(src, filename=os.path.splitext(post_fn)[0],
                  format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts

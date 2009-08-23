@@ -45,7 +45,7 @@ class TestBuild(unittest.TestCase):
             os.path.join(self.build_path,"_site","blog",
                          "2009","07","23","post-two"))
     def testCategoryPages(self):
-        """Test that permapages are written"""
+        """Test that categories are written"""
         main.main("init")
         main.config.override_options = {
             "site_url":"http://www.test.com",
@@ -63,6 +63,16 @@ class TestBuild(unittest.TestCase):
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
                          "to","blog","category","category-2","1"))
+    def testArchivePages(self):
+        """Test that archives are written"""
+        main.main("init")
+        main.config.override_options = {
+            "site_url":"http://www.test.com",
+            "blog_path":"/path/to/blog" }
+        main.main("build")
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path,"_site","path",
+                         "to","blog","archive","2009","07","1"))
     def testFeeds(self):
         """Test that RSS/Atom feeds are written"""
         main.main("init")

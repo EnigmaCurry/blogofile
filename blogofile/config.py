@@ -139,6 +139,9 @@ blog_category_dir = "category"
 # This is relative to site_url
 site_css_dir = "/css"
 
+#### Post encoding ####
+blog_post_encoding = "utf-8"
+
 ######################################################################
 # Advanced Settings
 ######################################################################

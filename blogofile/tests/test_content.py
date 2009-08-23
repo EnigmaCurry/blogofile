@@ -169,3 +169,4 @@ This is a test post
         print soup.findAll("a")
         assert soup.find("a",attrs={'href':'/blog/category/category-1'})
         assert soup.find("a",attrs={'href':'/blog/category/category-2'})
+
