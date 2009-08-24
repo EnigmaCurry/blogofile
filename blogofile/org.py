@@ -121,7 +121,8 @@ class org:
         try:
             if soup.h2.span != None:
                 if soup.h2.span.findAll(text=True):
-                    self.categories = set(post.Category(''.join(soup.h2.span.findAll(text=True)).split('&nbsp;')))
+                    self.categories = set([post.Category(x) for x in \
+                                           ''.join(soup.h2.span.findAll(text=True)).split('&nbsp;')])
                 else:
                     self.categories = None
             else:
