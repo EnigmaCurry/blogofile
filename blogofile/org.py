@@ -15,6 +15,7 @@ import logging
 import re
 import sys
 import commands
+import codecs
 from BeautifulSoup import BeautifulSoup
 
 import post
@@ -81,7 +82,7 @@ class org:
             tempFile.write("\n")
         except AttributeError:
             pass
-        tempFile.write(self.source)
+        tempFile.write(self.source.encode(config.blog_post_encoding))
         tempFile.flush()
 
         pname = ""
@@ -110,12 +111,12 @@ class org:
         html = tempFile.name[:-4] + '.html'
         tempFile.close()
 
-        content = open(html, 'r').read()
+        content = codecs.open(html,"r",config.blog_post_encoding).read()
 
         # remote the temporary file
         os.remove(html)
             
-        soup = BeautifulSoup(content.decode('utf-8'))
+        soup = BeautifulSoup(content)
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
         try:
@@ -133,7 +134,7 @@ class org:
 
         soup.body.div.h2.extract()  # delete h2 section (title and category)
         
-        self.content = str(soup.body.div)
+        self.content = str(soup.body.div).decode(config.blog_post_encoding)
         
 if __name__ == '__main__':
     import doctest
