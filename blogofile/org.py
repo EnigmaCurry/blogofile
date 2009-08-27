@@ -111,7 +111,7 @@ class org:
         html = tempFile.name[:-4] + '.html'
         tempFile.close()
 
-        content = codecs.open(html,"r",config.blog_post_encoding).read()
+        content = codecs.open(html,"rb",config.blog_post_encoding).read()
 
         # remote the temporary file
         os.remove(html)
