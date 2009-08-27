@@ -247,9 +247,11 @@ class Writer:
         perma_template.output_encoding = "utf-8"
         for post in posts:
             if post.permalink:
-                path = os.path.join(
-                    self.output_dir, urlparse.urlparse(
-                        post.permalink)[2].lstrip("/"))
+                path_parts = [self.output_dir]
+                path_parts.extend(urlparse.urlparse(
+                        post.permalink)[2].lstrip("/").split("/"))
+                path = os.path.join(*path_parts)
+                logger.info("Writing permapage for post: "+path)
             else:
                 #Permalinks MUST be specified. No permalink, no page.
                 logger.info("Post has no permalink: "+post.title)
@@ -263,7 +265,6 @@ class Writer:
                 { "post": post,
                   "posts": posts })
             f = open(os.path.join(path,"index.html"), "w")
-            logger.info("Writing permapage for post: "+path)
             f.write(html)
             f.close()
 

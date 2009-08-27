@@ -150,14 +150,14 @@ blog_post_encoding = "utf-8"
 # These can be strings or compiled patterns.
 # Strings are assumed to be case insensitive.
 ignore_patterns = [
-    r".*[\/]_.*",   #All files that start with an underscore
-    r".*[\/]#.*",   #Emacs temporary files
+    r".*([\/]|[\\])_.*",   #All files that start with an underscore
+    r".*([\/]|[\\])#.*",   #Emacs temporary files
     r".*~$]",       #Emacs temporary files
-    r".*[\/]\.git", #Git VCS dir
-    r".*[\/]\.hg",  #Mercurial VCS dir
-    r".*[\/]\.bzr", #Bazaar VCS dir
-    r".*[\/]\.svn", #Subversion VCS dir
-    r".*[\/]CVS"    #CVS dir
+    r".*([\/]|[\\])\.git", #Git VCS dir
+    r".*([\/]|[\\])\.hg",  #Mercurial VCS dir
+    r".*([\/]|[\\])\.bzr", #Bazaar VCS dir
+    r".*([\/]|[\\])\.svn", #Subversion VCS dir
+    r".*([\/]|[\\])CVS"    #CVS dir
     ]
 
 ### Pre/Post build hooks:

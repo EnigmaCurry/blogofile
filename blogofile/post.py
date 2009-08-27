@@ -71,6 +71,7 @@ class Post:
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
             #No yaml to extract
+            logger.info("No YAML Section!")
             post_src = self.source
         else:
             #Extract the yaml at the top
@@ -235,7 +236,7 @@ def parse_posts(directory):
     for post_fn in post_file_names:
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
-        src = codecs.open(post_path,"r",config.blog_post_encoding).read()
+        src = open(post_path,"r").read().decode(config.blog_post_encoding)
         p = Post(src, filename=os.path.splitext(post_fn)[0],
                  format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts
