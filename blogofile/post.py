@@ -231,6 +231,9 @@ def parse_posts(directory):
     posts = []
     post_filename_re = re.compile(
         ".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$))")
+    if not os.path.isdir("_posts"):
+        logger.error("There is no _posts directory")
+        return []
     post_file_names = [f for f in os.listdir(directory) \
                            if post_filename_re.match(f)]
     for post_fn in post_file_names:

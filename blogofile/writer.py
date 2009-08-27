@@ -123,6 +123,8 @@ class Writer:
                 shutil.rmtree(f)
             except OSError:
                 pass
+        if config.blog_enabled:
+            util.mkdir(self.blog_dir)
             
     def __write_files(self, posts=None):
         """Write all files for the blog to _site
