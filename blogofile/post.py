@@ -236,7 +236,7 @@ def parse_posts(directory):
     for post_fn in post_file_names:
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
-        src = open(post_path,"r").read().decode(config.blog_post_encoding)
+        src = codecs.open(post_path,"rb",config.blog_post_encoding).read()
         p = Post(src, filename=os.path.splitext(post_fn)[0],
                  format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts
