@@ -239,7 +239,10 @@ def parse_posts(directory):
     for post_fn in post_file_names:
         post_path = os.path.join(directory,post_fn)
         logger.info("Parsing post: %s" % post_path)
-        src = codecs.open(post_path,"rb",config.blog_post_encoding).read()
+        #IMO codecs.open is broken on Win32.
+        #It refuses to open files without replacing newlines with CR+LF
+        #reverting to regular open and decode:
+        src = open(post_path,"r").read().decode(config.blog_post_encoding)
         p = Post(src, filename=os.path.splitext(post_fn)[0],
                  format=os.path.splitext(post_fn)[1][1:])
         #Exclude some posts

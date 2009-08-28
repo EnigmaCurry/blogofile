@@ -111,7 +111,10 @@ class org:
         html = tempFile.name[:-4] + '.html'
         tempFile.close()
 
-        content = codecs.open(html,"rb",config.blog_post_encoding).read()
+        #IMO codecs.open is broken on Win32.
+        #It refuses to open files without replacing newlines with CR+LF
+        #reverting to regular open and decode:
+        content = open(html,"rb").read().decode(config.blog_post_encoding)
 
         # remote the temporary file
         os.remove(html)
