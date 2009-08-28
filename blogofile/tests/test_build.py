@@ -24,7 +24,7 @@ class TestBuild(unittest.TestCase):
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories
         off the webroot work"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com/~username",
             "blog_path":"/path/to/blog" }
@@ -35,7 +35,7 @@ class TestBuild(unittest.TestCase):
             assert(fn in lsdir)
     def testPermaPages(self):
         """Test that permapages are written"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com/",
             "blog_path":"/blog" }
@@ -48,7 +48,7 @@ class TestBuild(unittest.TestCase):
                          "2009","07","23","post-two"))
     def testNoPosts(self):
         """Test when there are no posts, site still builds cleanly"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com/",
             "blog_path":"/blog" }
@@ -57,7 +57,7 @@ class TestBuild(unittest.TestCase):
         main.main("build")
     def testNoPostsDir(self):
         """Test when there is no _posts dir, site still builds cleanly"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com/",
             "blog_path":"/blog" }
@@ -69,7 +69,7 @@ class TestBuild(unittest.TestCase):
         logger.setLevel(logging.ERROR)
     def testCategoryPages(self):
         """Test that categories are written"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com",
             "blog_path":"/path/to/blog" }
@@ -88,7 +88,7 @@ class TestBuild(unittest.TestCase):
                          "to","blog","category","category-2","1"))
     def testArchivePages(self):
         """Test that archives are written"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com",
             "blog_path":"/path/to/blog" }
@@ -98,7 +98,7 @@ class TestBuild(unittest.TestCase):
                          "to","blog","archive","2009","07","1"))
     def testFeeds(self):
         """Test that RSS/Atom feeds are written"""
-        main.main("init")
+        main.main("init simple_blog")
         main.config.override_options = {
             "site_url":"http://www.test.com",
             "blog_path":"/path/to/blog" }

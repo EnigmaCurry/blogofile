@@ -22,5 +22,6 @@ Please take a moment to read LICENSE.txt. It's short.
 """
 
 __author__  = "Ryan McGuire (ryan@enigmacurry.com)"
-__version__ = '0.4'
+__version__ = '0.5-dev'
 
+import site_init

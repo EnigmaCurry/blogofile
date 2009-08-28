@@ -8,7 +8,7 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 __date__   = "Tue Jul 28 22:03:21 2009"
 
 import os
-import config
+from .. import config
 
 __base_mako = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -251,7 +251,6 @@ def do_init(options):
     if len(os.listdir(options.config_dir)) > 0 :
         print("This directory is not empty, will not attempt to initialize here : %s" % options.config_dir)
         return
-    print("Building a minimal blogofile site at : %s" % options.config_dir)
     config_f = open("_config.py","w")
     config_f.write(config.default_config)
     config_f.close()
@@ -307,4 +306,4 @@ def do_init(options):
     p = open(os.path.join("_emacs","setup.el"),"w")
     p.write(__setup_el)
     p.close()
-    print("This is a stub, this isn't complete yet.")
+    

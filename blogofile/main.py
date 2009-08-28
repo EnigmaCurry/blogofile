@@ -36,7 +36,7 @@ import pygments.styles
 import post
 from writer import Writer
 import config
-import skeleton_init
+import site_init
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
@@ -71,12 +71,16 @@ def get_args(cmd=None):
 
     p_init = subparsers.add_parser("init", help="Create a minimal blogofile "
                                    "configuration in the current directory")
+    p_init.add_argument("SITE_TEMPLATE", nargs="?",
+                        help="The site template to initialize")
     p_init.set_defaults(func=do_init)
+    p_init.extra_help = site_init.do_help
 
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
                                     "the builtin webserver. Don't use this "
-                                    "outside of a firewall!")
-    p_serve.add_argument("PORT", help="port on which to serve")
+                                    "outside of a firewall!")    
+    p_serve.add_argument("PORT", nargs="?", default="8080",
+                         help="port on which to serve")
     p_serve.set_defaults(func=do_serve)
 
     if not cmd:
@@ -127,8 +131,12 @@ def do_help(args):
         # Print help for each subcommand requested.
         for subcommand in args.command:
             print >>sys.stderr, "%s - %s" % (subcommand, helptext[subcommand])
-            subparsers.choices[subcommand].print_help()
+            parser = subparsers.choices[subcommand]
+            parser.print_help()
             print >>sys.stderr, "\n"
+            #Perform any extra help tasks:
+            if hasattr(parser,"extra_help"):
+                parser.extra_help()
 
 def do_serve(args):
     os.chdir("_site")
@@ -163,7 +171,7 @@ def do_build(args):
     config.post_build()
 
 def do_init(args):
-    skeleton_init.do_init(args)
+    site_init.do_init(args)
 
 if __name__ == "__main__":
     main()
