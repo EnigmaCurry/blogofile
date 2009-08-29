@@ -63,9 +63,10 @@ __head_mako = """<title>${config.blog_name}</title>
 
 __header_mako = """<h1><a href="/">${config.blog_name}</a></h1>
 This is a header that goes on every page.
+<hr/>
 """
 
-__footer_mako = """<h3>This is a footer that goes on every page</h3>"""
+__footer_mako = """<hr/>This is a footer that goes on every page"""
 
 __chronological_mako = """<%inherit file="site.mako" />
 % for post in posts:
@@ -186,6 +187,15 @@ __index_mako = """<%inherit file="_templates/site.mako" />
 <p>
  This is the index page's content.
 </p>
+
+Here's the main <a href="${config.blog_path}">chronological blog page</a><br/><br/>
+
+Here are the latest 5 posts:
+<ul>
+% for post in posts[:5]:
+    <li><a href="${post.path}">${post.title}</a></li>
+% endfor
+</ul>
 """
 
 __post_1 = """
