@@ -185,12 +185,12 @@ ${", ".join(category_links)}
 
 __index_mako = """<%inherit file="_templates/site.mako" />
 <p>
- This is the index page's content.
+ This is the index page.
 </p>
 
 Here's the main <a href="${config.blog_path}">chronological blog page</a><br/><br/>
 
-Here are the latest 5 posts:
+Here's the last 5 posts:
 <ul>
 % for post in posts[:5]:
     <li><a href="${post.path}">${post.title}</a></li>
@@ -211,9 +211,9 @@ This is post #1"""
 __post_2 = """
 ---
 categories: Category 1, Category 2
-date: 2009/07/23 15:22:00
+date: 2009/07/24 16:20:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/07/23/post-two
+permalink: http://www.your-full-site-url.com/blog/2009/07/24/post-two
 title: Post 2
 ---
 This is post #2"""
@@ -224,7 +224,7 @@ categories: Unicode
 date: 2009/08/22 15:22:00
 format: markdown
 permalink: http://www.your-full-site-url.com/blog/2009/08/22/Unicode
-title: Unicode Test
+title: Post 3 - Unicode Test
 ---
 Anglo-Saxon Rune Poem:
 
@@ -249,6 +249,46 @@ I kå Glas frässa, ond des macht mr nix!
 काचं शक्नोम्यत्तुम् । नोपहिनस्ति माम् ॥ 
 
 """
+
+__post_4 = """
+---
+categories: General Stuff
+date: 2009/08/29 15:22:00
+format: markdown
+permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-four
+title: Post 4
+---
+This is post #4"""
+
+__post_5 = """
+---
+categories: General Stuff
+date: 2009/08/29 15:23:00
+format: markdown
+permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-five
+title: Post 5
+---
+This is post #5"""
+
+__post_6 = """
+---
+categories: General Stuff
+date: 2009/08/29 15:24:00
+format: markdown
+permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-six
+title: Post 6
+---
+This is post #6"""
+
+__post_7 = """
+---
+categories: General Stuff
+date: 2009/08/29 15:25:00
+format: markdown
+permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-seven
+title: Post 7
+---
+This is post #7"""
 
 __setup_el = """;;; add load path for orgmode
 ;;;    and intialize code and prehandling routine
@@ -310,6 +350,18 @@ def do_init(options):
     p.close()
     p = open(os.path.join("_posts","003 - post #3.markdown"),"w")
     p.write(__post_3)
+    p.close()
+    p = open(os.path.join("_posts","004 - post #4.markdown"),"w")
+    p.write(__post_4)
+    p.close()
+    p = open(os.path.join("_posts","005 - post #5.markdown"),"w")
+    p.write(__post_5)
+    p.close()
+    p = open(os.path.join("_posts","006 - post #6.markdown"),"w")
+    p.write(__post_6)
+    p.close()
+    p = open(os.path.join("_posts","007 - post #7.markdown"),"w")
+    p.write(__post_7)
     p.close()
     #Write orgmode helpers
     os.mkdir("_emacs")
