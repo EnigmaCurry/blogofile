@@ -1,8 +1,0 @@
-* Bugs:
-** BeautifulSoup current doesn't work.
-   BeautifulSoup==3.0.7a does.
-   (This can probably be fixed using html5lib)
-* Todo:
-** Add draft support
-   should allow posts inside of the _drafts folder to be processed but not put into the chronological blog nor in any of the feeds
-   the only way to access the post should be through the permalink.
