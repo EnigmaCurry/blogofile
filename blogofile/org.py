@@ -16,6 +16,7 @@ import re
 import sys
 import commands
 import codecs
+import datetime
 from BeautifulSoup import BeautifulSoup
 
 import post
@@ -53,7 +54,7 @@ class org:
 
     >>> src = '''
     ... ---
-    ... * Title                                 :emacs:blog:
+    ... * Title              <2009-08-22 Sat 15:22>        :emacs:blog:
     ... some text
     ... ** First section
     ... some more text
@@ -72,7 +73,7 @@ class org:
     >>> p.categories == set([post.Category('emacs'),post.Category('blog')])
     True
     # >>> p.date
-    # datetime.datetime(2008, 10, 20, 0, 0)
+    # datetime.datetime(2009, 08, 22, 15, 22)
     # >>> p.permalink
     # u'/2008/10/20/first-post'
         """
@@ -122,18 +123,21 @@ class org:
         soup = BeautifulSoup(content)
         self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
 
+        # extract category
         try:
-            if soup.h2.span != None:
-                if soup.h2.span.findAll(text=True):
-                    self.categories = set([post.Category(x) for x in \
-                                           ''.join(soup.h2.span.findAll(text=True)).split('&nbsp;')])
-                else:
-                    self.categories = None
-            else:
-                self.categories = None
+            categories = soup.h2('span', {'class':'tag'})[0].string
+            self.categories = set([post.Category(x) for x in categories.split('&nbsp;')])
+        except:
+            self.categories = None
+
+        # extract date
+        try:
+            date = soup.h2('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
+            # date_format = "%Y/%m/%d %H:%M:%S"
+            self.date = datetime.datetime.strptime(date, "%Y-%m-%d %a %H:%M")
+        except:
+            self.date = None
         
-        except AttributeError:
-            pass
 
         soup.body.div.h2.extract()  # delete h2 section (title and category)
         

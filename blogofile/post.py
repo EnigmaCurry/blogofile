@@ -46,8 +46,8 @@ class Post:
         self.yaml       = yaml
         self.title      = None
         self.__timezone = config.blog_timezone
-        self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
-        self.updated    = self.date
+        self.date       = None
+        self.updated    = None
         self.categories = set()
         self.tags       = set()
         self.permalink  = None
@@ -89,13 +89,15 @@ class Post:
                 org_info = org.org(post_src)
                 # content field
                 self.content = org_info.content
-                # if title is not set, extracted '*' head is used for title
+                # if title is not set, extract the first head as title 
                 if not self.title:
                     self.title   = org_info.title
-                # if categories is not set, extracted "*"'s
-                # tag is used for categories
+                # if categories is not set, extract the first head's tag as categories
                 if not self.categories:
                     self.categories = org_info.categories
+                # if date is not set, extract the first head's timestamp as date
+                if not self.date:
+                    self.date = org_info.date
             else:
                 self.content = post_src
         else:
@@ -118,6 +120,12 @@ class Post:
         if not self.title:
             self.title      = u"Untitled - " + \
                 datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            
+        if not self.date:
+            self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
+        if not self.updated:
+            self.updated    = self.date
+            
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
         if not self.permalink and config.blog_auto_permalink_enabled:
@@ -142,6 +150,7 @@ class Post:
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
             self.path = urlparse.urlparse(self.permalink).path
+            
         logger.debug("Permalink: %s" % self.permalink)
     def __excerpt(self, num_words=50):
         #Default post excerpting function
