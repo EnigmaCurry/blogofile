@@ -17,6 +17,7 @@ import sys
 import commands
 import codecs
 import datetime
+import pytz
 from BeautifulSoup import BeautifulSoup
 
 import post
@@ -135,6 +136,7 @@ class org:
             date = soup.h2('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
             # date_format = "%Y/%m/%d %H:%M:%S"
             self.date = datetime.datetime.strptime(date, "%Y-%m-%d %a %H:%M")
+            self.date = self.date.replace(tzinfo=pytz.timezone(config.blog_timezone))
         except:
             self.date = None
         
