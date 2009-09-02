@@ -1,5 +1,4 @@
 import os
-from .. import config
 
 available_sites = [
     # (name of site, description, module)
