@@ -16,7 +16,7 @@ def do_help():
         print("   "+site.ljust(20)+"- "+description)
     print("")
     print("For example, create a simple site, with a blog, and no theme:\n")
-    print("   blogofile init -t simple_blog\n")
+    print("   blogofile init simple_blog\n")
 
 def do_init(args):
     if not args.SITE_TEMPLATE:
