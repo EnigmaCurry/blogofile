@@ -32,14 +32,6 @@ import util
 
 class org:
     """
-    Convert org file into html
-    """
-    def __init__(self, source):
-        self.source    = source
-        return self.__convert()
-        
-    def __convert(self):
-        """
         Class to Convert org file into html file
 
         It composes org-content with source, preamble, and postample.
@@ -77,7 +69,12 @@ class org:
     # datetime.datetime(2009, 08, 22, 15, 22)
     # >>> p.permalink
     # u'/2008/10/20/first-post'
-        """
+	"""
+    def __init__(self, source):
+        self.source    = source
+        return self.__convert()
+        
+    def __convert(self):
         tempFile = tempfile.NamedTemporaryFile(suffix='.org')
         try:
             tempFile.write(config.emacs_orgmode_preamble)
@@ -120,30 +117,51 @@ class org:
 
         # remote the temporary file
         os.remove(html)
-            
+
         soup = BeautifulSoup(content)
-        self.title = re.sub('&nbsp;', '', soup.h2.contents[0]).strip()
+
+        # the first h2 section will be used for title, category, and date
+        metaline = soup.find('div', {'id': 'outline-container-1'}).h2
+
+        # extract title
+        try:
+            self.title = re.sub('&nbsp;', '', metaline.contents[0]).strip()
+        except AttributeError:
+            self.title = None
 
         # extract category
         try:
-            categories = soup.h2('span', {'class':'tag'})[0].string
+            categories = metaline('span', {'class':'tag'})[0].string
             self.categories = set([post.Category(x) for x in categories.split('&nbsp;')])
         except:
             self.categories = None
 
         # extract date
         try:
-            date = soup.h2('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
+            date = metaline('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
             # date_format = "%Y/%m/%d %H:%M:%S"
             self.date = datetime.datetime.strptime(date, "%Y-%m-%d %a %H:%M")
             self.date = self.date.replace(tzinfo=pytz.timezone(config.blog_timezone))
         except:
             self.date = None
-        
 
-        soup.body.div.h2.extract()  # delete h2 section (title and category)
-        
-        self.content = str(soup.body.div).decode(config.blog_post_encoding)
+        # delete first h2 section (which is title and category)
+        try:
+            metaline.extract()
+        except AttributeError:
+            pass
+
+        # print soup.body
+        try:
+            toc = soup.find('div',  {'id': 'table-of-contents'})
+            content = soup.find('div', {'id': 'outline-container-1'})
+
+            if toc != None:
+                content = str(toc) + str(content)
+                
+            self.content = str(content).decode(config.blog_post_encoding)
+        except:
+            pass
         
 if __name__ == '__main__':
     import doctest
