@@ -48,7 +48,7 @@ def get_args(cmd=None):
     parser_template.add_argument("-s", "--src-dir", dest="src_dir",
                         help="Your site's source directory "
                                  "(default is current directory)",
-                        metavar="FILE", default=os.curdir)
+                        metavar="DIR", default=os.curdir)
     parser_template.add_argument("--version", action="version")
     parser_template.add_argument("-v", "--verbose", dest="verbose",
                                  default=False, action="store_true",
