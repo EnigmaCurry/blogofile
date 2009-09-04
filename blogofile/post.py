@@ -119,7 +119,7 @@ class Post:
         # fill in empty default value
         if not self.title:
             self.title      = u"Untitled - " + \
-                datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
         if not self.date:
             self.date       = datetime.datetime.now(pytz.timezone(self.__timezone))
