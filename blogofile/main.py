@@ -42,27 +42,34 @@ logging.basicConfig()
 logger = logging.getLogger("blogofile")
 
 def get_args(cmd=None):
+
+    ##parser_template to base other parsers on
+    parser_template = argparse.ArgumentParser(add_help=False)
+    parser_template.add_argument("-s", "--src-dir", dest="src_dir",
+                        help="Your site's source directory "
+                                 "(default is current directory)",
+                        metavar="FILE", default=os.curdir)
+    parser_template.add_argument("--version", action="version")
+    parser_template.add_argument("-v", "--verbose", dest="verbose",
+                                 default=False, action="store_true",
+                                 help="Be verbose")
+    parser_template.add_argument("-vv", "--veryverbose", dest="veryverbose",
+                                 default=False, action="store_true",
+                                 help="Be extra verbose")
+
     global parser, subparsers
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(parents=[parser_template])
     parser.version = "Blogofile " + __version__ + " -- http://www.blogofile.com"
     subparsers = parser.add_subparsers()
-    parser.add_argument("-c", "--config-file", dest="config_file",
-                        help="config file to load (default './_config.py')",
-                        metavar="FILE", default="./_config.py")
-    parser.add_argument("--version", action="version")
-    parser.add_argument("-v", "--verbose", dest="verbose", default=False,
-                        action="store_true", help="Be verbose")
-    parser.add_argument("-vv", "--veryverbose", dest="veryverbose", default=False,
-                        action="store_true", help="Be extra verbose")
-    
 
     p_help = subparsers.add_parser("help", help="Show help for a command",
-                                   add_help=False)
+                                   add_help=False, parents=[parser_template])
     p_help.add_argument("command", help="a blogofile subcommand e.g. build",
                         nargs="*", default="none")
     p_help.set_defaults(func=do_help)
 
-    p_build = subparsers.add_parser("build", help="Build the blog from source")
+    p_build = subparsers.add_parser("build", help="Build the blog from source",
+                                    parents=[parser_template])
     p_build.add_argument("--include-drafts", dest="include_drafts",
                          default=False, action="store_true",
                          help="Writes permapages for drafts "
@@ -70,7 +77,8 @@ def get_args(cmd=None):
     p_build.set_defaults(func=do_build)
 
     p_init = subparsers.add_parser("init", help="Create a minimal blogofile "
-                                   "configuration in the current directory")
+                                   "configuration in the current directory",
+                                   parents=[parser_template])
     p_init.add_argument("SITE_TEMPLATE", nargs="?",
                         help="The site template to initialize")
     p_init.set_defaults(func=do_init)
@@ -78,7 +86,8 @@ def get_args(cmd=None):
 
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
                                     "the builtin webserver. Don't use this "
-                                    "outside of a firewall!")    
+                                    "outside of a firewall!",
+                                    parents=[parser_template])
     p_serve.add_argument("PORT", nargs="?", default="8080",
                          help="port on which to serve")
     p_serve.set_defaults(func=do_serve)
@@ -103,15 +112,15 @@ def main(cmd=None):
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
-    args.config_dir = os.path.split(os.path.abspath(args.config_file))[0]
-    if not os.path.isdir(args.config_dir):
-        print("config dir does not exist : %s" % args.config_dir)
+    if not os.path.isdir(args.src_dir):
+        print("source dir does not exist : %s" % args.src_dir)
         sys.exit(1)
-    os.chdir(args.config_dir)
+    os.chdir(args.src_dir)
 
     args.func(args)
 
 def do_help(args):
+    global parser
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
 
@@ -146,10 +155,11 @@ def do_serve(args):
 
 def do_build(args):
     #load config
+    config_file = os.path.join(args.src_dir,"_config.py")
     try:
-        config.init(args.config_file)
+        config.init(config_file)
     except config.ConfigNotFoundException:
-        print >>sys.stderr, ("No configuration found: %s" % args.config_file)
+        print >>sys.stderr, ("No configuration found: %s" % config_file)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
 
     logger.info("Running user's pre_build() function..")

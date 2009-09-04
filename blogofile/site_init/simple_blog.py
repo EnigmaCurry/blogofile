@@ -298,9 +298,6 @@ __setup_el = """;;; add load path for orgmode
 """
 
 def do_init(options):
-    if len(os.listdir(options.config_dir)) > 0 :
-        print("This directory is not empty, will not attempt to initialize here : %s" % options.config_dir)
-        return
     config_f = open("_config.py","w")
     config_f.write(config.default_config)
     config_f.close()

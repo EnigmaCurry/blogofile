@@ -15,7 +15,7 @@ def do_help():
         print("   "+site.ljust(20)+"- "+description)
     print("")
     print("For example, create a simple site, with a blog, and no theme:\n")
-    print("   blogofile init -t simple_blog\n")
+    print("   blogofile init simple_blog\n")
 
 def do_init(args):
     if not args.SITE_TEMPLATE:
@@ -24,8 +24,8 @@ def do_init(args):
         if args.SITE_TEMPLATE not in [x[0] for x in available_sites]:
             do_help()
             return
-        if len(os.listdir(args.config_dir)) > 0 :
-            print("This directory is not empty, will not attempt to initialize here : %s" % args.config_dir)
+        if len(os.listdir(args.src_dir)) > 0 :
+            print("This directory is not empty, will not attempt to initialize here : %s" % args.src_dir)
             return
         
         print("Initializing the %s site template..." % args.SITE_TEMPLATE)
