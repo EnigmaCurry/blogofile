@@ -30,13 +30,12 @@ import sys
 import shlex
 
 import argparse
-import pygments.formatters
-import pygments.styles
 
 import post
 from writer import Writer
 import config
 import site_init
+import cache
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
@@ -103,6 +102,7 @@ def get_args(cmd=None):
     return (parser, args)
 
 def main(cmd=None):
+    config.cache = cache.Cache()
     parser, args = get_args(cmd)
 
     if args.verbose:
@@ -162,21 +162,12 @@ def do_build(args):
         print >>sys.stderr, ("No configuration found: %s" % config_file)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
 
-    logger.info("Running user's pre_build() function..")
     writer = Writer(output_dir="_site")
+    logger.info("Running user's pre_build() function..")
+    config.pre_build()
     if config.blog_enabled == True:
-        config.pre_build()
-        posts = post.parse_posts("_posts")
-        if args.include_drafts:
-            drafts = post.parse_posts("_drafts", config)
-            for p in drafts:
-                p.draft = True
-        else:
-            drafts = None
-        writer.write_blog(posts, drafts)
-    else:
-        #Build the site without a blog
-        writer.write_site()
+        config.cache.posts = post.parse_posts("_posts")
+    writer.write_site()
     logger.info("Running user's post_build() function..")
     config.post_build()
 

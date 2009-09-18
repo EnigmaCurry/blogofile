@@ -161,6 +161,37 @@ __permapage_mako = """<%inherit file="site.mako" />
 <%include file="post.mako" args="post=post" />
 """
 
+__permapage_py = """import os
+import urlparse
+
+def run():
+    "Write blog posts to their permalink locations"
+    perma_template = bf.writer.template_lookup.get_template("permapage.mako")
+    perma_template.output_encoding = "utf-8"
+    for post in posts:
+        if post.permalink:
+            path_parts = [bf.writer.output_dir]
+            path_parts.extend(urlparse.urlparse(
+                    post.permalink)[2].lstrip("/").split("/"))
+            path = os.path.join(*path_parts)
+            bf.logger.info("Writing permapage for post: "+path)
+        else:
+            #Permalinks MUST be specified. No permalink, no page.
+            bf.logger.info("Post has no permalink: "+post.title)
+            continue
+        try:
+            bf.util.mkdir(path)
+        except OSError:
+            pass
+        html = bf.writer.template_render(
+            perma_template,
+            { "post": post,
+              "posts": posts })
+        f = open(os.path.join(path,"index.html"), "w")
+        f.write(html)
+        f.close()
+"""
+
 __post_mako = """<%page args="post"/>
 <div class="blog_post">
   <a name="${post.title}" />
@@ -329,6 +360,9 @@ def do_init(options):
     t.close()
     t = open(os.path.join("_templates","permapage.mako"),"w")
     t.write(__permapage_mako)
+    t.close()
+    t = open(os.path.join("_templates","permapage.py"),"w")
+    t.write(__permapage_py)
     t.close()
     t = open(os.path.join("_templates","post.mako"),"w")
     t.write(__post_mako)

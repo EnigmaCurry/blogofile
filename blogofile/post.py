@@ -259,8 +259,3 @@ def parse_posts(directory):
             posts.append(p)
     posts.sort(key=operator.attrgetter('date'), reverse=True)
     return posts    
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose=True)
-    
