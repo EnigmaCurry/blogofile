@@ -25,12 +25,11 @@ import BeautifulSoup
 import org
 
 import config
+import util
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
 logger = logging.getLogger("blogofile.post")
-
-import util
 
 date_format = "%Y/%m/%d %H:%M:%S"
 
@@ -246,8 +245,8 @@ def parse_posts(directory):
     post_file_names = [f for f in os.listdir(directory) \
                            if post_filename_re.match(f)]
     for post_fn in post_file_names:
-        post_path = os.path.join(directory,post_fn)
-        logger.info("Parsing post: %s" % post_path)
+        post_path = util.path_join(directory,post_fn)
+        logger.debug("Parsing post: %s" % post_path)
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:

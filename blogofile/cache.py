@@ -1,6 +1,6 @@
 class Cache():
-    """A caching object for templates and filters
+    """A dummy object used for attatching things we want to remember"""
+    pass
 
-    Templates or filters can create data that they may want another process to
-    have access to. This is where they can retrieve it.
-    """
+#The main blogofile cache object, transfers state between templates
+bf = Cache()

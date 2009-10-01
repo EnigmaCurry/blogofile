@@ -35,7 +35,7 @@ import post
 from writer import Writer
 import config
 import site_init
-import cache
+import util
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
@@ -67,12 +67,8 @@ def get_args(cmd=None):
                         nargs="*", default="none")
     p_help.set_defaults(func=do_help)
 
-    p_build = subparsers.add_parser("build", help="Build the blog from source",
+    p_build = subparsers.add_parser("build", help="Build the site from source",
                                     parents=[parser_template])
-    p_build.add_argument("--include-drafts", dest="include_drafts",
-                         default=False, action="store_true",
-                         help="Writes permapages for drafts "
-                         "(but not in feeds or chronlogical blog)")
     p_build.set_defaults(func=do_build)
 
     p_init = subparsers.add_parser("init", help="Create a minimal blogofile "
@@ -84,8 +80,9 @@ def get_args(cmd=None):
     p_init.extra_help = site_init.do_help
 
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
-                                    "the builtin webserver. Don't use this "
-                                    "outside of a firewall!",
+                                    "the builtin webserver. This is for DEV "
+                                    "work only, don't use this outside of a "
+                                    "firewall!",
                                     parents=[parser_template])
     p_serve.add_argument("PORT", nargs="?", default="8080",
                          help="port on which to serve")
@@ -102,7 +99,6 @@ def get_args(cmd=None):
     return (parser, args)
 
 def main(cmd=None):
-    config.cache = cache.Cache()
     parser, args = get_args(cmd)
 
     if args.verbose:
@@ -126,6 +122,8 @@ def do_help(args):
 
     if "none" in args.command:
         parser.print_help()
+        print("\nSee 'blogofile help COMMAND' for more information"
+              " on a specific command.")
     else:
         # Where did the subparser help text go? Let's get it back.
         # Certainly there is a better way to retrieve the helptext than this...
@@ -155,7 +153,7 @@ def do_serve(args):
 
 def do_build(args):
     #load config
-    config_file = os.path.join(args.src_dir,"_config.py")
+    config_file = util.path_join(args.src_dir,"_config.py")
     try:
         config.init(config_file)
     except config.ConfigNotFoundException:
@@ -163,12 +161,10 @@ def do_build(args):
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
 
     writer = Writer(output_dir="_site")
-    logger.info("Running user's pre_build() function..")
+    logger.debug("Running user's pre_build() function..")
     config.pre_build()
-    if config.blog_enabled == True:
-        config.cache.posts = post.parse_posts("_posts")
     writer.write_site()
-    logger.info("Running user's post_build() function..")
+    logger.debug("Running user's post_build() function..")
     config.post_build()
 
 def do_init(args):
