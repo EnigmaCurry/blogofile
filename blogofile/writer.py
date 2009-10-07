@@ -26,6 +26,7 @@ import util
 import config
 import cache
 import post
+import filter
 
 logger = logging.getLogger("blogofile.writer")
 
@@ -49,10 +50,11 @@ class Writer:
         self.bf.writer = self
         self.bf.util = util
         self.bf.logger = logger
+        self.bf.filter = filter
         if self.config.blog_enabled == True:
             self.bf.posts = post.parse_posts("_posts")
             self.bf.blog_dir = util.path_join(self.output_dir,self.config.blog_path)
-        
+            
     def write_site(self):
         self.__setup_output_dir()
         self.__run_auto_templates()
@@ -145,7 +147,6 @@ class Writer:
             else:
                 logger.debug("Module %s has no run() function, skipping it." % py_file)
 
-            
     def template_render(self, template, attrs={}):
         attrs['bf'] = self.bf
         try:
