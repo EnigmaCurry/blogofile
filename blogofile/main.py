@@ -153,11 +153,12 @@ def do_serve(args):
 
 def do_build(args):
     #load config
-    config_file = util.path_join(args.src_dir,"_config.py")
     try:
-        config.init(config_file)
+        # Always load the _config.py from the current directory.
+        # We already changed to the directory specified with --src-dir
+        config.init("_config.py")
     except config.ConfigNotFoundException:
-        print >>sys.stderr, ("No configuration found: %s" % config_file)
+        print >>sys.stderr, ("No configuration found in source dir: %s" % args.src_dir)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
 
     writer = Writer(output_dir="_site")
