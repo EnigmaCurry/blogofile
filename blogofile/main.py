@@ -99,6 +99,7 @@ def get_args(cmd=None):
     return (parser, args)
 
 def main(cmd=None):
+    do_debug()   
     parser, args = get_args(cmd)
 
     if args.verbose:
@@ -171,5 +172,15 @@ def do_build(args):
 def do_init(args):
     site_init.do_init(args)
 
+def do_debug():
+    """Run inside winpdb if the environment variable BLOGOFILE_DEBUG is set to
+    anything other than 0"""
+    try:
+        if os.environ['BLOGOFILE_DEBUG'] != "0":
+            print("Running in debug mode. Enter a password for Winpdb to use.")
+            import rpdb2; rpdb2.start_embedded_debugger_interactive_password()
+    except KeyError:
+        pass #Not running in debug mode
+    
 if __name__ == "__main__":
     main()
