@@ -57,7 +57,7 @@ class Writer:
             
     def write_site(self):
         self.__setup_output_dir()
-        self.__run_auto_templates()
+        self.__run_controllers()
         self.__write_files()
             
     def __setup_output_dir(self):
@@ -126,26 +126,27 @@ class Writer:
                     logger.debug("Copying file: "+f_path)
                     shutil.copyfile(f_path,util.path_join(self.output_dir,f_path))
         
-    def __run_auto_templates(self):
-        """Renders all the templates in _templates/ that have associated .py
-        files"""
-        #Store imported templates on the bf cache
-        self.bf.templates = cache.Cache()
-        for py_file in [p for p in sorted(os.listdir("_templates")) if
+    def __run_controllers(self):
+        """Run all the controllers in the _controllers directory"""
+        #Store imported controllers on the bf cache
+        self.bf.controllers = cache.Cache()
+        if(not os.path.isdir("_controllers")):
+            return
+        for py_file in [p for p in sorted(os.listdir("_controllers")) if
                         p.endswith(".py")]:
-            template_name = (py_file.split(".")[0].replace("-","_"))
-            import_name = "auto_template_mod_"+template_name
-            mod = imp.load_source(import_name,util.path_join("_templates",py_file))
-            setattr(self.bf.templates,template_name,mod)
-        for py_file in [p for p in sorted(os.listdir("_templates")) if
+            controller_name = (py_file.split(".")[0].replace("-","_"))
+            import_name = "controller_mod_"+controller_name
+            mod = imp.load_source(import_name,util.path_join("_controllers",py_file))
+            setattr(self.bf.controllers,controller_name,mod)
+        for py_file in [p for p in sorted(os.listdir("_controllers")) if
                         p.endswith(".py")]:
-            logger.info("Running automatic template: "+py_file)
-            template_name = (py_file.split(".")[0].replace("-","_"))
-            mod = getattr(self.bf.templates,template_name)
+            logger.info("Running controller: "+py_file)
+            controller_name = (py_file.split(".")[0].replace("-","_"))
+            mod = getattr(self.bf.controllers,controller_name)
             if "run" in dir(mod):
                 mod.run()
             else:
-                logger.debug("Module %s has no run() function, skipping it." % py_file)
+                logger.debug("Controller %s has no run() function, skipping it." % py_file)
 
     def template_render(self, template, attrs={}):
         attrs['bf'] = self.bf
