@@ -118,7 +118,20 @@ def blog_path_helper(path_parts):
     a_path = a_path + "/" + "/".join(path_parts)
     if not a_path.startswith("/"):
         a_path = "/"+a_path
-    logger.debug("ABS path: "+a_path)
     return a_path
+
+def path_join(*parts):
+    """An OS independant os.path.join
+
+    Converts (back)slashes from other platforms automatically
+    Normally, os.path.join is great, as long as you pass each dir/file
+    independantly, but not if you (accidentally/intentionally) put a slash in"""
+
+    if os.sep == "\\":
+        wrong_slash_type = "/"
+    else:
+        wrong_slash_type = "\\"
+    parts = [x.replace(wrong_slash_type,os.sep) for x in parts]
+    return os.sep.join(parts)
 
 

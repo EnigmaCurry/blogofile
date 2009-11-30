@@ -56,12 +56,12 @@ __site_mako = """<%inherit file="base.mako" />
 </%def>
 """
 
-__head_mako = """<title>${config.blog_name}</title>
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${config.blog_path}/feed" />
-<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="${config.blog_path}/feed/atom" />
+__head_mako = """<title>${bf.config.blog_name}</title>
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.config.blog_path}/feed" />
+<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="${bf.config.blog_path}/feed/atom" />
 """
 
-__header_mako = """<h1><a href="/">${config.blog_name}</a></h1>
+__header_mako = """<h1><a href="/">${bf.config.blog_name}</a></h1>
 This is a header that goes on every page.
 <hr/>
 """
@@ -84,6 +84,66 @@ __chronological_mako = """<%inherit file="site.mako" />
 % endif
 """
 
+__chronological_py = """# Write all the blog posts in reverse chronological order
+import os
+
+def run():
+    write_blog_chron()
+    write_blog_first_page()
+
+def write_blog_chron():
+    root = bf.config.blog_pagination_dir.lstrip("/")
+    chron_template = bf.writer.template_lookup.get_template("chronological.mako")
+    chron_template.output_encoding = "utf-8"
+    page_num = 1
+    post_num = 0
+    html = []
+    while len(bf.posts) > post_num:
+        #Write the pages, num_per_page posts per page:
+        page_posts = bf.posts[post_num:post_num+bf.config.blog_posts_per_page]
+        post_num += bf.config.blog_posts_per_page
+        if page_num > 1:
+            prev_link = "../" + str(page_num - 1)
+        else:
+            prev_link = None
+        if len(bf.posts) > post_num:
+            next_link = "../" + str(page_num + 1)
+        else:
+            next_link = None
+        page_dir = os.path.join(bf.blog_dir,root,str(page_num))
+        bf.util.mkdir(page_dir)
+        fn = os.path.join(page_dir,"index.html")
+        f = open(fn,"w")
+        html = bf.writer.template_render(
+            chron_template,
+            { "posts":page_posts,
+              "next_link":next_link,
+              "prev_link":prev_link })
+        f.write(html)
+        f.close()
+        page_num += 1
+        
+def write_blog_first_page():
+    if not bf.config.blog_custom_index:
+        chron_template = bf.writer.template_lookup.get_template("chronological.mako")
+        chron_template.output_encoding = "utf-8"
+        page_posts = bf.posts[:bf.config.blog_posts_per_page]
+        path = os.path.join(bf.blog_dir,"index.html")
+        bf.logger.info("Writing blog index page: "+path)
+        f = open(path,"w")
+        if len(bf.posts) > bf.config.blog_posts_per_page:
+            next_link = bf.util.blog_path_helper(bf.config.blog_pagination_dir+"/2")
+        else:
+            next_link = None
+        html = bf.writer.template_render(
+            chron_template,
+            { "posts": page_posts,
+              "next_link": next_link,
+              "prev_link": None })
+        f.write(html)
+        f.close()          
+"""
+
 __rss_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import datetime %>
 <rss version="2.0"
      xmlns:content="http://purl.org/rss/1.0/modules/content/"
@@ -93,9 +153,9 @@ __rss_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import da
      xmlns:wfw="http://wellformedweb.org/CommentAPI/"
      >
   <channel>
-    <title>${config.blog_name}</title>
-    <link>${config.blog_url}</link>
-    <description>${config.blog_description}</description>
+    <title>${bf.config.blog_name}</title>
+    <link>${bf.config.blog_url}</link>
+    <description>${bf.config.blog_description}</description>
     <pubDate>${datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")}</pubDate>
     <generator>Blogofile</generator>
     <sy:updatePeriod>hourly</sy:updatePeriod>
@@ -127,20 +187,20 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
   xmlns:thr="http://purl.org/syndication/thread/1.0"
   xml:lang="en"
    >
-  <title type="text">${config.blog_name}</title>
-  <subtitle type="text">${config.blog_description}</subtitle>
+  <title type="text">${bf.config.blog_name}</title>
+  <subtitle type="text">${bf.config.blog_description}</subtitle>
 
   <updated>${datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <generator uri="http://blogofile.com/">Blogofile</generator>
 
-  <link rel="alternate" type="text/html" href="${config.blog_url}" />
-  <id>${config.blog_url}/feed/atom/</id>
-  <link rel="self" type="application/atom+xml" href="${config.blog_url}/feed/atom/" />
+  <link rel="alternate" type="text/html" href="${bf.config.blog_url}" />
+  <id>${bf.config.blog_url}/feed/atom/</id>
+  <link rel="self" type="application/atom+xml" href="${bf.config.blog_url}/feed/atom/" />
 % for post in posts[:10]:
   <entry>
     <author>
       <name>${post.author}</name>
-      <uri>${config.blog_url}</uri>
+      <uri>${bf.config.blog_url}</uri>
     </author>
     <title type="html"><![CDATA[${post.title}]]></title>
     <link rel="alternate" type="text/html" href="${post.permalink}" />
@@ -148,7 +208,7 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
     <updated>${post.updated.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
     <published>${post.date.strftime("%Y-%m-%dT%H:%M:%SZ")}</published>
 % for category in post.categories:
-    <category scheme="${config.blog_url}" term="${category.name}" />
+    <category scheme="${bf.config.blog_url}" term="${category.name}" />
 % endfor
     <summary type="html"><![CDATA[${post.title}]]></summary>
     <content type="html" xml:base="${post.permalink}"><![CDATA[${post.content}]]></content>
@@ -159,6 +219,37 @@ __atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import d
 
 __permapage_mako = """<%inherit file="site.mako" />
 <%include file="post.mako" args="post=post" />
+"""
+
+__permapage_py = """import os
+import urlparse
+
+def run():
+    "Write blog posts to their permalink locations"
+    perma_template = bf.writer.template_lookup.get_template("permapage.mako")
+    perma_template.output_encoding = "utf-8"
+    for post in bf.posts:
+        if post.permalink:
+            path_parts = [bf.writer.output_dir]
+            path_parts.extend(urlparse.urlparse(
+                    post.permalink)[2].lstrip("/").split("/"))
+            path = os.path.join(*path_parts)
+            bf.logger.info("Writing permapage for post: "+path)
+        else:
+            #Permalinks MUST be specified. No permalink, no page.
+            bf.logger.info("Post has no permalink: "+post.title)
+            continue
+        try:
+            bf.util.mkdir(path)
+        except OSError:
+            pass
+        html = bf.writer.template_render(
+            perma_template,
+            { "post": post,
+              "posts": bf.posts })
+        f = open(os.path.join(path,"index.html"), "w")
+        f.write(html)
+        f.close()
 """
 
 __post_mako = """<%page args="post"/>
@@ -188,11 +279,11 @@ __index_mako = """<%inherit file="_templates/site.mako" />
  This is the index page.
 </p>
 
-Here's the main <a href="${config.blog_path}">chronological blog page</a><br/><br/>
+Here's the main <a href="${bf.config.blog_path}">chronological blog page</a><br/><br/>
 
 Here's the last 5 posts:
 <ul>
-% for post in posts[:5]:
+% for post in bf.posts[:5]:
     <li><a href="${post.path}">${post.title}</a></li>
 % endfor
 </ul>
@@ -321,6 +412,9 @@ def do_init(options):
     t = open(os.path.join("_templates","chronological.mako"),"w")
     t.write(__chronological_mako)
     t.close()
+    t = open(os.path.join("_templates","chronological.py"),"w")
+    t.write(__chronological_py)
+    t.close()
     t = open(os.path.join("_templates","rss.mako"),"w")
     t.write(__rss_mako)
     t.close()
@@ -329,6 +423,9 @@ def do_init(options):
     t.close()
     t = open(os.path.join("_templates","permapage.mako"),"w")
     t.write(__permapage_mako)
+    t.close()
+    t = open(os.path.join("_templates","permapage.py"),"w")
+    t.write(__permapage_py)
     t.close()
     t = open(os.path.join("_templates","post.mako"),"w")
     t.write(__post_mako)
