@@ -114,6 +114,10 @@ def main(cmd=None):
         sys.exit(1)
     os.chdir(args.src_dir)
 
+    #The src_dir, which is now the current working directory,
+    #should already be on the sys.path, but let's make this explicit:
+    sys.path.insert(0,os.curdir)
+
     args.func(args)
 
 def do_help(args):
