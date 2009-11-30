@@ -33,6 +33,26 @@ logger = logging.getLogger("blogofile.post")
 
 date_format = "%Y/%m/%d %H:%M:%S"
 
+# These are all the Blogofile reserved field names for posts. It is not
+# recommended that users re-use any of these field names for purposes other than the
+# one stated.
+reserved_field_names = {
+    "title"      :"A one-line free form title for the post",
+    "date"       :"The date that the post was originally created",
+    "updated"    :"The date that the post was last updated",
+    "categories" :"A list of categories that the post pertains to, each seperated by commas",
+    "tags"       :"A list of tags that the post pertains to, each seperated by commas",
+    "permalink"  :"The full permanent URL for this post. Automatically created if not provided",
+    "format"     :"The format of the post (eg: html, textile, markdown, org)",
+    "guid"       :"A unique hash for the post, if not provided it is assumed that the permalink is the guid",
+    "author"     :"The name of the author of the post",
+    "draft"      :"If 'true' or 'True', the post is considered to be only a draft and not to be published.",
+    "source"     :"Reserved internally",
+    "yaml"       :"Reserved internally",
+    "content"    :"Reserved internally",
+    "filename"   :"Reserved internally"
+    }
+
 class PostFormatException(Exception):
     pass
 
@@ -42,7 +62,7 @@ class Post:
     """
     def __init__(self, source, filename="Untitled", format="html"):
         self.source     = source
-        self.yaml       = yaml
+        self.yaml       = None
         self.title      = None
         self.__timezone = config.blog_timezone
         self.date       = None
@@ -55,7 +75,7 @@ class Post:
         self.format     = format
         self.filename   = filename
         self.author     = ""
-        self.guid       = None #Default guid is permalink
+        self.guid       = None
         self.draft      = False
         self.__parse()
         self.__post_process()
@@ -63,20 +83,27 @@ class Post:
     def __repr__(self):
         return "<Post title='%s' date='%s'>" % \
             (self.title, self.date.strftime("%Y/%m/%d %H:%M:%S"))
-        
+            
     def __parse(self):
         """Parse the yaml and fill fields"""
         yaml_sep = re.compile("^---$", re.MULTILINE)
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
             #No yaml to extract
-            logger.info("No YAML Section!")
+            logger.warn("Post "+self.filename+" has no YAML section!")
             post_src = self.source
         else:
             #Extract the yaml at the top
             self.__parse_yaml(content_parts[1])
             post_src = content_parts[2]
         #Convert post to HTML
+        self.__parse_format(post_src)
+        #Do syntax highlighting of <pre> tags
+        self.__parse_syntax_highlight()
+        #Do post excerpting
+        self.__parse_post_excerpting()
+
+    def __parse_format(self, post_src):
         if self.format == "textile":
             self.content = textile.textile(post_src)
         elif self.format == "markdown":
@@ -102,11 +129,12 @@ class Post:
         else:
             raise PostFormatException("Post format '%s' not recognized." %
                                       self.format)
-
-        #Do syntax highlighting of <pre> tags
+        
+    def __parse_syntax_highlight(self):
         if config.syntax_highlight_enabled:
             self.content = util.do_syntax_highlight(self.content,config)
-        #Do post excerpting
+
+    def __parse_post_excerpting(self):
         if config.post_excerpt_enabled:
             try:
                 self.excerpt = config.post_excerpt(
@@ -114,6 +142,26 @@ class Post:
             except AttributeError:
                 self.excerpt = self.__excerpt(config.post_excerpt_word_length)
 
+    def __excerpt(self, num_words=50):
+        #Default post excerpting function
+        #Can be overridden in _config.py by
+        #defining post_excerpt(content,num_words)
+        if len(self.excerpt) == 0:
+             """Retrieve excerpt from article"""
+             s = BeautifulSoup.BeautifulSoup(self.content)
+             # get rid of javascript, noscript and css
+             [[tree.extract() for tree in s(elem)] for elem in (
+                     'script','noscript','style')]
+             # get rid of doctype
+             subtree = s.findAll(text=re.compile("DOCTYPE|xml"))
+             [tree.extract() for tree in subtree]
+             # remove headers
+             [[tree.extract() for tree in s(elem)] for elem in (
+                     'h1','h2','h3','h4','h5','h6')]
+             text = ''.join(s.findAll(text=True))\
+                                 .replace("\n","").split(" ")
+             return " ".join(text[:num_words]) + '...'
+        
     def __post_process(self):
         # fill in empty default value
         if not self.title:
@@ -151,32 +199,12 @@ class Post:
             self.path = urlparse.urlparse(self.permalink).path
             
         logger.debug("Permalink: %s" % self.permalink)
-    def __excerpt(self, num_words=50):
-        #Default post excerpting function
-        #Can be overridden in _config.py by
-        #defining post_excerpt(content,num_words)
-        if len(self.excerpt) == 0:
-             """Retrieve excerpt from article"""
-             s = BeautifulSoup.BeautifulSoup(self.content)
-             # get rid of javascript, noscript and css
-             [[tree.extract() for tree in s(elem)] for elem in (
-                     'script','noscript','style')]
-             # get rid of doctype
-             subtree = s.findAll(text=re.compile("DOCTYPE|xml"))
-             [tree.extract() for tree in subtree]
-             # remove headers
-             [[tree.extract() for tree in s(elem)] for elem in (
-                     'h1','h2','h3','h4','h5','h6')]
-             text = ''.join(s.findAll(text=True))\
-                                 .replace("\n","").split(" ")
-             return " ".join(text[:num_words]) + '...'
         
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
-        try:
-            self.title = y['title']
-        except KeyError:
-            pass
+        # Load all the fields that require special processing first:
+        fields_need_processing = ('permalink','guid','date','updated',
+                                  'categories','tags','draft')
         try:
             self.permalink = y['permalink']
             if self.permalink.startswith("/"):
@@ -184,6 +212,10 @@ class Post:
             self.path = urlparse.urlparse(self.permalink).path
         except KeyError:
             pass
+        try:
+            self.guid = y['guid']
+        except KeyError:
+            self.guid = self.permalink
         try:
             self.date = pytz.timezone(self.__timezone).localize(
                 datetime.datetime.strptime(y['date'],date_format))
@@ -204,13 +236,16 @@ class Post:
         except:
             pass
         try:
-            self.guid = y['guid']
+            if y['draft'].strip().lower() == "true":
+                self.draft = True
+            else:
+                self.draft = False
         except KeyError:
-            pass
-        try:
-            self.format = y['format']
-        except KeyError:
-            pass
+            self.draft = False
+        # Load the rest of the fields that don't need processing:
+        for field, value in y.items():
+            if field not in fields_need_processing:
+                setattr(self,field,value)
         
     def permapath(self):
         """Get just the path portion of a permalink"""
