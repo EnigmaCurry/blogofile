@@ -62,7 +62,14 @@ __head_mako = """<title>${bf.config.blog_name}</title>
 """
 
 __header_mako = """<h1><a href="/">${bf.config.blog_name}</a></h1>
-This is a header that goes on every page.
+<p>This is a <i>very</i> minimal Blogofile site.<br/>
+It doesn't look like much, but you can learn a lot more about Blogofile if you
+start from a bare site like this one.<br/></p>
+<p>Make sure you read the <a href="http://www.blogofile.com/documentation">online
+documentation</a>.</p>
+<p>If you were looking for a more fleshed-out site try running 'blogofile init
+blogofile.com', but you'll need <a href="http://www.git-scm.org">git</a> installed first.</p>
+<p>This is a header that goes on every page.</p>
 <hr/>
 """
 
@@ -86,6 +93,7 @@ __chronological_mako = """<%inherit file="site.mako" />
 
 __chronological_py = """# Write all the blog posts in reverse chronological order
 import os
+from blogofile.cache import bf
 
 def run():
     write_blog_chron()
@@ -223,6 +231,7 @@ __permapage_mako = """<%inherit file="site.mako" />
 
 __permapage_py = """import os
 import urlparse
+from blogofile.cache import bf
 
 def run():
     "Write blog posts to their permalink locations"
