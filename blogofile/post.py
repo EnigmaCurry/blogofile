@@ -37,7 +37,7 @@ date_format = "%Y/%m/%d %H:%M:%S"
 # recommended that users re-use any of these field names for purposes other than the
 # one stated.
 reserved_field_names = {
-    "title"      :"A one-line free form title for the post",
+    "title"      :"A one-line free-form title for the post",
     "date"       :"The date that the post was originally created",
     "updated"    :"The date that the post was last updated",
     "categories" :"A list of categories that the post pertains to, each seperated by commas",

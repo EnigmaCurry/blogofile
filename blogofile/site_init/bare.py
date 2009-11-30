@@ -1,5 +1,8 @@
+import os
+
 def do_init(args):
     #Write an empty config file:
+    os.mkdir("_templates")
     f=open("_config.py","w")
     f.write("# This is a barren blogofile config file.\n"
             "# See docs at http://www.blogofile.com/documentation\n"
