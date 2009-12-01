@@ -131,7 +131,12 @@ def path_join(*parts):
         wrong_slash_type = "/"
     else:
         wrong_slash_type = "\\"
-    parts = [x.replace(wrong_slash_type,os.sep) for x in parts]
-    return os.sep.join(parts)
+    new_parts = []
+    for p in parts:
+        if hasattr(p,"__iter__"):
+            #This part is a sequence itself, recurse into it
+            p = path_join(*p)
+        new_parts.append(p.replace(wrong_slash_type,os.sep))
+    return os.sep.join(new_parts)
 
 
