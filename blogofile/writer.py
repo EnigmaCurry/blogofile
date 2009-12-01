@@ -62,9 +62,7 @@ class Writer:
             
     def __setup_output_dir(self):
         """Setup the staging directory"""
-        try:
-            util.mkdir(self.output_dir)
-        except OSError:
+        if os.path.isdir(self.output_dir):
             # I *would* just shutil.rmtree the whole thing and recreate it,
             # but I want the output_dir to retain it's same inode on the
             # filesystem to be compatible with some HTTP servers.
@@ -79,6 +77,7 @@ class Writer:
                     shutil.rmtree(f)
                 except OSError:
                     pass
+        util.mkdir(self.output_dir)
             
     def __write_files(self):
         """Write all files for the blog to _site
