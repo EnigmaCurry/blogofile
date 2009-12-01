@@ -154,4 +154,15 @@ class Writer:
         except:
             logger.error("Error rendering template")
             print(mako_exceptions.text_error_template().render())
-    
+
+    def materialize_template(self, template_name, location, attrs={}):
+        """Render a named template with attrs to a location in the _site dir"""
+        template = self.template_lookup.get_template(template_name)
+        template.output_encoding = "utf-8"
+        rendered = self.template_render(template, attrs)
+        path = util.path_join(self.output_dir,location)
+        #Create the path if it doesn't exist:
+        util.mkdir(os.path.split(path)[0])
+        f = open(path,"w")
+        f.write(rendered)
+        f.close()
