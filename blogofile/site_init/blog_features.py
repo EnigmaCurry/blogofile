@@ -245,10 +245,6 @@ def write_categories():
         while True:
             path = bf.util.path_join(root,category.url_name,
                                 str(page_num),"index.html")
-            try:
-                bf.util.mkdir(os.path.split(path)[0])
-            except OSError:
-                pass
             page_posts = category_posts[:bf.config.blog_posts_per_page]
             category_posts = category_posts[bf.config.blog_posts_per_page:]
             #Forward and back links
@@ -277,6 +273,7 @@ def write_categories():
             page_num += 1
             if len(category_posts) == 0:
                 break
+
 """
 
 chronological_py = """# Write all the blog posts in reverse chronological order
@@ -305,7 +302,6 @@ def write_blog_chron(posts,root):
         else:
             next_link = None
         page_dir = bf.util.path_join(bf.config.blog_path,root,str(page_num))
-        bf.util.mkdir(page_dir)
         fn = bf.util.path_join(page_dir,"index.html")
         bf.writer.materialize_template("chronological.mako", fn,
             { "posts":page_posts,
