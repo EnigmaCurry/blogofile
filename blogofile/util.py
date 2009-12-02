@@ -85,7 +85,7 @@ def do_syntax_highlight(content,config):
     
 def should_ignore_path(path):
     """See if a given path matches the ignore patterns"""
-    for p in config.compiled_ignore_patterns:
+    for p in config.compiled_file_ignore_patterns:
         if p.match(path):
             return True
     return False

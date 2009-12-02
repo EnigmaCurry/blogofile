@@ -149,10 +149,10 @@ blog_post_encoding = "utf-8"
 # from the _site directory
 # These can be strings or compiled patterns.
 # Strings are assumed to be case insensitive.
-ignore_patterns = [
+file_ignore_patterns = [
     r".*([\/]|[\\])_.*",   #All files that start with an underscore
     r".*([\/]|[\\])#.*",   #Emacs temporary files
-    r".*~$]",       #Emacs temporary files
+    r".*~$]",              #Emacs temporary files
     r".*([\/]|[\\])\.git", #Git VCS dir
     r".*([\/]|[\\])\.hg",  #Mercurial VCS dir
     r".*([\/]|[\\])\.bzr", #Bazaar VCS dir
@@ -176,15 +176,15 @@ def __post_load_tasks():
         import pygments
         html_formatter = pygments.formatters.HtmlFormatter(
             style=syntax_highlight_style, encoding='utf-8')
-    #Compile ignore_patterns
+    #Compile file_ignore_patterns
     import re
-    global compiled_ignore_patterns
-    compiled_ignore_patterns = []
-    for p in ignore_patterns:
+    global compiled_file_ignore_patterns
+    compiled_file_ignore_patterns = []
+    for p in file_ignore_patterns:
         if type(p) in (str,unicode):
-            compiled_ignore_patterns.append(re.compile(p,re.IGNORECASE))
+            compiled_file_ignore_patterns.append(re.compile(p,re.IGNORECASE))
         else:
-            compiled_ignore_patterns.append(p)
+            compiled_file_ignore_patterns.append(p)
     #Calculate the absoulte blog path (ie, minus the domain)
     global blog_path
     blog_path = blog_path.strip().lstrip("/")
