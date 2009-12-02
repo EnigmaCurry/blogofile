@@ -160,6 +160,15 @@ file_ignore_patterns = [
     r".*([\/]|[\\])CVS"    #CVS dir
     ]
 
+#### Default post filters ####
+# If a post does not specify a filter chain, use the 
+# following defaults based on the post file extension:
+blog_post_default_filters = {
+    "markdown": "markdown, syntax_highlight",
+    "textile": "textile, syntax_highlight",
+    "org": "org, syntax_highlight"
+}
+
 ### Pre/Post build hooks:
 def pre_build():
     #Do whatever you want before the _site is built

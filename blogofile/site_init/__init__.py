@@ -1,5 +1,7 @@
 import os
 
+from .. import util
+
 available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
@@ -32,3 +34,10 @@ def do_init(args):
         mod = site_modules[args.SITE_TEMPLATE]
         exec("import "+mod)
         exec(mod+".do_init(args)")
+
+def write_file(path_parts, contents):
+    path = os.path.join(*path_parts)
+    util.mkdir(os.path.split(path)[0])
+    f = open(path,"w")
+    f.write(contents)
+    f.close()

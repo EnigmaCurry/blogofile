@@ -18,14 +18,12 @@ import codecs
 
 import pytz
 import yaml
-import textile
-import markdown
 import logging
 import BeautifulSoup
-import org
 
 import config
 import util
+from cache import bf
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
@@ -43,9 +41,11 @@ reserved_field_names = {
     "categories" :"A list of categories that the post pertains to, each seperated by commas",
     "tags"       :"A list of tags that the post pertains to, each seperated by commas",
     "permalink"  :"The full permanent URL for this post. Automatically created if not provided",
-    "format"     :"The format of the post (eg: html, textile, markdown, org)",
     "guid"       :"A unique hash for the post, if not provided it is assumed that the permalink is the guid",
     "author"     :"The name of the author of the post",
+    "filter"     :"The filter chain to apply to the entire post. If not specified, a "
+                  "default chain based on the file extension is applied. If set to "
+                  "'None' it disables all filters, even default ones.",
     "draft"      :"If 'true' or 'True', the post is considered to be only a draft and not to be published.",
     "source"     :"Reserved internally",
     "yaml"       :"Reserved internally",
@@ -53,14 +53,11 @@ reserved_field_names = {
     "filename"   :"Reserved internally"
     }
 
-class PostFormatException(Exception):
-    pass
-
 class Post:
     """
     Class to describe a blog post and associated metadata
     """
-    def __init__(self, source, filename="Untitled", format="html"):
+    def __init__(self, source, filename="Untitled"):
         self.source     = source
         self.yaml       = None
         self.title      = None
@@ -72,11 +69,11 @@ class Post:
         self.permalink  = None
         self.content    = u""
         self.excerpt    = u""
-        self.format     = format
         self.filename   = filename
         self.author     = ""
         self.guid       = None
         self.draft      = False
+        self.filter     = None
         self.__parse()
         self.__post_process()
         
@@ -96,39 +93,27 @@ class Post:
             #Extract the yaml at the top
             self.__parse_yaml(content_parts[1])
             post_src = content_parts[2]
-        #Convert post to HTML
-        self.__parse_format(post_src)
+        self.__apply_filters(post_src)
         #Do syntax highlighting of <pre> tags
         self.__parse_syntax_highlight()
         #Do post excerpting
         self.__parse_post_excerpting()
 
-    def __parse_format(self, post_src):
-        if self.format == "textile":
-            self.content = textile.textile(post_src)
-        elif self.format == "markdown":
-            self.content = markdown.markdown(post_src)
-        elif self.format == "html":
-            self.content = post_src
-        elif self.format == "org":
-            if config.emacs_orgmode_enabled:
-                org_info = org.org(post_src)
-                # content field
-                self.content = org_info.content
-                # if title is not set, extract the first head as title 
-                if not self.title:
-                    self.title   = org_info.title
-                # if categories is not set, extract the first head's tag as categories
-                if not self.categories:
-                    self.categories = org_info.categories
-                # if date is not set, extract the first head's timestamp as date
-                if not self.date:
-                    self.date = org_info.date
-            else:
-                self.content = post_src
-        else:
-            raise PostFormatException("Post format '%s' not recognized." %
-                                      self.format)
+    def __apply_filters(self, post_src):
+        """Apply filters to the post"""
+        #Apply block level filters (filters on only part of the post)
+        # TODO: block level filters on posts
+        #Apply post level filters (filters on the entire post)
+        #If filter is unspecified, use the default filter based on
+        #the file extension:
+        if self.filter == None:
+            try:
+                file_extension = os.path.splitext(self.filename)[-1][1:]
+                self.filter = bf.config.blog_post_default_filters[
+                    file_extension]
+            except KeyError:
+                self.filter = []
+        self.content = bf.filter.run_chain(self.filter, post_src)
         
     def __parse_syntax_highlight(self):
         if config.syntax_highlight_enabled:
@@ -286,10 +271,9 @@ def parse_posts(directory):
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
         src = open(post_path,"r").read().decode(config.blog_post_encoding)
-        p = Post(src, filename=os.path.splitext(post_fn)[0],
-                 format=os.path.splitext(post_fn)[1][1:])
+        p = Post(src, filename=post_fn)
         #Exclude some posts
         if not (p.permalink == None):
             posts.append(p)
     posts.sort(key=operator.attrgetter('date'), reverse=True)
-    return posts    
+    return posts
