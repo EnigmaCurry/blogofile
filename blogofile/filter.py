@@ -1,5 +1,6 @@
 import logging
 import imp
+import codecs
 
 import util
 
@@ -21,7 +22,7 @@ def run_chain(chain, content):
         logging.debug("Applying filter: "+fn)
         content = f.run(content)
     logging.debug("Content:"+content)
-    return content
+    return codecs.decode(content,"utf-8")
 
 def parse_chain(chain):
     """Parse a filter chain into a sequence of filters"""
