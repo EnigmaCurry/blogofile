@@ -179,12 +179,6 @@ def post_build():
 """
 
 def __post_load_tasks():
-    #Instantiate syntax highlighter:
-    if syntax_highlight_enabled == True:
-        global html_formatter
-        import pygments
-        html_formatter = pygments.formatters.HtmlFormatter(
-            style=syntax_highlight_style, encoding='utf-8')
     #Compile file_ignore_patterns
     import re
     global compiled_file_ignore_patterns

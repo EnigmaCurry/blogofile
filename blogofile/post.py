@@ -94,8 +94,6 @@ class Post:
             self.__parse_yaml(content_parts[1])
             post_src = content_parts[2]
         self.__apply_filters(post_src)
-        #Do syntax highlighting of <pre> tags
-        self.__parse_syntax_highlight()
         #Do post excerpting
         self.__parse_post_excerpting()
 
@@ -115,10 +113,6 @@ class Post:
                 self.filter = []
         self.content = bf.filter.run_chain(self.filter, post_src)
         
-    def __parse_syntax_highlight(self):
-        if config.syntax_highlight_enabled:
-            self.content = util.do_syntax_highlight(self.content,config)
-
     def __parse_post_excerpting(self):
         if config.post_excerpt_enabled:
             try:
