@@ -245,7 +245,9 @@ class Category:
         return hash(self.name)
     def __repr__(self):
         return self.name
-                                  
+    def __cmp__(self, other):
+        return cmp(self.name, other.name)
+
 def parse_posts(directory):
     """Retrieve all the posts from the directory specified.
 
