@@ -41,7 +41,6 @@ class Writer:
             directories=[".", self.base_template_dir],
             input_encoding='utf-8', output_encoding='utf-8',
             encoding_errors='replace')
-        self.__load_bf_cache()
 
     def __load_bf_cache(self):
         #Template cache object, used to transfer state to/from each template:
@@ -57,11 +56,13 @@ class Writer:
             
     def write_site(self):
         self.__setup_output_dir()
+        self.__load_bf_cache()
         self.__run_controllers()
         self.__write_files()
             
     def __setup_output_dir(self):
         """Setup the staging directory"""
+        import sys
         if os.path.isdir(self.output_dir):
             # I *would* just shutil.rmtree the whole thing and recreate it,
             # but I want the output_dir to retain it's same inode on the
