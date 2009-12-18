@@ -43,9 +43,10 @@ reserved_field_names = {
     "permalink"  :"The full permanent URL for this post. Automatically created if not provided",
     "guid"       :"A unique hash for the post, if not provided it is assumed that the permalink is the guid",
     "author"     :"The name of the author of the post",
-    "filter"     :"The filter chain to apply to the entire post. If not specified, a "
+    "filters"    :"The filter chain to apply to the entire post. If not specified, a "
                   "default chain based on the file extension is applied. If set to "
                   "'None' it disables all filters, even default ones.",
+    "filter"     :"synonym for filters",
     "draft"      :"If 'true' or 'True', the post is considered to be only a draft and not to be published.",
     "source"     :"Reserved internally",
     "yaml"       :"Reserved internally",
@@ -73,7 +74,7 @@ class Post:
         self.author     = ""
         self.guid       = None
         self.draft      = False
-        self.filter     = None
+        self.filters    = None
         self.__parse()
         self.__post_process()
         
@@ -104,14 +105,14 @@ class Post:
         #Apply post level filters (filters on the entire post)
         #If filter is unspecified, use the default filter based on
         #the file extension:
-        if self.filter == None:
+        if self.filters == None:
             try:
                 file_extension = os.path.splitext(self.filename)[-1][1:]
-                self.filter = bf.config.blog_post_default_filters[
+                self.filters = bf.config.blog_post_default_filters[
                     file_extension]
             except KeyError:
-                self.filter = []
-        self.content = bf.filter.run_chain(self.filter, post_src)
+                self.filters = []
+        self.content = bf.filter.run_chain(self.filters, post_src)
         
     def __parse_post_excerpting(self):
         if config.post_excerpt_enabled:
@@ -213,6 +214,10 @@ class Post:
         try:
             self.tags = set([x.strip() for x in y['tags'].split(",")])
         except:
+            pass
+        try:
+            self.filters = y['filter'] #filter is a synonym for filters
+        except KeyError:
             pass
         try:
             if y['draft'].strip().lower() == "true":
