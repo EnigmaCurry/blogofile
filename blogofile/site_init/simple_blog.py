@@ -79,7 +79,6 @@ post_1 = """
 categories: Category 1
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/07/23/post-one
 title: Post 1
 ---
 This is post #1"""
@@ -89,7 +88,6 @@ post_2 = """
 categories: Category 1, Category 2
 date: 2009/07/24 16:20:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/07/24/post-two
 title: Post 2
 ---
 This is post #2"""
@@ -99,7 +97,6 @@ post_3 = """
 categories: Unicode
 date: 2009/08/22 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/08/22/Unicode
 title: Post 3 - Unicode Test
 ---
 Anglo-Saxon Rune Poem:
@@ -131,7 +128,6 @@ post_4 = """
 categories: General Stuff
 date: 2009/08/29 15:22:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-four
 title: Post 4
 ---
 This is post #4"""
@@ -141,7 +137,6 @@ post_5 = """
 categories: General Stuff
 date: 2009/08/29 15:23:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-five
 title: Post 5
 ---
 This is post #5"""
@@ -151,7 +146,6 @@ post_6 = """
 categories: General Stuff
 date: 2009/08/29 15:24:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-six
 title: Post 6
 ---
 This is post #6"""
@@ -161,7 +155,6 @@ post_7 = """
 categories: General Stuff
 date: 2009/08/29 15:25:00
 format: markdown
-permalink: http://www.your-full-site-url.com/blog/2009/08/29/post-seven
 title: Post 7
 ---
 This is post #7"""
