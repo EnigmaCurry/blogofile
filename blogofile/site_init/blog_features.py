@@ -74,7 +74,7 @@ footer_mako = """
 <p id="credits">
 Powered by <a href="http://www.blogofile.com">Blogofile</a>.<br/>
 <br/>
-RSS feeds for <a href="${bf.config.util.blog_path_helper('feed')}">Entries</a>
+RSS feeds for <a href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}">Entries</a>
 % if bf.config.disqus_enabled:
  and <a
 href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
@@ -100,8 +100,8 @@ href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
 """
 
 head_mako = """<title>${bf.config.blog_name}</title>
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feed" />
-<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/feed/atom" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}" />
+<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}" />
 """
 
 permapage_mako = """<%inherit file="site.mako" />
@@ -217,28 +217,38 @@ def write_monthly_archives(posts):
 
 categories_py = """import os
 import shutil
+import operator
+
 from blogofile.cache import bf
 
 def run():
     write_categories()
 
-def write_categories():
-    \"\"\"Write all the blog posts in categories\"\"\"
-    root = bf.util.path_join(bf.config.blog_path,bf.config.blog_category_dir)
-    #Find all the categories:
+def sort_into_categories():
     categories = set()
     for post in bf.posts:
         categories.update(post.categories)
     for category in categories:
         category_posts = [post for post in bf.posts \
                               if category in post.categories]
-        #Update the categories sidebar models
-        bf.all_categories.append((category,len(category_posts)))
+        bf.categorized_posts[category] = category_posts
+    for category, posts in sorted(
+        bf.categorized_posts.items(), key=operator.itemgetter(0)):
+        bf.all_categories.append((category, len(posts)))
+    
+def write_categories():
+    """Write all the blog posts in categories"""
+    root = bf.util.path_join(bf.config.blog_path,bf.config.blog_category_dir)
+    #Find all the categories:
+    categories = set()
+    for post in bf.posts:
+        categories.update(post.categories)
+    for category, category_posts in bf.categorized_posts.items():
         #Write category RSS feed
-        bf.controllers.feed.write_feed(category_posts,bf.util.path_join(
+        bf.controllers.feed.write_feed(category_posts,bf.util.fs_site_path_helper(
                 bf.config.blog_path, bf.config.blog_category_dir,
                 category.url_name,"feed"),"rss.mako")
-        bf.controllers.feed.write_feed(category_posts,bf.util.path_join(
+        bf.controllers.feed.write_feed(category_posts,bf.util.fs_site_path_helper(
                 bf.config.blog_path, bf.config.blog_category_dir,
                 category.url_name,"feed","atom"),"atom.mako")
         page_num = 1
@@ -249,13 +259,13 @@ def write_categories():
             category_posts = category_posts[bf.config.blog_posts_per_page:]
             #Forward and back links
             if page_num > 1:
-                prev_link = bf.util.path_join(
+                prev_link = bf.util.site_path_helper(
                     bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
                                            str(page_num - 1))
             else:
                 prev_link = None
             if len(category_posts) > 0:
-                next_link = bf.util.path_join(
+                next_link = bf.util.site_path_helper(
                     bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
                                            str(page_num + 1))
             else:
@@ -315,13 +325,14 @@ def write_blog_first_page():
         path = bf.util.path_join(bf.config.blog_path,"index.html")
         bf.logger.info("Writing blog index page: "+path)
         if len(bf.posts) > bf.config.blog_posts_per_page:
-            next_link = bf.util.blog_path_helper(bf.config.blog_pagination_dir+"/2")
+            next_link = bf.util.site_path_helper(bf.config.blog_pagination_dir+"/2")
         else:
             next_link = None
         bf.writer.materialize_template("chronological.mako", path,
             { "posts": page_posts,
               "next_link": next_link,
               "prev_link": None })
+
 """
 
 feed_py = """from blogofile.cache import bf

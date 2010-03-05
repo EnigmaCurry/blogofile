@@ -30,7 +30,7 @@ class TestBuild(unittest.TestCase):
             "site_url":"http://www.test.com/~username",
             "blog_path":"/path/to/blog" }
         main.main("build")
-        lsdir = os.listdir(os.path.join(self.build_path,"_site",
+        lsdir = os.listdir(os.path.join(self.build_path,"_site","~username",
                                         "path","to","blog"))
         for fn in ("category","page","feed"):
             assert(fn in lsdir)

@@ -1,6 +1,6 @@
 import re
 import os
-import urlparse
+from urlparse import urlparse
 import logging
 
 import config
@@ -48,17 +48,18 @@ def mkdir(newdir):
         #print "mkdir %s" % repr(newdir)
         if tail:
             os.mkdir(newdir)
-            
-def blog_path_helper(*parts):
-    """Make an absolute URL path for something on the blog
 
-    path_parts is a sequence of path parts to append to the blog URL
+def url_path_helper(*parts):
+    """
+    path_parts is a sequence of path parts to concatenate
 
-    >>> blog_path_helper("one","two","three")
+    >>> url_path_helper("one","two","three")
     'one/two/three'
-    >>> blog_path_helper(("one","two"),"three")
+    >>> url_path_helper(("one","two"),"three")
     'one/two/three'
-    >>> blog_path_helper("one/two","three")
+    >>> url_path_helper("one/two","three")
+    'one/two/three'
+    >>> url_path_helper("one","/two/","three")
     'one/two/three'
     """
     new_parts = []
@@ -66,6 +67,7 @@ def blog_path_helper(*parts):
         if hasattr(p,"__iter__"):
             #This part is a sequence itself, recurse into it
             p = path_join(*p, **{'sep':"/"})
+        p = p.strip("/")
         if p in ("","\\","/"):
             continue
         new_parts.append(p)
@@ -73,6 +75,40 @@ def blog_path_helper(*parts):
         return "/".join(new_parts)
     else:
         return "/"
+
+            
+def site_path_helper(*parts):
+    """Make an absolute path on the site, appending a sequence of path parts to
+    the site path
+
+    >>> config.site_url = "http://www.blogofile.com"
+    >>> site_path_helper("blog")
+    '/blog'
+    >>> config.site_url = "http://www.blgofile.com/~ryan/site1"
+    >>> site_path_helper("blog")
+    '/~ryan/site1/blog'
+    >>> site_path_helper("/blog")
+    '/~ryan/site1/blog'
+    >>> site_path_helper("blog","/category1")
+    '/~ryan/site1/blog/category1'
+    """
+    site_path = urlparse(config.site_url).path
+    path = url_path_helper(site_path,*parts)
+    if not path.startswith("/"):
+        path = "/" + path
+    return path
+
+def fs_site_path_helper(*parts):
+    """Build a path relateive to the built site inside the _site dir
+
+    >>> config.site_url = "http://www.blogofile.com/ryan/site1"
+    >>> fs_site_path_helper()
+    '_site/ryan/site1'
+    >>> fs_site_path_helper("/blog","/category","stuff")
+    '_site/ryan/site1/blog/category/stuff'
+    """
+    s = site_path_helper(*parts).strip("/")
+    return path_join("_site",s)
 
 def path_join(*parts, **kwargs):
     """A better os.path.join

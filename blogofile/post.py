@@ -242,8 +242,7 @@ class Category:
     def __init__(self, name):
         self.name = unicode(name)
         self.url_name = self.name.lower().replace(" ","-")
-        url = unicode(urlparse.urljoin(config.site_url,"/".join((config.blog_path,config.blog_category_dir,self.url_name))))
-        self.path = urlparse.urlparse(url).path
+        self.path = util.site_path_helper(config.blog_path,config.blog_category_dir,self.url_name)
     def __eq__(self, other):
         if self.name == other.name:
             return True
