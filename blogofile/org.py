@@ -45,30 +45,6 @@ class org:
         self.category = categories (which is tags in first '*' in org-file)
         self.date     = date (which is scheduled file?)
 
-    >>> src = '''
-    ... ---
-    ... * Title              <2009-08-22 Sat 15:22>        :emacs:blog:
-    ... some text
-    ... ** First section
-    ... some more text
-    ... ** Second section
-    ... 
-    ... This is *bold* /italics/ _underline_ [[http://emacs.org][Emacs]]
-    ...
-    ... | name   | qty |
-    ... | apple  | 5   |
-    ... | banana | 10  |
-    ... '''
-    >>> config.emacs_binary = '/usr/bin/emacs'
-    >>> p = org(src)
-    >>> p.title
-    u'Title'
-    >>> p.categories == set([post.Category('emacs'),post.Category('blog')])
-    True
-    # >>> p.date
-    # datetime.datetime(2009, 08, 22, 15, 22)
-    # >>> p.permalink
-    # u'/2008/10/20/first-post'
 	"""
     def __init__(self, source):
         self.source    = source

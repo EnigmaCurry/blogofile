@@ -1,6 +1,6 @@
 import os
 
-def do_init(args):
+def do_init(args): #pragma: no cover
     #Write an empty config file:
     os.mkdir("_templates")
     f=open("_config.py","w")

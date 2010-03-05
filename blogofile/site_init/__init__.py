@@ -8,9 +8,18 @@ available_sites = [
     ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
     ("blogofile.com", "The blogofile.com blog fully themed (requires git)", "blogofile_com")
     ]
-site_modules = dict((x[0],x[2]) for x in available_sites)
 
-def do_help():
+#These are hidden site templates that are not shown in the list shown in help
+hidden_sites = [
+    ("blog_unit_test", "A simple site, for unit testing", "blog_unit_test")
+    ]
+
+all_sites = list(available_sites)
+all_sites.extend(hidden_sites)
+
+site_modules = dict((x[0],x[2]) for x in all_sites)
+
+def do_help(): #pragma: no cover
     print("Available site templates:\n")
     for meta in available_sites:
         site, description = meta[:2]
@@ -20,13 +29,13 @@ def do_help():
     print("   blogofile init simple_blog\n")
 
 def do_init(args):
-    if not args.SITE_TEMPLATE:
+    if not args.SITE_TEMPLATE: #pragma: no cover
         do_help()
     else:
-        if args.SITE_TEMPLATE not in [x[0] for x in available_sites]:
+        if args.SITE_TEMPLATE not in [x[0] for x in all_sites]: #pragma: no cover
             do_help()
             return
-        if len(os.listdir(args.src_dir)) > 0 :
+        if len(os.listdir(args.src_dir)) > 0 : #pragma: no cover
             print("This directory is not empty, will not attempt to initialize here : %s" % args.src_dir)
             return
         

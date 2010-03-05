@@ -150,14 +150,14 @@ blog_post_encoding = "utf-8"
 # These can be strings or compiled patterns.
 # Strings are assumed to be case insensitive.
 file_ignore_patterns = [
-    r".*([\/]|[\\])_.*",   #All files that start with an underscore
-    r".*([\/]|[\\])#.*",   #Emacs temporary files
-    r".*~$]",              #Emacs temporary files
-    r".*([\/]|[\\])\.git", #Git VCS dir
-    r".*([\/]|[\\])\.hg",  #Mercurial VCS dir
-    r".*([\/]|[\\])\.bzr", #Bazaar VCS dir
-    r".*([\/]|[\\])\.svn", #Subversion VCS dir
-    r".*([\/]|[\\])CVS"    #CVS dir
+    r".*([\/]|[\\])_.*",    #All files that start with an underscore
+    r".*([\/]|[\\])#.*",    #Emacs temporary files
+    r".*~$",                #Emacs temporary files
+    r".*([\/]|[\\])\.git$", #Git VCS dir
+    r".*([\/]|[\\])\.hg$",  #Mercurial VCS dir
+    r".*([\/]|[\\])\.bzr$", #Bazaar VCS dir
+    r".*([\/]|[\\])\.svn$", #Subversion VCS dir
+    r".*([\/]|[\\])CVS$"    #CVS dir
     ]
 
 #### Default post filters ####
@@ -178,15 +178,16 @@ def post_build():
     pass
 """
 
-def __post_load_tasks():
+def recompile():
     #Compile file_ignore_patterns
     import re
     global compiled_file_ignore_patterns
     compiled_file_ignore_patterns = []
     for p in file_ignore_patterns:
-        if type(p) in (str,unicode):
+        if isinstance(p,basestring):
             compiled_file_ignore_patterns.append(re.compile(p,re.IGNORECASE))
         else:
+            #p could just be a pre-compiled regex
             compiled_file_ignore_patterns.append(p)
     #Calculate the absoulte blog path (ie, minus the domain)
     global blog_path
@@ -208,7 +209,7 @@ def __load_config(path=None):
     #Override any options (from unit tests)
     for k,v in override_options.items():
         globals()[k] = v
-    __post_load_tasks()
+    recompile()
     __loaded = True
     
 def init(config_file_path=None):
@@ -220,3 +221,4 @@ def init(config_file_path=None):
         __load_config(config_file_path)
     else:
         __load_config()
+    return globals()['__name__']

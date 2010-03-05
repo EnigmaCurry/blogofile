@@ -63,7 +63,7 @@ class Writer:
     def __setup_output_dir(self):
         """Setup the staging directory"""
         import sys
-        if os.path.isdir(self.output_dir):
+        if os.path.isdir(self.output_dir): #pragma: no cover
             # I *would* just shutil.rmtree the whole thing and recreate it,
             # but I want the output_dir to retain it's same inode on the
             # filesystem to be compatible with some HTTP servers.
@@ -98,7 +98,7 @@ class Writer:
                     dirs.remove(d)
             try:
                 util.mkdir(util.path_join(self.output_dir, root))
-            except OSError:
+            except OSError: #pragma: no cover
                 pass
             for t_fn in files:
                 t_fn_path = util.path_join(root,t_fn)
@@ -130,8 +130,8 @@ class Writer:
         """Run all the controllers in the _controllers directory"""
         #Store imported controllers on the bf cache
         self.bf.controllers = cache.Cache()
-        if(not os.path.isdir("_controllers")):
-            return
+        if(not os.path.isdir("_controllers")): #pragma: no cover
+            return 
         for py_file in [p for p in sorted(os.listdir("_controllers")) if
                         p.endswith(".py")]:
             controller_name = (py_file.split(".")[0].replace("-","_"))
@@ -152,7 +152,7 @@ class Writer:
         attrs['bf'] = self.bf
         try:
             return template.render(**attrs)
-        except:
+        except: #pragma: no cover
             logger.error("Error rendering template")
             print(mako_exceptions.text_error_template().render())
 

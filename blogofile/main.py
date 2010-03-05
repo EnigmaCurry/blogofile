@@ -88,7 +88,7 @@ def get_args(cmd=None):
                          help="port on which to serve")
     p_serve.set_defaults(func=do_serve)
 
-    if not cmd:
+    if not cmd: #pragma: no cover
         if len(sys.argv) <= 1:
             parser.print_help()
             parser.exit(1)
@@ -102,14 +102,14 @@ def main(cmd=None):
     do_debug()   
     parser, args = get_args(cmd)
 
-    if args.verbose:
+    if args.verbose: #pragma: no cover
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
-    if args.veryverbose:
+    if args.veryverbose: #pragma: no cover
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
-    if not os.path.isdir(args.src_dir):
+    if not os.path.isdir(args.src_dir): #pragma: no cover
         print("source dir does not exist : %s" % args.src_dir)
         sys.exit(1)
     os.chdir(args.src_dir)
@@ -120,7 +120,7 @@ def main(cmd=None):
 
     args.func(args)
 
-def do_help(args):
+def do_help(args): #pragma: no cover
     global parser
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
@@ -150,22 +150,21 @@ def do_help(args):
             if hasattr(parser,"extra_help"):
                 parser.extra_help()
 
-def do_serve(args):
+def do_serve(args): #pragma: no cover
     os.chdir("_site")
     import SimpleHTTPServer
     sys.argv = [None, args.PORT]
     SimpleHTTPServer.test()
 
-def do_build(args):
-    #load config
-    try:
-        # Always load the _config.py from the current directory.
-        # We already changed to the directory specified with --src-dir
-        config.init("_config.py")
-    except config.ConfigNotFoundException:
-        print >>sys.stderr, ("No configuration found in source dir: %s" % args.src_dir)
-        parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
-
+def do_build(args, load_config=True):
+    if load_config:
+        try:
+            # Always load the _config.py from the current directory.
+            # We already changed to the directory specified with --src-dir
+            config.init("_config.py")
+        except config.ConfigNotFoundException: #pragma: no cover
+            print >>sys.stderr, ("No configuration found in source dir: %s" % args.src_dir)
+            parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
     writer = Writer(output_dir="_site")
     logger.debug("Running user's pre_build() function..")
     config.pre_build()

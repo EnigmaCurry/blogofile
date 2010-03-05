@@ -11,16 +11,16 @@ def run_chain(chain, content):
     """Run content through a filter chain.
 
     Works with either a string or a sequence of filters"""
-    if chain == None:
+    if chain == None: #pragma: no cover
         return content
     if not hasattr(chain,'__iter__'):
         #Not a sequence, must be a string, parse it
         chain = parse_chain(chain)
     for fn in chain:
         f = load_filter(fn)
-        logging.debug("Applying filter: "+fn)
+        logger.debug("Applying filter: "+fn)
         content = f.run(content)
-    logging.debug("Content:"+content)
+    logger.debug("Content:"+content)
     return util.force_unicode(content)
 
 def parse_chain(chain):
@@ -44,6 +44,6 @@ def load_filter(name):
             __loaded_filters[name] = imp.load_source(
                 "filter_"+name,util.path_join("_filters",name+".py"))
             return __loaded_filters[name]
-        except:
-            logging.error("Cannot load filter: "+name)
+        except: #pragma: no cover
+            logger.error("Cannot load filter: "+name)
             raise

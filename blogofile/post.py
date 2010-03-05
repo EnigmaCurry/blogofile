@@ -54,6 +54,9 @@ reserved_field_names = {
     "filename"   :"Reserved internally"
     }
 
+class PostParseException(Exception):
+    pass
+
 class Post:
     """
     Class to describe a blog post and associated metadata
@@ -78,7 +81,7 @@ class Post:
         self.__parse()
         self.__post_process()
         
-    def __repr__(self):
+    def __repr__(self): #pragma: no cover
         return "<Post title='%s' date='%s'>" % \
             (self.title, self.date.strftime("%Y/%m/%d %H:%M:%S"))
             
@@ -87,9 +90,7 @@ class Post:
         yaml_sep = re.compile("^---$", re.MULTILINE)
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
-            #No yaml to extract
-            logger.warn("Post "+self.filename+" has no YAML section!")
-            post_src = self.source
+            raise PostParseException("Post has no YAML section")
         else:
             #Extract the yaml at the top
             self.__parse_yaml(content_parts[1])
@@ -220,8 +221,10 @@ class Post:
         except KeyError:
             pass
         try:
-            if y['draft'].strip().lower() == "true":
+            if y['draft']:
                 self.draft = True
+                logger.info("Post "+self.filename+
+                            " is set to draft, ignoring this post")
             else:
                 self.draft = False
         except KeyError:
@@ -272,9 +275,14 @@ def parse_posts(directory):
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
         src = open(post_path,"r").read().decode(config.blog_post_encoding)
-        p = Post(src, filename=post_fn)
+        try:
+            p = Post(src, filename=post_fn)
+        except PostParseException:
+            logger.warn("Post "+post_fn+" has no YAML section! "
+                        "Skipping this post.")
+            continue
         #Exclude some posts
-        if not (p.permalink == None):
+        if not (p.permalink == None or p.draft == True):
             posts.append(p)
     posts.sort(key=operator.attrgetter('date'), reverse=True)
     return posts

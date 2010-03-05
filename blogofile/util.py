@@ -16,7 +16,7 @@ html_escape_table = {
     "<": "&lt;",
     }
     
-def html_escape(text):
+def html_escape(text): #pragma: no cover
     """Produce entities within text."""
     L=[]
     for c in text:
@@ -102,7 +102,7 @@ def path_join(*parts, **kwargs):
     return sep.join(new_parts)
 
 
-def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):
+def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #pragma: no cover
     """
     Force a string to be unicode.
 

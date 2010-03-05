@@ -1,7 +1,7 @@
 import subprocess
 from subprocess import PIPE
 
-def do_init(args):
+def do_init(args): #pragma: no cover
     "Download the blogofile.com sources from github. Requires git."
 
     try:
