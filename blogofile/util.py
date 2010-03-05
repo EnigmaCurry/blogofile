@@ -52,12 +52,20 @@ def mkdir(newdir):
 def blog_path_helper(*parts):
     """Make an absolute URL path for something on the blog
 
-    path_parts is a sequence of path parts to append to the blog URL"""
+    path_parts is a sequence of path parts to append to the blog URL
+
+    >>> blog_path_helper("one","two","three")
+    'one/two/three'
+    >>> blog_path_helper(("one","two"),"three")
+    'one/two/three'
+    >>> blog_path_helper("one/two","three")
+    'one/two/three'
+    """
     new_parts = []
     for p in parts:
         if hasattr(p,"__iter__"):
             #This part is a sequence itself, recurse into it
-            p = path_join(*p, sep="/")
+            p = path_join(*p, **{'sep':"/"})
         if p in ("","\\","/"):
             continue
         new_parts.append(p)
