@@ -93,7 +93,7 @@ class Post:
         yaml_sep = re.compile("^---$", re.MULTILINE)
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
-            raise PostParseException("Post has no YAML section")
+            raise PostParseException(self.filename+": Post has no YAML section")
         else:
             #Extract the yaml at the top
             self.__parse_yaml(content_parts[1])
@@ -193,10 +193,11 @@ class Post:
             if self.permalink.startswith("/"):
                 self.permalink = urlparse.urljoin(config.site_url,self.permalink)
             #Ensure that the permalink is for the same site as bf.config.site_url
-            if not self.permalink.lower().startswith(bf.config.site_url.lower()):
-                raise PostParseException("Post permalink for a different site"
+            if not self.permalink.startswith(bf.config.site_url):
+                raise PostParseException(self.filename+": permalink for a different site"
                                          " than configured")
             self.path = urlparse.urlparse(self.permalink).path
+            logger.debug("path from permalink: "+self.path)
         except KeyError:
             pass
         try:
@@ -283,7 +284,7 @@ def parse_posts(directory):
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:
-            logger.error(e.value+" : Skipping this post.")
+            logger.warning(e.value+" : Skipping this post.")
             continue
         #Exclude some posts
         if not (p.permalink == None or p.draft == True):

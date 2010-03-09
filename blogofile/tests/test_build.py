@@ -43,10 +43,10 @@ class TestBuild(unittest.TestCase):
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","blog",
-                         "2009","07","23","post-one"))
+                         "2009","07","23","post-1"))
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","blog",
-                         "2009","07","24","post-two"))
+                         "2009","07","24","post-2"))
     def testNoPosts(self):
         """Test when there are no posts, site still builds cleanly"""
         main.main("init blog_unit_test")

@@ -78,7 +78,6 @@ post_1 = """
 categories: Category 1
 date: 2009/07/23 15:22:00
 format: markdown
-permalink: http://www.yoursite.com/blog/2009/07/23/post-one
 title: Post 1
 ---
 This is post #1"""
@@ -88,7 +87,6 @@ post_2 = """
 categories: Category 1, Category 2
 date: 2009/07/24 16:20:00
 format: markdown
-permalink: http://www.yoursite.com/blog/2009/07/24/post-two
 title: Post 2
 ---
 This is post #2"""

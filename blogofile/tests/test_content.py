@@ -47,7 +47,7 @@ This is a test post
         """Permalink's set by the user should appear exactly as the user enters"""
         main.main("init blog_unit_test")
         #Write a post to the _posts dir:
-        permalink = "http://www.BlogoFile.com/bLog/2009/08/16/This-Is-A-TeSt-Post"
+        permalink = "http://www.yoursite.com/bLog/2009/08/16/This-Is-A-TeSt-Post"
         src = """---
 title: This is a test post
 permalink: %(permalink)s

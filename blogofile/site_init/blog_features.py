@@ -339,15 +339,17 @@ def write_feed(posts, root, template):
 """
 permapage_py = """import urlparse
 from blogofile.cache import bf
+import re
 
 def run():
     write_permapages()
 
 def write_permapages():
     "Write blog posts to their permalink locations"
+    site_re = re.compile(bf.config.site_url, re.IGNORECASE)
     for post in bf.posts:
         if post.permalink:
-            path = post.permalink.replace(bf.config.site_url,"")
+            path = site_re.sub("",post.permalink)
             bf.logger.info("Writing permapage for post: "+path)
         else:
             #Permalinks MUST be specified. No permalink, no page.
