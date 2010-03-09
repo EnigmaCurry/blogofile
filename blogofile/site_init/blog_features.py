@@ -74,7 +74,7 @@ footer_mako = """
 <p id="credits">
 Powered by <a href="http://www.blogofile.com">Blogofile</a>.<br/>
 <br/>
-RSS feeds for <a href="${bf.config.util.site_path_helper(bf.config.blog_path,'feed')}">Entries</a>
+RSS feeds for <a href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}">Entries</a>
 % if bf.config.disqus_enabled:
  and <a
 href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
@@ -249,15 +249,13 @@ def write_categories():
             category_posts = category_posts[bf.config.blog_posts_per_page:]
             #Forward and back links
             if page_num > 1:
-                prev_link = bf.util.path_join(
-                    bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
-                                           str(page_num - 1))
+                prev_link = bf.util.site_path_helper(bf.config.blog_path,
+                    bf.config.blog_category_dir, category.url_name, str(page_num - 1))
             else:
                 prev_link = None
             if len(category_posts) > 0:
-                next_link = bf.util.path_join(
-                    bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
-                                           str(page_num + 1))
+                next_link = bf.util.site_path_helper(bf.config.blog_path,
+                    bf.config.blog_category_dir, category.url_name, str(page_num + 1))
             else:
                 next_link = None
             bf.writer.materialize_template("chronological.mako", path, {
