@@ -151,11 +151,10 @@ def do_help(args): #pragma: no cover
                 parser.extra_help()
 
 def do_serve(args): #pragma: no cover
-    os.chdir("_site")
-    import SimpleHTTPServer
-    sys.argv = [None, args.PORT]
-    SimpleHTTPServer.test()
-
+    import server
+    bfserver = server.Server(args.PORT)
+    bfserver.start()
+    
 def do_build(args, load_config=True):
     if load_config:
         try:
