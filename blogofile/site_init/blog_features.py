@@ -100,8 +100,8 @@ href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
 """
 
 head_mako = """<title>${bf.config.blog_name}</title>
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}" />
-<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.util.site_path_helper(bf.config.blog_path,'/feed')}" />
+<link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="${bf.util.site_path_helper(bf.config.blog_path,'/feed/atom')}" />
 """
 
 permapage_mako = """<%inherit file="site.mako" />
@@ -192,27 +192,42 @@ initial_py = """\"\"\"Initialize some things before rendering\"\"\"
 
 from blogofile.cache import bf
 
-bf.all_categories = []
-bf.archive_links = []
+def run():
+    # Find all the categories and archives before we write any pages
+
+    bf.archived_posts = {} ## "/archive/Year/Month" -> [post, post, ... ]
+    bf.archive_links = []  ## [("/archive/2009/12", name, num_in_archive1), ...] (sorted in reverse by date)
+    bf.categorized_posts = {} ## "Category Name" -> [post, post, ... ]
+    bf.all_categories = [] ## [("Category 1",num_in_category_1), ...] (sorted alphabetically)
+    
+    bf.controllers.archives.sort_into_archives()
+    bf.controllers.categories.sort_into_categories()
 """
 
-archives_py = """from blogofile.cache import bf
+archives_py = """import operator
+
+from blogofile.cache import bf
 
 def run():
-    write_monthly_archives(bf.posts)
+    write_monthly_archives()
 
-def write_monthly_archives(posts):
-    m = {} # "/archive/%Y/%m" -> [post, post, ... ]
-    for post in posts:
-        link = post.date.strftime("/archive/%Y/%m")
+def sort_into_archives():
+    #This is run in 0.initial.py
+    for post in bf.posts:
+        link = post.date.strftime("archive/%Y/%m")
         try:
-            m[link].append(post)
+            bf.archived_posts[link].append(post)
         except KeyError:
-            m[link] = [post]
-    for link, posts in m.items():
+            bf.archived_posts[link] = [post]
+    for archive, posts in sorted(
+        bf.archived_posts.items(), key=operator.itemgetter(0), reverse=True):
+        name = posts[0].date.strftime("%B %Y")
+        bf.archive_links.append((archive, name, len(posts)))
+    
+def write_monthly_archives():
+    for link, posts in bf.archived_posts.items():
         name = posts[0].date.strftime("%B %Y")
         bf.controllers.chronological.write_blog_chron(posts,root=link)
-        bf.archive_links.append((bf.config.blog_path+link,name,len(posts)))
 """
 
 categories_py = """import os
@@ -223,7 +238,7 @@ from blogofile.cache import bf
 
 def run():
     write_categories()
-
+    
 def sort_into_categories():
     categories = set()
     for post in bf.posts:
@@ -237,7 +252,7 @@ def sort_into_categories():
         bf.all_categories.append((category, len(posts)))
     
 def write_categories():
-    """Write all the blog posts in categories"""
+    \"\"\"Write all the blog posts in categories\"\"\"
     root = bf.util.path_join(bf.config.blog_path,bf.config.blog_category_dir)
     #Find all the categories:
     categories = set()
@@ -245,12 +260,14 @@ def write_categories():
         categories.update(post.categories)
     for category, category_posts in bf.categorized_posts.items():
         #Write category RSS feed
-        bf.controllers.feed.write_feed(category_posts,bf.util.fs_site_path_helper(
-                bf.config.blog_path, bf.config.blog_category_dir,
-                category.url_name,"feed"),"rss.mako")
-        bf.controllers.feed.write_feed(category_posts,bf.util.fs_site_path_helper(
-                bf.config.blog_path, bf.config.blog_category_dir,
-                category.url_name,"feed","atom"),"atom.mako")
+        rss_path = bf.util.fs_site_path_helper(
+            bf.config.blog_path, bf.config.blog_category_dir,
+            category.url_name,"feed")
+        bf.controllers.feed.write_feed(category_posts,rss_path,"rss.mako")
+        atom_path = bf.util.fs_site_path_helper(
+            bf.config.blog_path, bf.config.blog_category_dir,
+            category.url_name,"feed","atom")
+        bf.controllers.feed.write_feed(category_posts,atom_path,"atom.mako")
         page_num = 1
         while True:
             path = bf.util.path_join(root,category.url_name,
@@ -283,7 +300,6 @@ def write_categories():
             page_num += 1
             if len(category_posts) == 0:
                 break
-
 """
 
 chronological_py = """# Write all the blog posts in reverse chronological order
@@ -325,14 +341,13 @@ def write_blog_first_page():
         path = bf.util.path_join(bf.config.blog_path,"index.html")
         bf.logger.info("Writing blog index page: "+path)
         if len(bf.posts) > bf.config.blog_posts_per_page:
-            next_link = bf.util.site_path_helper(bf.config.blog_pagination_dir+"/2")
+            next_link = bf.util.site_path_helper(bf.config.blog_path,bf.config.blog_pagination_dir+"/2")
         else:
             next_link = None
         bf.writer.materialize_template("chronological.mako", path,
             { "posts": page_posts,
               "next_link": next_link,
               "prev_link": None })
-
 """
 
 feed_py = """from blogofile.cache import bf
@@ -350,17 +365,17 @@ def write_feed(posts, root, template):
 """
 permapage_py = """import urlparse
 from blogofile.cache import bf
+import re
 
 def run():
     write_permapages()
 
 def write_permapages():
     "Write blog posts to their permalink locations"
+    site_re = re.compile(bf.config.site_url, re.IGNORECASE)
     for post in bf.posts:
         if post.permalink:
-            path = urlparse.urlparse(
-                post.permalink)[2].lstrip("/").split("/")
-            path = bf.util.path_join(path)
+            path = site_re.sub("",post.permalink)
             bf.logger.info("Writing permapage for post: "+path)
         else:
             #Permalinks MUST be specified. No permalink, no page.

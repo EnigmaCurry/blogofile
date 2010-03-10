@@ -35,7 +35,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "site_url":"http://www.test.com",
+            "site_url":"http://www.yoursite.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -47,7 +47,7 @@ This is a test post
         """Permalink's set by the user should appear exactly as the user enters"""
         main.main("init blog_unit_test")
         #Write a post to the _posts dir:
-        permalink = "http://www.BlogoFile.com/bLog/2009/08/16/This-Is-A-TeSt-Post"
+        permalink = "http://www.yoursite.com/bLog/2009/08/16/This-Is-A-TeSt-Post"
         src = """---
 title: This is a test post
 permalink: %(permalink)s
@@ -59,7 +59,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "site_url":"http://www.test.com",
+            "site_url":"http://www.yoursite.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -107,7 +107,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "site_url":"http://www.test.com",
+            "site_url":"http://www.yoursite.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -132,7 +132,7 @@ This is a test post
         f.write(src)
         f.close()
         main.config.override_options = {
-            "site_url":"http://www.test.com",
+            "site_url":"http://www.yoursite.com",
             "blog_path":"/blog",
             "blog_auto_permalink_enabled": True,
             "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
@@ -147,7 +147,7 @@ This is a test post
         """Make sure category links in posts are correct"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com",
+            "site_url":"http://www.yoursite.com",
             "blog_path":"/blog"
             }
         #Write a blog post with categories:

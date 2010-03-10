@@ -55,8 +55,11 @@ reserved_field_names = {
     }
 
 class PostParseException(Exception):
-    pass
-
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+        
 class Post:
     """
     Class to describe a blog post and associated metadata
@@ -90,7 +93,7 @@ class Post:
         yaml_sep = re.compile("^---$", re.MULTILINE)
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
-            raise PostParseException("Post has no YAML section")
+            raise PostParseException(self.filename+": Post has no YAML section")
         else:
             #Extract the yaml at the top
             self.__parse_yaml(content_parts[1])
@@ -157,8 +160,7 @@ class Post:
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
         if not self.permalink and config.blog_auto_permalink_enabled:
-            self.permalink = urlparse.urljoin(config.site_url,config.blog_auto_permalink)
-
+            self.permalink = config.site_url.rstrip("/")+config.blog_auto_permalink
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
             self.permalink = re.sub(":month",  self.date.strftime("%m"),
@@ -190,7 +192,12 @@ class Post:
             self.permalink = y['permalink']
             if self.permalink.startswith("/"):
                 self.permalink = urlparse.urljoin(config.site_url,self.permalink)
+            #Ensure that the permalink is for the same site as bf.config.site_url
+            if not self.permalink.startswith(bf.config.site_url):
+                raise PostParseException(self.filename+": permalink for a different site"
+                                         " than configured")
             self.path = urlparse.urlparse(self.permalink).path
+            logger.debug("path from permalink: "+self.path)
         except KeyError:
             pass
         try:
@@ -276,9 +283,8 @@ def parse_posts(directory):
         src = open(post_path,"r").read().decode(config.blog_post_encoding)
         try:
             p = Post(src, filename=post_fn)
-        except PostParseException:
-            logger.warn("Post "+post_fn+" has no YAML section! "
-                        "Skipping this post.")
+        except PostParseException as e:
+            logger.warning(e.value+" : Skipping this post.")
             continue
         #Exclude some posts
         if not (p.permalink == None or p.draft == True):

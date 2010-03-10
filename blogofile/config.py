@@ -189,9 +189,6 @@ def recompile():
         else:
             #p could just be a pre-compiled regex
             compiled_file_ignore_patterns.append(p)
-    #Calculate the absoulte blog path (ie, minus the domain)
-    global blog_path
-    blog_path = blog_path.strip().lstrip("/")
     import urlparse
     global blog_url
     blog_url = urlparse.urljoin(site_url,blog_path)

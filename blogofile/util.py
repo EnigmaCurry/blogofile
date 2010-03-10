@@ -103,12 +103,11 @@ def fs_site_path_helper(*parts):
 
     >>> config.site_url = "http://www.blogofile.com/ryan/site1"
     >>> fs_site_path_helper()
-    '_site/ryan/site1'
+    'ryan/site1'
     >>> fs_site_path_helper("/blog","/category","stuff")
-    '_site/ryan/site1/blog/category/stuff'
+    'ryan/site1/blog/category/stuff'
     """
-    s = site_path_helper(*parts).strip("/")
-    return path_join("_site",s)
+    return site_path_helper(*parts).strip("/")
 
 def path_join(*parts, **kwargs):
     """A better os.path.join

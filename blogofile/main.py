@@ -151,11 +151,10 @@ def do_help(args): #pragma: no cover
                 parser.extra_help()
 
 def do_serve(args): #pragma: no cover
-    os.chdir("_site")
-    import SimpleHTTPServer
-    sys.argv = [None, args.PORT]
-    SimpleHTTPServer.test()
-
+    import server
+    bfserver = server.Server(args.PORT)
+    bfserver.start()
+    
 def do_build(args, load_config=True):
     if load_config:
         try:
@@ -165,7 +164,7 @@ def do_build(args, load_config=True):
         except config.ConfigNotFoundException: #pragma: no cover
             print >>sys.stderr, ("No configuration found in source dir: %s" % args.src_dir)
             parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
-    writer = Writer(output_dir=util.fs_site_path_helper())
+    writer = Writer(output_dir=util.path_join("_site",util.fs_site_path_helper()))
     logger.debug("Running user's pre_build() function..")
     config.pre_build()
     writer.write_site()
