@@ -201,7 +201,7 @@ def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.
     #This will make sure that we have good default values if the user's
     #config is missing something.
-    exec(default_config)
+    exec(default_config, {'bf':bf})
     if path:
         execfile(path)
     #config is now in locals() but needs to be in globals()
