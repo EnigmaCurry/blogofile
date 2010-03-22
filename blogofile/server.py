@@ -18,7 +18,7 @@ class Server(threading.Thread):
     def run(self):
         #We're guaranteed to be in the blogofile root after main runs
         #So change to the _site dir that should be built directly beneath it:
-        os.chdir("_site")
+        #os.chdir("_site")
         server_address = ('',self.port)
         HandlerClass = BlogofileRequestHandler
         ServerClass = BaseHTTPServer.HTTPServer
@@ -49,21 +49,18 @@ for the root page? : <a href='"""+\
 
 class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def translate_path(self, path):
-        # If the site is configured to be hosted in a subdirectory
-        # override the SimpleHTTPServer default translate_path method
-        if len(urlparse(config.site_url).path.strip("/")) > 0:
-            return self.do_subdir_translate(path)
-        return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(
-            self, path)
-    def do_subdir_translate(self, path):
         site_path = urlparse(config.site_url).path
-        if(not path.startswith(site_path)):
+        if(len(site_path.strip("/")) > 0 and
+           not path.startswith(site_path)):
             self.error_message_format = BLOGOFILE_SUBDIR_ERROR
             return "" #Results in a 404
         p = SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(
             self, path)
-        build_path = os.path.join(
-            os.getcwd(),
-            util.path_join(site_path.strip("/")))
-        p = re.sub(build_path, os.getcwd(), p)
-        return p
+        if len(site_path.strip("/")) > 0:
+            build_path = os.path.join(
+                os.getcwd(),
+                util.path_join(site_path.strip("/")))
+        else:
+            build_path = os.getcwd()
+        build_path = re.sub(build_path, os.path.join(os.getcwd(),"_site"), p)
+        return build_path
