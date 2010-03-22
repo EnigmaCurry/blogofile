@@ -32,7 +32,7 @@ class Server(threading.Thread):
         #TODO: why doesn't this actually shut it down?
 
 class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    def __init__(*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.BLOGOFILE_SUBDIR_ERROR = """\
 <head>
 <title>Error response</title>
@@ -44,7 +44,7 @@ for the root page? : <a href='"""+\
     urlparse(config.site_url).path + "'>"+urlparse(config.site_url).path+\
     "</a>\n"+\
     "</body>"
-        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self, args, kwargs)
+        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
     def translate_path(self, path):
         site_path = urlparse(config.site_url).path
         if(len(site_path.strip("/")) > 0 and
