@@ -28,6 +28,7 @@ import logging
 import os
 import sys
 import shlex
+import time
 
 import argparse
 
@@ -164,7 +165,12 @@ def do_serve(args): #pragma: no cover
     import server
     bfserver = server.Server(args.PORT)
     bfserver.start()
-    
+    while(not bfserver.is_shutdown):
+        try:
+            time.sleep(0.5)
+        except KeyboardInterrupt:
+            bfserver.shutdown()
+
 def do_build(args, load_config=True):
     if load_config:
         config_init()
