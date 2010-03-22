@@ -61,3 +61,6 @@ for the root page? : <a href='"""+\
             build_path = os.getcwd()
         build_path = re.sub(build_path, os.path.join(os.getcwd(),"_site"), p)
         return build_path
+    
+    def log_message(self, format, *args):
+        pass
