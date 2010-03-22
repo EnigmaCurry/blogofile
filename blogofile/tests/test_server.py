@@ -15,12 +15,17 @@ class TestServer(unittest.TestCase):
         os.chdir(self.build_path)
         #Reinitialize the configuration
         main.config.init()
+        #Build the unit test site
+        main.main("init blog_unit_test")
+        main.main("build")
+        #Start the server
+        self.server = server.Server(42042)
     def tearDown(self):
+        #Stop the server
+        self.server.shutdown()
         #go back to the directory we used to be in
         os.chdir(self.previous_dir)
         #Clean up the build directory
         shutil.rmtree(self.build_path)
     def testBuildAndServe(self):
-        main.main("init blog_unit_test")
-        main.main("build")
-        #TODO: start server and test it serves correct pages
+        rawinput("Test the server....")
