@@ -4,15 +4,18 @@ import logging
 import os
 import re
 from urlparse import urlparse
+import threading
 
 from blogofile import config, util
 
 logger = logging.getLogger("blogofile.server")
 
-class Server:
+class Server(threading.Thread):
     def __init__(self, port):
         self.port = int(port)
-    def start(self):
+        threading.Thread.__init__(self)
+        self.is_shutdown = False
+    def run(self):
         #We're guaranteed to be in the blogofile root after main runs
         #So change to the _site dir that should be built directly beneath it:
         os.chdir("_site")
@@ -23,10 +26,13 @@ class Server:
         self.httpd = ServerClass(server_address, HandlerClass)
         sa = self.httpd.socket.getsockname()
         print("Blogofile server started on port %s ..." % sa[1])
+        #Start the server in a seperate thread
         self.httpd.serve_forever()
     def shutdown(self):
-        print("shutting down..")
+        print("\nshutting down webserver...")
         self.httpd.shutdown()
+        self.httpd.socket.close()
+        self.is_shutdown = True
         #TODO: why doesn't this actually shut it down?
         
 BLOGOFILE_SUBDIR_ERROR = """\
