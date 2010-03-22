@@ -99,15 +99,15 @@ def site_path_helper(*parts):
     return path
 
 def fs_site_path_helper(*parts):
-    """Build a path relateive to the built site inside the _site dir
+    """Build a path relative to the built site inside the _site dir
 
     >>> config.site_url = "http://www.blogofile.com/ryan/site1"
     >>> fs_site_path_helper()
-    'ryan/site1'
+    ''
     >>> fs_site_path_helper("/blog","/category","stuff")
-    'ryan/site1/blog/category/stuff'
+    'blog/category/stuff'
     """
-    return site_path_helper(*parts).strip("/")
+    return path_join(url_path_helper(*parts).strip("/"))
 
 def path_join(*parts, **kwargs):
     """A better os.path.join
