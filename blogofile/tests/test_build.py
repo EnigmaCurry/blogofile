@@ -19,6 +19,8 @@ class TestBuild(unittest.TestCase):
         #Reinitialize the configuration
         main.config.init()
     def tearDown(self):
+        #Revert the config overridden options
+        main.config.override_options = {}
         #go back to the directory we used to be in
         os.chdir(self.previous_dir)
         #Clean up the build directory
