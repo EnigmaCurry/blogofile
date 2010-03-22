@@ -46,7 +46,7 @@ site_mako = """<%inherit file="base.mako" />
 </%def>
 """
 
-header_mako = """<h1><a href="/">${bf.config.blog_name}</a></h1>
+header_mako = """<h1><a href="${bf.util.site_path_helper()}">${bf.config.blog_name}</a></h1>
 <p>This is a simple blog build with Blogofile.</p>
 <p>It's completely unthemed and is written as minimally as possible, while still
 retaining most of the blog features.</p>
