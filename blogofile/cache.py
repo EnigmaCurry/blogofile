@@ -14,6 +14,11 @@ class Cache(dict):
     def __init__(self,**kw):
         dict.__init__(self,kw)
         self.__dict__ = self
+    def __getattr__(self, attr):
+        if not attr.startswith("_"):
+            c = Cache()
+            self.__dict__[attr] = c
+            return c
 
 class HierarchicalCache(Cache):
     """A dummy object used for attatching things we want to remember
