@@ -14,12 +14,24 @@ class Cache(dict):
     def __init__(self,**kw):
         dict.__init__(self,kw)
         self.__dict__ = self
+
+class HierarchicalCache(Cache):
+    """A dummy object used for attatching things we want to remember
+
+    >>> c = HierarchicalCache()
+    >>> c.whatever = "whatever"
+    >>> c.whatever
+    'whatever'
+    >>> c.section.subsection.attribute = "whatever"
+    >>> c.section.subsection.attribute
+    'whatever'
+    """
     def __getattr__(self, attr):
         if not attr.startswith("_"):
-            c = Cache()
+            c = HierarchicalCache()
             self.__dict__[attr] = c
             return c
 
 #The main blogofile cache object, transfers state between templates
-bf = Cache()
+bf = HierarchicalCache()
 sys.modules['blogofile_bf'] = bf
