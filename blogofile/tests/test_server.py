@@ -55,7 +55,7 @@ class TestServer(unittest.TestCase):
         br.follow_link(text_regex="Previous Page")
         assert br.geturl() == self.url + "/blog/page/1/"
         #Go to a permalink page:
-        br.open("/blog/2010/03/21/post-without-a-date/")
+        br.open("/blog/2009/08/29/post-seven/")
         #Go to one it's categories:
         br.follow_link(text_regex="General Stuff")
         #Go to the next category page
