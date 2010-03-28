@@ -422,7 +422,7 @@ This is normal text.
 
 The following is a python code block:
 
-$$code{'lang':'python'}
+$$code(lang=python)
 import this
 
 prices = {'apple' : 0.50,    #Prices of fruit
