@@ -164,9 +164,9 @@ file_ignore_patterns = [
 # If a post does not specify a filter chain, use the 
 # following defaults based on the post file extension:
 blog_post_default_filters = {
-    "markdown": "markdown, syntax_highlight",
-    "textile": "textile, syntax_highlight",
-    "org": "org, syntax_highlight"
+    "markdown": "syntax_highlight, markdown",
+    "textile": "syntax_highlight, textile",
+    "org": "syntax_highlight, org"
 }
 
 ### Pre/Post build hooks:

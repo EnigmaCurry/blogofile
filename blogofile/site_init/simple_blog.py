@@ -159,6 +159,22 @@ title: Post 7
 ---
 This is post #7"""
 
+syntax_highlight_post = """
+---
+categories: General Stuff
+date: 2009/08/29 15:25:00
+title: Syntax highlight test
+---
+This post contains some highlighted python code:
+
+$$code(lang=python)
+import this
+
+if __name__ == "main":
+    print "Hello, World!"
+$$/code
+"""
+
 def do_init(options):
     write_file(("_config.py",),config.default_config)
     #Write reusable templates
@@ -193,4 +209,6 @@ def do_init(options):
     write_file(("_posts","005 - post #5.markdown"),post_5)
     write_file(("_posts","006 - post #6.markdown"),post_6)
     write_file(("_posts","007 - post #7.markdown"),post_7)
+    write_file(("_posts","008 - syntax highlight test.markdown"),
+               syntax_highlight_post)
     
