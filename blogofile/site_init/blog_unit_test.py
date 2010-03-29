@@ -239,6 +239,7 @@ def do_init(options):
     write_file(("_filters","markdown.py"),blog_features.markdown_py)
     write_file(("_filters","textile.py"),blog_features.textile_py)
     write_file(("_filters","syntax_highlight.py"),blog_features.syntax_highlight_py)
+    write_file(("_filters","rst.py"),blog_features.rst_py)
     #Write index page
     write_file(("index.html.mako",),index_mako)
     #Write posts

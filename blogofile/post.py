@@ -268,7 +268,7 @@ def parse_posts(directory):
     Returns a list of the posts sorted in reverse by date."""
     posts = []
     post_filename_re = re.compile(
-        ".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$))")
+        ".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$)|(\.txt$)|(\.rst$))")
     if not os.path.isdir("_posts"):
         logger.error("There is no _posts directory")
         return []

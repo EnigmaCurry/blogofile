@@ -166,7 +166,8 @@ file_ignore_patterns = [
 blog_post_default_filters = {
     "markdown": "syntax_highlight, markdown",
     "textile": "syntax_highlight, textile",
-    "org": "syntax_highlight, org"
+    "org": "syntax_highlight, org",
+    "rst": "syntax_highlight, rst"
 }
 
 ### Pre/Post build hooks:

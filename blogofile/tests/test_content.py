@@ -169,3 +169,43 @@ This is a test post
         print soup.findAll("a")
         assert soup.find("a",attrs={'href':'/blog/category/category-1'})
         assert soup.find("a",attrs={'href':'/blog/category/category-2'})
+
+    def testReStructuredFilter(self):
+        """Test to make sure reStructuredTest work well"""
+
+        main.main("init blog_unit_test")
+        #Write a post to the _posts dir:
+        src = """---
+title: This is a test post
+date: 2010/03/27 00:00:00
+---
+
+This is a reStructured post
+===========================
+
+Plain text :
+
+::
+
+    $ echo "hello"
+    hello
+
+"""
+        f = open(os.path.join(self.build_path,"_posts","01. Test post.rst"),"w")
+        f.write(src)
+        f.close()
+        main.config.override_options = {
+            "site_url":"http://www.yoursite.com",
+            "blog_path":"/blog",
+            "blog_auto_permalink_enabled": True,
+            "blog_auto_permalink": "/blog/:year/:month/:day/:title" }
+        main.main("build")
+        rendered = open(os.path.join(self.build_path,"_site","blog","2010","03",
+                                     "27","this-is-a-test-post","index.html"
+                                     )).read()
+        assert """<h1 class="title">This is a reStructured post</h1>
+<p>Plain text :</p>
+<pre class="literal-block">
+$ echo &quot;hello&quot;
+hello
+</pre>""" in rendered
