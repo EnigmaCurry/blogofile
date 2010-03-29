@@ -21,7 +21,9 @@ class ConfigNotFoundException(Exception):
 
 override_options = {} #override config options (mostly from unit tests)
 
-default_config = r"""######################################################################
+default_config = r"""# -*- coding: utf-8 -*-
+
+######################################################################
 # This is the main Blogofile configuration file.
 # www.Blogofile.com
 #
