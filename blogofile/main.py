@@ -151,7 +151,7 @@ def do_help(args): #pragma: no cover
             if hasattr(parser,"extra_help"):
                 parser.extra_help()
 
-def config_init():
+def config_init(args):
     try:
         # Always load the _config.py from the current directory.
         # We already changed to the directory specified with --src-dir
@@ -161,7 +161,7 @@ def config_init():
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
         
 def do_serve(args): #pragma: no cover
-    config_init()
+    config_init(args)
     import server
     bfserver = server.Server(args.PORT)
     bfserver.start()
@@ -173,7 +173,7 @@ def do_serve(args): #pragma: no cover
 
 def do_build(args, load_config=True):
     if load_config:
-        config_init()
+        config_init(args)
     writer = Writer(output_dir=util.path_join("_site",util.fs_site_path_helper()))
     logger.debug("Running user's pre_build() function..")
     config.pre_build()
