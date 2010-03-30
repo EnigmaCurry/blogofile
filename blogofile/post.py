@@ -270,12 +270,13 @@ def parse_posts(directory):
     post_filename_re = re.compile(
         ".*((\.textile$)|(\.markdown$)|(\.org$)|(\.html$)|(\.txt$)|(\.rst$))")
     if not os.path.isdir("_posts"):
-        logger.error("There is no _posts directory")
+        logger.warn("This site has no _posts directory.")
         return []
-    post_file_names = [f for f in os.listdir(directory) \
-                           if post_filename_re.match(f)]
-    for post_fn in post_file_names:
-        post_path = util.path_join(directory,post_fn)
+    post_paths = [f for f in util.recursive_file_list(
+            directory, post_filename_re) if post_filename_re.match(f)]
+    
+    for post_path in post_paths:
+        post_fn = os.path.split(post_path)[1]
         logger.debug("Parsing post: %s" % post_path)
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF

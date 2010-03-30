@@ -214,6 +214,17 @@ filter: None
 ---
 This post is not run through any filters"""
 
+post_in_subdir = """
+---
+categories: General Stuff
+date: 2009/08/29 15:25:01
+format: markdown
+title: This post was in a subdirectory
+permalink: http://www.yoursite.com/blog/2009/08/29/post-in-subdir
+filter: None
+---
+This post is in a subdirectory of /_posts"""
+
 
 def do_init(options):
     write_file(("_config.py",),config.default_config)
@@ -256,3 +267,5 @@ def do_init(options):
     write_file(("_posts","011 - post with no permalink.markdown"),post_no_permalink)
     write_file(("_posts","012 - post draft.markdown"),post_draft)
     write_file(("_posts","013 - post with no filter.markdown"),post_with_no_filter)
+    write_file(("_posts","a_subdir","014 - post in a subdirectory.markdown"),
+               post_in_subdir)

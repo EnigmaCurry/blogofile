@@ -136,6 +136,17 @@ def path_join(*parts, **kwargs):
         new_parts.append(p.replace(wrong_slash_type,os.sep))
     return sep.join(new_parts)
 
+def recursive_file_list(directory, regex=None):
+    "Recursively walk a directory tree and find all the files matching regex"
+    if type(regex) == basestring:
+        regex = re.compile(regex)
+    for root,dirs,files in os.walk(directory):
+        for f in files:
+            if regex:
+                if regex.match(f):
+                    yield os.path.join(root,f)
+            else:
+                yield os.path.join(root,f)
 
 def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #pragma: no cover
     """

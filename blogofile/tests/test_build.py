@@ -5,6 +5,7 @@ import glob
 import os
 import re
 from .. import main
+from .. import util
 import logging
 
 class TestBuild(unittest.TestCase):
@@ -53,9 +54,12 @@ class TestBuild(unittest.TestCase):
         main.config.override_options = {
             "site_url":"http://www.test.com/",
             "blog_path":"/blog" }
-        for x in glob.glob("_posts/*"):
-            os.remove(x)
+        shutil.rmtree("_posts")
+        util.mkdir("_posts")
         main.main("build")
+    def testPostInSubdir(self):
+        "Test a post in a subdirectory of _posts"
+        pass
     def testNoPostsDir(self):
         """Test when there is no _posts dir, site still builds cleanly"""
         main.main("init blog_unit_test")
