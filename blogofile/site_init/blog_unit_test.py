@@ -229,7 +229,7 @@ def do_init(options):
     write_file(("_templates","permapage.mako"),blog_features.permapage_mako)
     write_file(("_templates","post.mako"),blog_features.post_mako)
     #Write controllers
-    write_file(("_controllers","0.initial.py"),blog_features.initial_py)
+    write_file(("_controllers","initial.py"),blog_features.initial_py)
     write_file(("_controllers","archives.py"),blog_features.archives_py)
     write_file(("_controllers","categories.py"),blog_features.categories_py)
     write_file(("_controllers","chronological.py"),blog_features.chronological_py)

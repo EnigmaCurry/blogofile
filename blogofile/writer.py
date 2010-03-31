@@ -27,6 +27,7 @@ import config
 import cache
 import post
 import filter
+import controller
 
 logger = logging.getLogger("blogofile.writer")
 
@@ -126,25 +127,8 @@ class Writer:
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""
         #Store imported controllers on the bf cache
-        self.bf.controllers = cache.Cache()
-        if(not os.path.isdir("_controllers")): #pragma: no cover
-            return 
-        for py_file in [p for p in sorted(os.listdir("_controllers")) if
-                        p.endswith(".py")]:
-            controller_name = (py_file.split(".")[0].replace("-","_"))
-            import_name = "controller_mod_"+controller_name
-            mod = imp.load_source(import_name,util.path_join("_controllers",py_file))
-            setattr(self.bf.controllers,controller_name,mod)
-        for py_file in [p for p in sorted(os.listdir("_controllers")) if
-                        p.endswith(".py")]:
-            logger.info("Running controller: "+py_file)
-            controller_name = (py_file.split(".")[0].replace("-","_"))
-            mod = getattr(self.bf.controllers,controller_name)
-            if "run" in dir(mod):
-                mod.run()
-            else:
-                logger.debug("Controller %s has no run() function, skipping it." % py_file)
-
+        controller.run_all()
+        
     def template_render(self, template, attrs={}):
         """Render a template"""
         #Create a context object that is fresh for each template render

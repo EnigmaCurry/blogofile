@@ -9,11 +9,13 @@ __date__   = "Tue Jul 28 20:40:29 2009"
 
 import os
 import sys
+
 import post
 import util
 import writer
 import blogofile_bf as bf
 import cache
+import controller
 
 bf.config = sys.modules['blogofile.config']
 
@@ -28,6 +30,7 @@ override_options = {} #override config options (mostly from unit tests)
 
 #Default config sections
 site = cache.HierarchicalCache()
+controllers = cache.HierarchicalCache()
 blog = cache.HierarchicalCache()
 
 def section():
@@ -47,6 +50,17 @@ default_config = r"""# -*- coding: utf-8 -*-
 #
 #  You really only _need_ to change the Basic Settings.
 ######################################################################
+
+#Enable blog controllers:
+# TODO: refactor this into a single module:
+controllers.initial.enabled = True
+controllers.initial.priority = 100
+controllers.archives.enabled = True
+controllers.categories.enabled = True
+controllers.chronological.enabled = True
+controllers.feed.enabled = True
+controllers.permapage.enabled = True
+
 
 ######################################################################
 # Basic Settings
@@ -211,10 +225,15 @@ def recompile():
     blog.url = urlparse.urljoin(site.url,blog.path)
         
 def __load_config(path=None):
-    #Strategy: Load the default config, and then the user's config.
-    #This will make sure that we have good default values if the user's
-    #config is missing something.
+    #Strategy:
+    # 1) Load the default config
+    # 2) Load the controllers
+    # 3) Finally load the user's config.
+    #
+    # This will ensure that we have good default values if the user's
+    # config is missing something.
     exec(default_config)
+    controller.load_controllers()
     if path:
         execfile(path)
     #config is now in locals() but needs to be in globals()

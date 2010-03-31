@@ -202,8 +202,8 @@ def run():
     bf.categorized_posts = {} ## "Category Name" -> [post, post, ... ]
     bf.all_categories = [] ## [("Category 1",num_in_category_1), ...] (sorted alphabetically)
     
-    bf.controllers.archives.sort_into_archives()
-    bf.controllers.categories.sort_into_categories()
+    bf.config.controllers.archives.mod.sort_into_archives()
+    bf.config.controllers.categories.mod.sort_into_categories()
 """
 
 archives_py = """import operator
@@ -229,7 +229,7 @@ def sort_into_archives():
 def write_monthly_archives():
     for link, posts in bf.archived_posts.items():
         name = posts[0].date.strftime("%B %Y")
-        bf.controllers.chronological.write_blog_chron(posts,root=link)
+        bf.config.controllers.chronological.mod.write_blog_chron(posts,root=link)
 """
 
 categories_py = """import os
@@ -265,11 +265,11 @@ def write_categories():
         rss_path = bf.util.fs_site_path_helper(
             bf.config.blog.path, bf.config.blog.category_dir,
             category.url_name,"feed")
-        bf.controllers.feed.write_feed(category_posts,rss_path,"rss.mako")
+        bf.config.controllers.feed.mod.write_feed(category_posts,rss_path,"rss.mako")
         atom_path = bf.util.fs_site_path_helper(
             bf.config.blog.path, bf.config.blog.category_dir,
             category.url_name,"feed","atom")
-        bf.controllers.feed.write_feed(category_posts,atom_path,"atom.mako")
+        bf.config.controllers.feed.mod.write_feed(category_posts,atom_path,"atom.mako")
         page_num = 1
         while True:
             path = bf.util.path_join(root,category.url_name,
