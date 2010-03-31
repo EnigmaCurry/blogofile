@@ -41,6 +41,8 @@ class HierarchicalCache(Cache):
             c = HierarchicalCache()
             self.__dict__[attr] = c
             return c
+    def __getitem__(self, item):
+        return self.__getattr__(item)
 
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
