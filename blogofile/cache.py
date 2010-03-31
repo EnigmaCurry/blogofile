@@ -33,6 +33,11 @@ class HierarchicalCache(Cache):
     >>> c.section.subsection.attribute = "whatever"
     >>> c.section.subsection.attribute
     'whatever'
+    >>> c.sub.d['one'].value.stuff = "whatever"
+    >>> c.sub.d.one.value.stuff
+    'whatever'
+    >>> c.sub.d['one'].value.stuff
+    'whatever'
     """
     def __getattr__(self, attr):
         if not attr.startswith("_") and \
@@ -42,7 +47,10 @@ class HierarchicalCache(Cache):
             self.__dict__[attr] = c
             return c
     def __getitem__(self, item):
-        return self.__getattr__(item)
+        try:
+            return self.__getattribute__(item)
+        except AttributeError:
+            return self.__getattr__(item)
 
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
