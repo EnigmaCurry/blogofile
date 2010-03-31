@@ -35,7 +35,7 @@ class HierarchicalCache(Cache):
     'whatever'
     """
     def __getattr__(self, attr):
-        if not attr.startswith("_"):
+        if not attr.startswith("_") and not "(" in attr : 
             c = HierarchicalCache()
             self.__dict__[attr] = c
             return c
