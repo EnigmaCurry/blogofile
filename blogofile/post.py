@@ -9,6 +9,7 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 __date__   = "Mon Feb  2 21:21:04 2009"
 
 import os
+import sys
 import datetime
 import re
 import operator
