@@ -35,7 +35,9 @@ class HierarchicalCache(Cache):
     'whatever'
     """
     def __getattr__(self, attr):
-        if not attr.startswith("_") and not "(" in attr : 
+        if not attr.startswith("_") and \
+                not "(" in attr and \
+                not attr == "trait_names": 
             c = HierarchicalCache()
             self.__dict__[attr] = c
             return c
