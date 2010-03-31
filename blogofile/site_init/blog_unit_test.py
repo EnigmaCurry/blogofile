@@ -46,7 +46,7 @@ site_mako = """<%inherit file="base.mako" />
 </%def>
 """
 
-header_mako = """<h1><a href="${bf.util.site_path_helper()}">${bf.config.blog.name}</a></h1>
+header_mako = """<h1><a href="${bf.util.site_path_helper()}">${bf.config.controllers.blog.name}</a></h1>
 <p>This is a simple blog build with Blogofile.</p>
 <p>It's completely unthemed and is written as minimally as possible, while still
 retaining most of the blog features.</p>
@@ -63,11 +63,11 @@ index_mako = """<%inherit file="_templates/site.mako" />
  This is the index page.
 </p>
 
-Here's the main <a href="${bf.config.blog.path}">chronological blog page</a><br/><br/>
+Here's the main <a href="${bf.config.controllers.blog.path}">chronological blog page</a><br/><br/>
 
 Here's the last 5 posts:
 <ul>
-% for post in bf.posts[:5]:
+% for post in bf.config.controllers.blog.posts[:5]:
     <li><a href="${post.path}">${post.title}</a></li>
 % endfor
 </ul>
@@ -229,12 +229,12 @@ def do_init(options):
     write_file(("_templates","permapage.mako"),blog_features.permapage_mako)
     write_file(("_templates","post.mako"),blog_features.post_mako)
     #Write controllers
-    write_file(("_controllers","initial.py"),blog_features.initial_py)
-    write_file(("_controllers","archives.py"),blog_features.archives_py)
-    write_file(("_controllers","categories.py"),blog_features.categories_py)
-    write_file(("_controllers","chronological.py"),blog_features.chronological_py)
-    write_file(("_controllers","feed.py"),blog_features.feed_py)
-    write_file(("_controllers","permapage.py"),blog_features.permapage_py)
+    write_file(("_controllers","blog","__init__.py"),blog_features.init_py)
+    write_file(("_controllers","blog","archives.py"),blog_features.archives_py)
+    write_file(("_controllers","blog","categories.py"),blog_features.categories_py)
+    write_file(("_controllers","blog","chronological.py"),blog_features.chronological_py)
+    write_file(("_controllers","blog","feed.py"),blog_features.feed_py)
+    write_file(("_controllers","blog","permapage.py"),blog_features.permapage_py)
     #Write filters
     write_file(("_filters","markdown.py"),blog_features.markdown_py)
     write_file(("_filters","textile.py"),blog_features.textile_py)

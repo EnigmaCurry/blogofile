@@ -68,7 +68,7 @@ Here's the main <a href="${bf.util.site_path_helper(bf.config.blog.path)}">chron
 
 Here's the last 5 posts:
 <ul>
-% for post in bf.posts[:5]:
+% for post in bf.config.blog.posts[:5]:
     <li><a href="${post.path}">${post.title}</a></li>
 % endfor
 </ul>
@@ -182,12 +182,12 @@ def do_init(options):
     write_file(("_templates","permapage.mako"),blog_features.permapage_mako)
     write_file(("_templates","post.mako"),blog_features.post_mako)
     #Write controllers
-    write_file(("_controllers","0.initial.py"),blog_features.initial_py)
-    write_file(("_controllers","archives.py"),blog_features.archives_py)
-    write_file(("_controllers","categories.py"),blog_features.categories_py)
-    write_file(("_controllers","chronological.py"),blog_features.chronological_py)
-    write_file(("_controllers","feed.py"),blog_features.feed_py)
-    write_file(("_controllers","permapage.py"),blog_features.permapage_py)
+    write_file(("_controllers","blog","__init__.py"),blog_features.init_py)
+    write_file(("_controllers","blog","archives.py"),blog_features.archives_py)
+    write_file(("_controllers","blog","categories.py"),blog_features.categories_py)
+    write_file(("_controllers","blog","chronological.py"),blog_features.chronological_py)
+    write_file(("_controllers","blog","feed.py"),blog_features.feed_py)
+    write_file(("_controllers","blog","permapage.py"),blog_features.permapage_py)
     #Write filters
     write_file(("_filters","markdown.py"),blog_features.markdown_py)
     write_file(("_filters","textile.py"),blog_features.textile_py)

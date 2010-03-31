@@ -71,7 +71,7 @@ class Post:
         self.source     = source
         self.yaml       = None
         self.title      = None
-        self.__timezone = config.blog.timezone
+        self.__timezone = config.controllers.blog.timezone
         self.date       = None
         self.updated    = None
         self.categories = set()
@@ -283,7 +283,7 @@ def parse_posts(directory):
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        src = open(post_path,"r").read().decode(config.blog.post_encoding)
+        src = open(post_path,"r").read().decode(config.controllers.blog.post_encoding)
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:

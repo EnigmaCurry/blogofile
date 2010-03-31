@@ -87,11 +87,10 @@ def load_controllers(directory="_controllers"):
         for module in __find_controller_names():
             try:
                 controller = __import__(module)
-                print controller
             except ImportError:
                 logger.warn(
                     "cannot find controller referenced in _config.py : %s" %
-                            name)
+                            module)
                 continue
             # Remember the actual imported module
             bf.config.controllers[module].mod = controller

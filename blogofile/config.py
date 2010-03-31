@@ -31,7 +31,6 @@ override_options = {} #override config options (mostly from unit tests)
 #Default config sections
 site = cache.HierarchicalCache()
 controllers = cache.HierarchicalCache()
-blog = cache.HierarchicalCache()
 
 def section():
     "A config 'section' is just a HierarchicalCache object"
@@ -51,17 +50,6 @@ default_config = r"""# -*- coding: utf-8 -*-
 #  You really only _need_ to change the Basic Settings.
 ######################################################################
 
-#Enable blog controllers:
-# TODO: refactor this into a single module:
-controllers.initial.enabled = True
-controllers.initial.priority = 100
-controllers.archives.enabled = True
-controllers.categories.enabled = True
-controllers.chronological.enabled = True
-controllers.feed.enabled = True
-controllers.permapage.enabled = True
-
-
 ######################################################################
 # Basic Settings
 #  (almost all sites will want to configure these settings)
@@ -74,6 +62,7 @@ controllers.permapage.enabled = True
 site.url         = "http://www.yoursite.com"
 
 #### Blog Settings ####
+blog = controllers.blog
 
 ## blog_enabled -- Should the blog be enabled?
 #  (You don't _have_ to use blogofile to build blogs)
@@ -229,7 +218,6 @@ def __load_config(path=None):
     # 1) Load the default config
     # 2) Load the controllers
     # 3) Finally load the user's config.
-    #
     # This will ensure that we have good default values if the user's
     # config is missing something.
     exec(default_config)

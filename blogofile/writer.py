@@ -48,9 +48,6 @@ class Writer:
         self.bf = cache.bf
         self.bf.writer = self
         self.bf.logger = logger
-        if self.config.blog.enabled == True:
-            self.bf.posts = post.parse_posts("_posts")
-            self.bf.blog.dir = util.path_join(self.output_dir,self.config.blog.path)
             
     def write_site(self):
         self.__setup_output_dir()
@@ -126,7 +123,6 @@ class Writer:
         
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""
-        #Store imported controllers on the bf cache
         controller.run_all()
         
     def template_render(self, template, attrs={}):
