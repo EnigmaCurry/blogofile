@@ -2,11 +2,15 @@ import SimpleHTTPServer
 import BaseHTTPServer
 import logging
 import os
+import sys
 import re
 from urlparse import urlparse
 import threading
 
 from blogofile import config, util
+from cache import bf
+
+bf.server = sys.modules['blogofile.server']
 
 logger = logging.getLogger("blogofile.server")
 
@@ -41,12 +45,12 @@ class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 <h1>404 Error</h1>
 Your Blogofile site is configured for a subdirectory, maybe you were looking
 for the root page? : <a href='"""+\
-    urlparse(config.site_url).path + "'>"+urlparse(config.site_url).path+\
+    urlparse(config.site.url).path + "'>"+urlparse(config.site.url).path+\
     "</a>\n"+\
     "</body>"
         SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
     def translate_path(self, path):
-        site_path = urlparse(config.site_url).path
+        site_path = urlparse(config.site.url).path
         if(len(site_path.strip("/")) > 0 and
            not path.startswith(site_path)):
             self.error_message_format = self.BLOGOFILE_SUBDIR_ERROR

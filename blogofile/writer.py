@@ -45,14 +45,11 @@ class Writer:
     def __load_bf_cache(self):
         #Template cache object, used to transfer state to/from each template:
         self.bf = cache.bf
-        self.bf.config = self.config
         self.bf.writer = self
-        self.bf.util = util
         self.bf.logger = logger
-        self.bf.filter = filter
-        if self.config.blog_enabled == True:
+        if self.config.blog.enabled == True:
             self.bf.posts = post.parse_posts("_posts")
-            self.bf.blog_dir = util.path_join(self.output_dir,self.config.blog_path)
+            self.bf.blog.dir = util.path_join(self.output_dir,self.config.blog.path)
             
     def write_site(self):
         self.__setup_output_dir()

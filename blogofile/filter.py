@@ -1,9 +1,13 @@
+import sys
 import logging
 import imp
 
 import util
 
 logger = logging.getLogger("blogofile.filter")
+
+from cache import bf
+bf.filter = sys.modules['blogofile.filter']
 
 __loaded_filters = {} #name -> mod
 

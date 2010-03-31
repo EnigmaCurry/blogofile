@@ -32,6 +32,8 @@ import time
 
 import argparse
 
+import cache
+from cache import bf
 import post
 from writer import Writer
 import config
@@ -40,6 +42,7 @@ import util
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
+bf.logger = logger
 
 def get_args(cmd=None):
 
