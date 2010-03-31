@@ -25,7 +25,7 @@ import config
 import util
 from cache import bf
 
-bf.post = globals ()['__name__']
+bf.post = sys.modules['blogofile.post']
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
