@@ -14,20 +14,20 @@ atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import dat
   xmlns:thr="http://purl.org/syndication/thread/1.0"
   xml:lang="en"
    >
-  <title type="text">${bf.config.blog_name}</title>
-  <subtitle type="text">${bf.config.blog_description}</subtitle>
+  <title type="text">${bf.config.blog.name}</title>
+  <subtitle type="text">${bf.config.blog.description}</subtitle>
 
   <updated>${datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <generator uri="http://blogofile.com/">Blogofile</generator>
 
-  <link rel="alternate" type="text/html" href="${bf.config.blog_url}" />
-  <id>${bf.config.blog_url}/feed/atom/</id>
-  <link rel="self" type="application/atom+xml" href="${bf.config.blog_url}/feed/atom/" />
+  <link rel="alternate" type="text/html" href="${bf.config.blog.url}" />
+  <id>${bf.config.blog.url}/feed/atom/</id>
+  <link rel="self" type="application/atom+xml" href="${bf.config.blog.url}/feed/atom/" />
 % for post in posts[:10]:
   <entry>
     <author>
       <name>${post.author}</name>
-      <uri>${bf.config.blog_url}</uri>
+      <uri>${bf.config.blog.url}</uri>
     </author>
     <title type="html"><![CDATA[${post.title}]]></title>
     <link rel="alternate" type="text/html" href="${post.permalink}" />
@@ -35,7 +35,7 @@ atom_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import dat
     <updated>${post.updated.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
     <published>${post.date.strftime("%Y-%m-%dT%H:%M:%SZ")}</published>
 % for category in post.categories:
-    <category scheme="${bf.config.blog_url}" term="${category}" />
+    <category scheme="${bf.config.blog.url}" term="${category}" />
 % endfor
     <summary type="html"><![CDATA[${post.title}]]></summary>
     <content type="html" xml:base="${post.permalink}"><![CDATA[${post.content}]]></content>
@@ -54,7 +54,7 @@ ${next.body()}
 chronological_mako = """<%inherit file="site.mako" />
 % for post in posts:
   <%include file="post.mako" args="post=post" />
-% if bf.config.disqus_enabled:
+% if bf.config.blog.disqus.enabled:
   <div class="after_post"><a href="${post.permalink}#disqus_thread">Read and Post Comments</a></div>
 % endif
   <hr class="interblog" />
@@ -74,14 +74,14 @@ footer_mako = """
 <p id="credits">
 Powered by <a href="http://www.blogofile.com">Blogofile</a>.<br/>
 <br/>
-RSS feeds for <a href="${bf.util.site_path_helper(bf.config.blog_path,'feed')}">Entries</a>
-% if bf.config.disqus_enabled:
+RSS feeds for <a href="${bf.util.site_path_helper(bf.config.blog.path,'feed')}">Entries</a>
+% if bf.config.blog.disqus.enabled:
  and <a
-href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
+href="http://${bf.config.blog.disqus.name}.disqus.com/latest.rss">Comments</a>.
 % endif
 <br>
 </p>
-% if bf.config.disqus_enabled:
+% if bf.config.blog.disqus.enabled:
 <script type="text/javascript">
 //<![CDATA[
 (function() {
@@ -92,18 +92,18 @@ href="http://${bf.config.disqus_name}.disqus.com/latest.rss">Comments</a>.
 				query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
 			}
 		}
-		document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/${bf.config.disqus_name}/get_num_replies.js' + query + '"></' + 'script>');
+		document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/${bf.config.blog.disqus.name}/get_num_replies.js' + query + '"></' + 'script>');
 	})();
 //]]>
 </script>
 % endif
 """
 
-head_mako = """<title>${bf.config.blog_name}</title>
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.util.site_path_helper(bf.config.blog_path,'/feed')}" />
+head_mako = """<title>${bf.config.blog.name}</title>
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="${bf.util.site_path_helper(bf.config.blog.path,'/feed')}" />
 <link rel="alternate" type="application/atom+xml" title="Atom 1.0"
-href="${bf.util.site_path_helper(bf.config.blog_path,'/feed/atom')}" />
-<link rel='stylesheet' href='/css/pygments_${bf.config.syntax_highlight_style}.css' type='text/css' />
+href="${bf.util.site_path_helper(bf.config.blog.path,'/feed/atom')}" />
+<link rel='stylesheet' href='/css/pygments_${bf.config.blog.syntax_highlight.style}.css' type='text/css' />
 """
 
 permapage_mako = """<%inherit file="site.mako" />
@@ -112,9 +112,9 @@ permapage_mako = """<%inherit file="site.mako" />
 <script type="text/javascript">
   var disqus_url = "${post.permalink}";
 </script>
-% if bf.config.disqus_enabled:
-<script type="text/javascript" src="http://disqus.com/forums/${bf.config.disqus_name}/embed.js"></script>
-<noscript><a href="http://${bf.config.disqus_name}.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+% if bf.config.blog.disqus.enabled:
+<script type="text/javascript" src="http://disqus.com/forums/${bf.config.blog.disqus.name}/embed.js"></script>
+<noscript><a href="http://${bf.config.blog.disqus.name}.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 % endif
 """
 
@@ -139,7 +139,7 @@ post_mako = """<%page args="post"/>
            category_links.append("<a href='%s'>%s</a>" % (category.path, category.name))
 %>
 ${", ".join(category_links)}
-% if bf.config.disqus_enabled:
+% if bf.config.blog.disqus.enabled:
  | <a href="${post.permalink}#disqus_thread">View Comments</a>
 % endif
 </small><p/>
@@ -162,9 +162,9 @@ rss_mako = """<?xml version="1.0" encoding="UTF-8"?><% from datetime import date
      xmlns:wfw="http://wellformedweb.org/CommentAPI/"
      >
   <channel>
-    <title>${bf.config.blog_name}</title>
-    <link>${bf.config.blog_url}</link>
-    <description>${bf.config.blog_description}</description>
+    <title>${bf.config.blog.name}</title>
+    <link>${bf.config.blog.url}</link>
+    <description>${bf.config.blog.description}</description>
     <pubDate>${datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")}</pubDate>
     <generator>Blogofile</generator>
     <sy:updatePeriod>hourly</sy:updatePeriod>
@@ -255,7 +255,7 @@ def sort_into_categories():
     
 def write_categories():
     \"\"\"Write all the blog posts in categories\"\"\"
-    root = bf.util.path_join(bf.config.blog_path,bf.config.blog_category_dir)
+    root = bf.util.path_join(bf.config.blog.path,bf.config.blog.category_dir)
     #Find all the categories:
     categories = set()
     for post in bf.posts:
@@ -263,29 +263,29 @@ def write_categories():
     for category, category_posts in bf.categorized_posts.items():
         #Write category RSS feed
         rss_path = bf.util.fs_site_path_helper(
-            bf.config.blog_path, bf.config.blog_category_dir,
+            bf.config.blog.path, bf.config.blog.category_dir,
             category.url_name,"feed")
         bf.controllers.feed.write_feed(category_posts,rss_path,"rss.mako")
         atom_path = bf.util.fs_site_path_helper(
-            bf.config.blog_path, bf.config.blog_category_dir,
+            bf.config.blog.path, bf.config.blog.category_dir,
             category.url_name,"feed","atom")
         bf.controllers.feed.write_feed(category_posts,atom_path,"atom.mako")
         page_num = 1
         while True:
             path = bf.util.path_join(root,category.url_name,
                                 str(page_num),"index.html")
-            page_posts = category_posts[:bf.config.blog_posts_per_page]
-            category_posts = category_posts[bf.config.blog_posts_per_page:]
+            page_posts = category_posts[:bf.config.blog.posts_per_page]
+            category_posts = category_posts[bf.config.blog.posts_per_page:]
             #Forward and back links
             if page_num > 1:
                 prev_link = bf.util.site_path_helper(
-                    bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
+                    bf.config.blog.path, bf.config.blog.category_dir, category.url_name,
                                            str(page_num - 1))
             else:
                 prev_link = None
             if len(category_posts) > 0:
                 next_link = bf.util.site_path_helper(
-                    bf.config.blog_path, bf.config.blog_category_dir, category.url_name,
+                    bf.config.blog.path, bf.config.blog.category_dir, category.url_name,
                                            str(page_num + 1))
             else:
                 next_link = None
@@ -310,7 +310,7 @@ from blogofile.cache import bf
 
 def run():
     write_blog_chron(posts=bf.posts,
-                     root=bf.config.blog_pagination_dir.lstrip("/"))
+                     root=bf.config.blog.pagination_dir.lstrip("/"))
     write_blog_first_page()
 
 def write_blog_chron(posts,root):
@@ -319,8 +319,8 @@ def write_blog_chron(posts,root):
     html = []
     while len(posts) > post_num:
         #Write the pages, num_per_page posts per page:
-        page_posts = posts[post_num:post_num+bf.config.blog_posts_per_page]
-        post_num += bf.config.blog_posts_per_page
+        page_posts = posts[post_num:post_num+bf.config.blog.posts_per_page]
+        post_num += bf.config.blog.posts_per_page
         if page_num > 1:
             prev_link = "../" + str(page_num - 1)
         else:
@@ -329,7 +329,7 @@ def write_blog_chron(posts,root):
             next_link = "../" + str(page_num + 1)
         else:
             next_link = None
-        page_dir = bf.util.path_join(bf.config.blog_path,root,str(page_num))
+        page_dir = bf.util.path_join(bf.config.blog.path,root,str(page_num))
         fn = bf.util.path_join(page_dir,"index.html")
         bf.writer.materialize_template("chronological.mako", fn,
             { "posts":page_posts,
@@ -338,12 +338,12 @@ def write_blog_chron(posts,root):
         page_num += 1
         
 def write_blog_first_page():
-    if not bf.config.blog_custom_index:
-        page_posts = bf.posts[:bf.config.blog_posts_per_page]
-        path = bf.util.path_join(bf.config.blog_path,"index.html")
+    if not bf.config.blog.custom_index:
+        page_posts = bf.posts[:bf.config.blog.posts_per_page]
+        path = bf.util.path_join(bf.config.blog.path,"index.html")
         bf.logger.info("Writing blog index page: "+path)
-        if len(bf.posts) > bf.config.blog_posts_per_page:
-            next_link = bf.util.site_path_helper(bf.config.blog_path,bf.config.blog_pagination_dir+"/2")
+        if len(bf.posts) > bf.config.blog.posts_per_page:
+            next_link = bf.util.site_path_helper(bf.config.blog.path,bf.config.blog.pagination_dir+"/2")
         else:
             next_link = None
         bf.writer.materialize_template("chronological.mako", path,
@@ -355,8 +355,8 @@ def write_blog_first_page():
 feed_py = """from blogofile.cache import bf
 
 def run():
-    write_feed(bf.posts, bf.util.path_join(bf.config.blog_path,"feed"), "rss.mako")
-    write_feed(bf.posts, bf.util.path_join(bf.config.blog_path,"feed","atom"),
+    write_feed(bf.posts, bf.util.path_join(bf.config.blog.path,"feed"), "rss.mako")
+    write_feed(bf.posts, bf.util.path_join(bf.config.blog.path,"feed","atom"),
                           "atom.mako")
 
 def write_feed(posts, root, template):
@@ -374,7 +374,7 @@ def run():
 
 def write_permapages():
     "Write blog posts to their permalink locations"
-    site_re = re.compile(bf.config.site_url, re.IGNORECASE)
+    site_re = re.compile(bf.config.site.url, re.IGNORECASE)
     for post in bf.posts:
         if post.permalink:
             path = site_re.sub("",post.permalink)
@@ -542,7 +542,7 @@ def run(src):
         try:
             style = args['style']
         except KeyError:
-            style = bf.config.syntax_highlight_style
+            style = bf.config.blog.syntax_highlight.style
         try:
             css_class = args['cssclass']
         except KeyError:

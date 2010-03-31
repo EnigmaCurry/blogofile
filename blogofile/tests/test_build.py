@@ -30,8 +30,8 @@ class TestBuild(unittest.TestCase):
         off the webroot work"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com/~username",
-            "blog_path":"/path/to/blog" }
+            "site.url":"http://www.test.com/~username",
+            "blog.path":"/path/to/blog" }
         main.main("build")
         lsdir = os.listdir(os.path.join(self.build_path,"_site",
                                         "path","to","blog"))
@@ -41,8 +41,8 @@ class TestBuild(unittest.TestCase):
         """Test that permapages are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com/",
-            "blog_path":"/blog" }
+            "site.url":"http://www.test.com/",
+            "blog.path":"/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","blog",
@@ -54,8 +54,8 @@ class TestBuild(unittest.TestCase):
         """Test when there are no posts, site still builds cleanly"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com/",
-            "blog_path":"/blog" }
+            "site.url":"http://www.test.com/",
+            "blog.path":"/blog" }
         for x in glob.glob("_posts/*"):
             os.remove(x)
         main.main("build")
@@ -63,8 +63,8 @@ class TestBuild(unittest.TestCase):
         """Test when there is no _posts dir, site still builds cleanly"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com/",
-            "blog_path":"/blog" }
+            "site.url":"http://www.test.com/",
+            "blog.path":"/blog" }
         shutil.rmtree("_posts")
         logger = logging.getLogger("blogofile")
         #We don't need to see the error that this test checks for:
@@ -75,8 +75,8 @@ class TestBuild(unittest.TestCase):
         """Test that categories are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com",
-            "blog_path":"/path/to/blog" }
+            "site.url":"http://www.test.com",
+            "blog.path":"/path/to/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
@@ -94,8 +94,8 @@ class TestBuild(unittest.TestCase):
         """Test that archives are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com",
-            "blog_path":"/path/to/blog" }
+            "site.url":"http://www.test.com",
+            "blog.path":"/path/to/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","path",
@@ -104,8 +104,8 @@ class TestBuild(unittest.TestCase):
         """Test that RSS/Atom feeds are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com",
-            "blog_path":"/path/to/blog" }
+            "site.url":"http://www.test.com",
+            "blog.path":"/path/to/blog" }
         main.main("build")
         #Whole blog feeds
         assert "index.xml" in os.listdir(
@@ -130,10 +130,10 @@ class TestBuild(unittest.TestCase):
         open("test.txt","w").close()
         open("test.py","w").close()
         #File ignore patterns can be strings
-        main.config.file_ignore_patterns.append(r".*test\.txt$")
+        main.config.site.file_ignore_patterns.append(r".*test\.txt$")
         #Or, they can be precompiled regexes
         p = re.compile(".*\.py$")
-        main.config.file_ignore_patterns.append(p)
+        main.config.site.file_ignore_patterns.append(p)
         main.config.recompile()
         main.do_build([], load_config=False)
         assert not "test.txt" in os.listdir(

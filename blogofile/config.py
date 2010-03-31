@@ -207,8 +207,8 @@ def recompile():
             #p could just be a pre-compiled regex
             site.compiled_file_ignore_patterns.append(p)
     import urlparse
-    global blog_url
-    blog_url = urlparse.urljoin(site.site_url,blog.path)
+    global blog
+    blog.url = urlparse.urljoin(site.url,blog.path)
         
 def __load_config(path=None):
     #Strategy: Load the default config, and then the user's config.
@@ -222,7 +222,14 @@ def __load_config(path=None):
         globals()[k] = v
     #Override any options (from unit tests)
     for k,v in override_options.items():
-        globals()[k] = v
+        if "." in k:
+            parts = k.split(".")
+            cache_object = ".".join(parts[:-1])
+            setting = parts[-1]
+            cache_object = eval(cache_object)
+            cache_object[setting] = v
+        else:
+            globals()[k] = v
     recompile()
     __loaded = True
     
