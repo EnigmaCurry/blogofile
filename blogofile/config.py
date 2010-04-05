@@ -32,10 +32,6 @@ override_options = {} #override config options (mostly from unit tests)
 site = cache.HierarchicalCache()
 controllers = cache.HierarchicalCache()
 
-def section():
-    "A config 'section' is just a HierarchicalCache object"
-    return cache.HierarchicalCache()
-
 default_config = r"""# -*- coding: utf-8 -*-
 
 ######################################################################
