@@ -247,6 +247,11 @@ class Post:
     def permapath(self):
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
+    def __cmp__(self, other_post):
+        "Posts should be comparable by date"
+        return cmp(self.date, other_post.date)
+    def __eq__(self, other_post):
+        return self is other_post
 
 class Category:
     def __init__(self, name):
@@ -264,6 +269,8 @@ class Category:
         return self.name
     def __cmp__(self, other):
         return cmp(self.name, other.name)
+    def __cmp__(self, other):
+        return self is other
 
 def parse_posts(directory):
     """Retrieve all the posts from the directory specified.
