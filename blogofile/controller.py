@@ -87,6 +87,10 @@ def load_controllers(directory="_controllers"):
         for module in __find_controller_names():
             try:
                 controller = __import__(module)
+                try:
+                    controller.init()
+                except AttributeError:
+                    pass
             except ImportError:
                 logger.warn(
                     "cannot find controller referenced in _config.py : %s" %
