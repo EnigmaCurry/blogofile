@@ -1,0 +1,9 @@
+
+---
+categories: General Stuff
+date: 2009/08/29 15:25:00
+format: markdown
+permalink: http://www.yoursite.com/blog/2009/08/29/post-seven
+title: Post 7
+---
+This is post #7
