@@ -168,7 +168,10 @@ class Post:
             self.permalink = re.sub(":day",  self.date.strftime("%d"),
                                     self.permalink)
             self.permalink = re.sub(":title",
-                                    self.title.replace(' ', '-').lower(),
+                                    self.title\
+                                        .replace(' ', '-')\
+                                        .replace('?', '-')\
+                                        .lower(),
                                     self.permalink)
 
             self.permalink = re.sub(
