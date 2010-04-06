@@ -141,4 +141,11 @@ class TestBuild(unittest.TestCase):
             os.path.join(self.build_path,"_site"))
         assert not "test.py" in os.listdir(
             os.path.join(self.build_path,"_site"))
-        
+    def testAutoPermalinks(self):
+        main.main("init blog_unit_test")
+        main.main("build")
+        #Make sure the post with question mark in title was generated properly
+        assert os.path.isfile(os.path.join(
+                self.build_path,"_site","blog","2009","08",
+                "29","this-post-has-a-question-mark-","index.html"))
+
