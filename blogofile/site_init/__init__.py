@@ -17,6 +17,11 @@ hidden_sites = [
     ("blog_unit_test", "A simple site, for unit testing", "blog_unit_test")
     ]
 
+extra_features = {
+    "simple_blog": ["blog_features"],
+    "blog_unit_test":["blog_features"]
+    }
+
 all_sites = list(available_sites)
 all_sites.extend(hidden_sites)
 
@@ -53,6 +58,19 @@ def do_help(): #pragma: no cover
     print("For example, create a simple site, with a blog, and no theme:\n")
     print("   blogofile init simple_blog\n")
 
+def import_site_init(name):
+    "Load the site_init zip file and write it to the current directory"
+    zip_data = pkgutil.get_data("blogofile.site_init",name+".zip")
+    zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
+    for name in zip_file.namelist():
+        if name.endswith('/'):
+            util.mkdir(name)
+        else:
+            util.mkdir(os.path.split(name)[0])
+            f = open(name, 'wb')
+            f.write(zip_file.read(name))
+            f.close()
+    
 def do_init(args):
     if not args.SITE_TEMPLATE: #pragma: no cover
         do_help()
@@ -66,13 +84,10 @@ def do_init(args):
         
         print("Initializing the %s site template..." % args.SITE_TEMPLATE)
         template = site_modules[args.SITE_TEMPLATE]
-        zip_data = pkgutil.get_data("blogofile.site_init",template+".zip")
-        zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
-        for name in zip_file.namelist():
-            if name.endswith('/'):
-                os.mkdir(name)
-            else:
-                util.mkdir(os.path.split(name)[0])
-                f = open(name, 'wb')
-                f.write(zip_file.read(name))
-                f.close()
+        import_site_init(template)
+        try:
+            for feature in extra_features[template]:
+                import_site_init(feature)
+        except KeyError:
+            pass
+        
