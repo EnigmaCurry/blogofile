@@ -1,4 +1,7 @@
 import os
+import pkgutil
+import zipfile
+import StringIO
 
 from .. import util
 
@@ -18,6 +21,28 @@ all_sites = list(available_sites)
 all_sites.extend(hidden_sites)
 
 site_modules = dict((x[0],x[2]) for x in all_sites)
+
+def zip_site_init():
+    """Zip up all of the subdirectories of site_init"""
+    try:
+        curdir = os.getcwd()
+        root = os.path.join(curdir,"blogofile","site_init")
+        for d in os.listdir(root):
+            d = os.path.join(root,d)
+            if os.path.isdir(d):
+                os.chdir(root)
+                zf = d+".zip"
+                z = zipfile.ZipFile(zf,"w")
+                os.chdir(d)
+                for dirpath, dirnames, filenames in os.walk(os.curdir):
+                    if len(filenames) == 0:
+                        #This is an empty directory, add it anyway:
+                        z.writestr(zipfile.ZipInfo(dirpath+"/"), '')
+                    for fn in filenames:
+                        z.write(os.path.join(dirpath, fn))
+                z.close()
+    finally:
+        os.chdir(curdir)
 
 def do_help(): #pragma: no cover
     print("Available site templates:\n")
@@ -40,13 +65,14 @@ def do_init(args):
             return
         
         print("Initializing the %s site template..." % args.SITE_TEMPLATE)
-        mod = site_modules[args.SITE_TEMPLATE]
-        exec("import "+mod)
-        exec(mod+".do_init(args)")
-
-def write_file(path_parts, contents):
-    path = os.path.join(*path_parts)
-    util.mkdir(os.path.split(path)[0])
-    f = open(path,"w")
-    f.write(contents)
-    f.close()
+        template = site_modules[args.SITE_TEMPLATE]
+        zip_data = pkgutil.get_data("blogofile.site_init",template+".zip")
+        zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
+        for name in zip_file.namelist():
+            if name.endswith('/'):
+                os.mkdir(name)
+            else:
+                util.mkdir(os.path.split(name)[0])
+                f = open(name, 'wb')
+                f.write(zip_file.read(name))
+                f.close()
