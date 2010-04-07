@@ -150,5 +150,5 @@ class TestBuild(unittest.TestCase):
         #Make sure the post with question mark in title was generated properly
         assert os.path.isfile(os.path.join(
                 self.build_path,"_site","blog","2009","08",
-                "29","this-post-has-a-question-mark-","index.html"))
+                "29","this-title-has-a-question-mark-","index.html"))
 
