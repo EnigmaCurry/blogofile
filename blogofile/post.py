@@ -9,6 +9,7 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 __date__   = "Mon Feb  2 21:21:04 2009"
 
 import os
+import sys
 import datetime
 import re
 import operator
@@ -24,6 +25,8 @@ import BeautifulSoup
 import config
 import util
 from cache import bf
+
+bf.post = sys.modules['blogofile.post']
 
 #Markdown logging is noisy, pot it down:
 logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
@@ -68,7 +71,7 @@ class Post:
         self.source     = source
         self.yaml       = None
         self.title      = None
-        self.__timezone = config.blog_timezone
+        self.__timezone = config.controllers.blog.timezone
         self.date       = None
         self.updated    = None
         self.categories = set()
@@ -112,19 +115,19 @@ class Post:
         if self.filters == None:
             try:
                 file_extension = os.path.splitext(self.filename)[-1][1:]
-                self.filters = bf.config.blog_post_default_filters[
+                self.filters = bf.config.blog.post_default_filters[
                     file_extension]
             except KeyError:
                 self.filters = []
         self.content = bf.filter.run_chain(self.filters, post_src)
         
     def __parse_post_excerpting(self):
-        if config.post_excerpt_enabled:
+        if config.blog.post_excerpts.enabled:
             try:
                 self.excerpt = config.post_excerpt(
-                    self.content,config.post_excerpt_word_length)
+                    self.content,config.blog.post_excerpts.word_length)
             except AttributeError:
-                self.excerpt = self.__excerpt(config.post_excerpt_word_length)
+                self.excerpt = self.__excerpt(config.blog.post_excerpts.word_length)
 
     def __excerpt(self, num_words=50):
         #Default post excerpting function
@@ -159,8 +162,8 @@ class Post:
             
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
-        if not self.permalink and config.blog_auto_permalink_enabled:
-            self.permalink = config.site_url.rstrip("/")+config.blog_auto_permalink
+        if not self.permalink and config.blog.auto_permalink_enabled:
+            self.permalink = config.site.url.rstrip("/")+config.blog.auto_permalink
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
             self.permalink = re.sub(":month",  self.date.strftime("%m"),
@@ -190,9 +193,9 @@ class Post:
         try:
             self.permalink = y['permalink']
             if self.permalink.startswith("/"):
-                self.permalink = urlparse.urljoin(config.site_url,self.permalink)
-            #Ensure that the permalink is for the same site as bf.config.site_url
-            if not self.permalink.startswith(bf.config.site_url):
+                self.permalink = urlparse.urljoin(config.site.url,self.permalink)
+            #Ensure that the permalink is for the same site as bf.config.site.url
+            if not self.permalink.startswith(bf.config.site.url):
                 raise PostParseException(self.filename+": permalink for a different site"
                                          " than configured")
             self.path = urlparse.urlparse(self.permalink).path
@@ -243,12 +246,17 @@ class Post:
     def permapath(self):
         """Get just the path portion of a permalink"""
         return urlparse.urlparse(self.permalink)[2]
+    def __cmp__(self, other_post):
+        "Posts should be comparable by date"
+        return cmp(self.date, other_post.date)
+    def __eq__(self, other_post):
+        return self is other_post
 
 class Category:
     def __init__(self, name):
         self.name = unicode(name)
         self.url_name = self.name.lower().replace(" ","-")
-        self.path = util.site_path_helper(config.blog_path,config.blog_category_dir,self.url_name)
+        self.path = util.site_path_helper(config.blog.path,config.blog.category_dir,self.url_name)
     def __eq__(self, other):
         if self.name == other.name:
             return True
@@ -260,6 +268,8 @@ class Category:
         return self.name
     def __cmp__(self, other):
         return cmp(self.name, other.name)
+    def __cmp__(self, other):
+        return self is other
 
 def parse_posts(directory):
     """Retrieve all the posts from the directory specified.
@@ -280,7 +290,7 @@ def parse_posts(directory):
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        src = open(post_path,"r").read().decode(config.blog_post_encoding)
+        src = open(post_path,"r").read().decode(config.controllers.blog.post_encoding)
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:

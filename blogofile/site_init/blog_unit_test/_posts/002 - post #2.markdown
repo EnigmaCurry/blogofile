@@ -1,0 +1,8 @@
+
+---
+categories: Category 1, Category 2
+date: 2009/07/24 16:20:00
+format: markdown
+title: Post 2
+---
+This is post #2

@@ -1,0 +1,149 @@
+import re
+import os
+
+import pygments
+from pygments import formatters, util, lexers
+import blogofile_bf as bf
+
+example = """
+
+This is normal text.
+
+The following is a python code block:
+
+$$code(lang=python)
+import this
+
+prices = {'apple' : 0.50,    #Prices of fruit
+          'orange' : 0.65,
+          'pear' : 0.90}
+
+def print_prices():
+    for fruit, price in prices.items():
+        print "An %s costs %s" % (fruit, price)
+$$/code
+
+This is a ruby code block:
+
+$$code(lang=ruby)
+class Person
+  attr_reader :name, :age
+  def initialize(name, age)
+    @name, @age = name, age
+  end
+  def <=>(person) # Comparison operator for sorting
+    @age <=> person.age
+  end
+  def to_s
+    "#@name (#@age)"
+  end
+end
+ 
+group = [
+  Person.new("Bob", 33), 
+  Person.new("Chris", 16), 
+  Person.new("Ash", 23) 
+]
+ 
+puts group.sort.reverse
+$$/code
+
+This is normal text
+"""
+
+css_files_written = set()
+
+code_block_re = re.compile(
+    r"(?:^|\s)"                 # $$code Must start as a new word
+    r"\$\$code"                 # $$code is the start of the block
+    r"(?P<args>\([^\r\n]*\))?"  # optional arguments are passed in brackets
+    r"[^\r\n]*\r?\n"            # ignore everything else on the 1st line
+    r"(?P<code>.*?)\s\$\$/code" # code block continues until $$/code
+    , re.DOTALL)
+
+argument_re = re.compile(
+    r"[ ]*" # eat spaces at the beginning
+    "(?P<arg>" # start of argument
+    ".*?" # the name of the argument
+    "=" # the assignment
+    r"""(?:(?:[^"']*?)""" # a non-quoted value
+    r"""|(?:"[^"]*")""" # or, a double-quoted value
+    r"""|(?:'[^']*')))""" # or, a single-quoted value
+    "[ ]*" # eat spaces at the end
+    "[,\r\n]" # ends in a comma or newline
+    )
+
+def highlight_code(code, language, formatter):
+    try:
+        lexer = pygments.lexers.get_lexer_by_name(language)
+    except pygments.util.ClassNotFound:
+        lexer = pygments.lexers.get_lexer_by_name("text")
+    #Highlight with pygments and surround by blank lines
+    #(blank lines required for markdown syntax)
+    highlighted = "\n\n" + \
+                  pygments.highlight(code, lexer, formatter) + \
+                  "\n\n"
+    return highlighted
+
+def parse_args(args):
+    #Make sure the args are newline terminated (req'd by regex)
+    opts = {}
+    if args == None:
+        return opts
+    args = args.lstrip("(").rstrip(")")
+    if args[-1] != "\n":
+        args = args+"\n"
+    for m in argument_re.finditer(args):
+        arg = m.group('arg').split('=')
+        opts[arg[0]] = arg[1]
+    return opts
+
+def write_pygments_css(style, formatter, location="/css"):
+    path = bf.util.path_join("_site",bf.util.fs_site_path_helper(location))
+    bf.util.mkdir(path)
+    css_path = os.path.join(path,"pygments_"+style+".css")
+    if css_path in css_files_written:
+        return #already written, no need to overwrite it.
+    f = open(css_path,"w")
+    f.write(formatter.get_style_defs(".pygments_"+style))
+    f.close()
+    css_files_written.add(css_path)
+
+def run(src):
+    substitutions = {}
+    for m in code_block_re.finditer(src):
+        args = parse_args(m.group('args'))
+        #Make default args
+        if args.has_key('lang'):
+            lang = args['lang']
+        elif args.has_key('language'):
+            lang = args['language']
+        else:
+            lang = 'text'
+        try:
+            linenos = args['linenos']
+            if linenos.lower().strip() == "true":
+                linenos = True
+            else:
+                linenos = False
+        except KeyError:
+            linenos = False
+        try:
+            style = args['style']
+        except KeyError:
+            style = bf.config.site.syntax_highlight.style
+        try:
+            css_class = args['cssclass']
+        except KeyError:
+            css_class = "pygments_"+style
+        formatter = pygments.formatters.HtmlFormatter(
+            linenos=linenos, cssclass=css_class, style=style)
+        write_pygments_css(style,formatter)
+        substitutions[m.group()] = highlight_code(
+            m.group('code'),lang,formatter)
+    if len(substitutions) > 0:
+        p = re.compile('|'.join(map(re.escape, substitutions)))
+        src = p.sub(lambda x: substitutions[x.group(0)], src)
+        return src
+    else:
+        return src
