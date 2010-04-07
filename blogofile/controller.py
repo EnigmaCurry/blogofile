@@ -74,7 +74,7 @@ def __find_controller_names(directory="_controllers"):
         p = os.path.join(directory,fn)
         if os.path.isfile(p):
             if fn.endswith(".py"):
-                yield fn.rstrip(".py")
+                yield fn[:-3]
         elif os.path.isdir(p):
             if os.path.isfile(os.path.join(p,"__init__.py")):
                 yield fn
