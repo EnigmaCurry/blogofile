@@ -33,7 +33,6 @@ class Server(threading.Thread):
         self.httpd.shutdown()
         self.httpd.socket.close()
         self.is_shutdown = True
-        #TODO: why doesn't this actually shut it down?
 
 class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
