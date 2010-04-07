@@ -67,7 +67,7 @@ default_controller_config = {"name"        : "None",
 
 
 def __find_controller_names(directory="_controllers"):
-    if(not os.path.isdir("_controllers")): #pragma: no cover
+    if(not os.path.isdir(directory)): #pragma: no cover
             return
     #Find all the standalone .py files and modules in the _controllers dir
     for fn in os.listdir(directory):
@@ -159,23 +159,3 @@ def run_all():
         else:
             logger.debug("controller %s has no run() method, skipping it." %
                          name)
-
-def run_legacy_controllers():
-    #TODO: not needed, for reference only
-    if(not os.path.isdir("_controllers")): #pragma: no cover
-            return 
-    for py_file in [p for p in sorted(os.listdir("_controllers")) if
-                    p.endswith(".py")]:
-        controller_name = (py_file.split(".")[0].replace("-","_"))
-        import_name = "controller_mod_"+controller_name
-        mod = imp.load_source(import_name,util.path_join("_controllers",py_file))
-        setattr(self.bf.controllers,controller_name,mod)
-    for py_file in [p for p in sorted(os.listdir("_controllers")) if
-                    p.endswith(".py")]:
-        logger.info("Running controller: "+py_file)
-        controller_name = (py_file.split(".")[0].replace("-","_"))
-        mod = getattr(self.bf.controllers,controller_name)
-        if "run" in dir(mod):
-            mod.run()
-        else:
-            logger.debug("Controller %s has no run() function, skipping it." % py_file)

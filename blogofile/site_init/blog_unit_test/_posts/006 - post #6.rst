@@ -1,8 +1,6 @@
-
 ---
 categories: General Stuff
 date: 2009/08/29 15:24:00
-format: markdown
 permalink: http://www.yoursite.com/blog/2009/08/29/post-six
 title: Post 6
 ---

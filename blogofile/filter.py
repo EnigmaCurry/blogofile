@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 import imp
 
@@ -38,16 +39,37 @@ def parse_chain(chain):
             parts.append(p)
     return parts
 
+def preload_filters(directory="_filters"):
+    if(not os.path.isdir(directory)): #pragma: no cover
+        return
+    #Find all the standalone .py files and modules in the _filters dir
+    for fn in os.listdir(directory):
+        p = os.path.join(directory,fn)
+        if os.path.isfile(p):
+            if fn.endswith(".py"):
+                load_filter(fn[:-3])
+        elif os.path.isdir(p):
+            if os.path.isfile(os.path.join(p,"__init__.py")):
+                load_filter(fn)
+
 def load_filter(name):
-    """Load a filter directory from the site's _filters directory"""
+    """Load a filter from the site's _filters directory"""
     logger.debug("Loading filter: "+name)
     try:
         return __loaded_filters[name]
     except KeyError:
         try:
-            __loaded_filters[name] = imp.load_source(
-                "filter_"+name,util.path_join("_filters",name+".py"))
-            return __loaded_filters[name]
+            sys.path.insert(0,"_filters")
+            mod = __loaded_filters[name] = __import__(name)
+            #If the filter has any aliases, load those as well
+            try:
+                for alias in mod.config['aliases']:
+                    __loaded_filters[alias] = mod
+            except:
+                pass
+            return mod
         except: #pragma: no cover
             logger.error("Cannot load filter: "+name)
             raise
+        finally:
+            sys.path.remove("_filters")
