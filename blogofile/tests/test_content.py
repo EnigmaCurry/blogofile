@@ -39,8 +39,8 @@ This is a test post
         main.config.override_options = {
             "site.url":"http://www.yoursite.com",
             "blog.path":"/blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/blog/:year/:month/:day/:title" }
         main.main("build")
         rendered = open(os.path.join(self.build_path,"_site","blog","2009","08",
                                      "16","this-is-a-test-post","index.html"
@@ -63,8 +63,8 @@ This is a test post
         main.config.override_options = {
             "site.url":"http://www.yoursite.com",
             "blog.path":"/blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/blog/:year/:month/:day/:title" }
         main.main("build")
         rendered = open(os.path.join(self.build_path,"_site","bLog","2009","08",
                                      "16","This-Is-A-TeSt-Post","index.html"
@@ -86,8 +86,8 @@ This is a test post without a permalink
         main.config.override_options = {
             "site.url":"http://www.BlogoFile.com",
             "blog.path":"/Blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/Blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/Blog/:year/:month/:day/:title" }
         main.main("build")
         rendered = open(os.path.join(self.build_path,"_site","Blog","2009","08",
                                      "16","this-is-a-test-post","index.html"
@@ -111,8 +111,8 @@ This is a test post
         main.config.override_options = {
             "site.url":"http://www.yoursite.com",
             "blog.path":"/blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/blog/:year/:month/:day/:title" }
         main.main("build")
         rendered = open(os.path.join(self.build_path,"_site","blog","2009","08",
                                      "16","this-is-a-test-post","index.html"
@@ -136,8 +136,8 @@ This is a test post
         main.config.override_options = {
             "site.url":"http://www.yoursite.com",
             "blog.path":"/blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/blog/:year/:month/:day/:title" }
         main.main("build")
         feed = open(os.path.join(self.build_path,"_site","blog","feed",
                                  "index.xml")).read()
@@ -199,8 +199,8 @@ Plain text :
         main.config.override_options = {
             "site.url":"http://www.yoursite.com",
             "blog.path":"/blog",
-            "blog.auto_permalink_enabled": True,
-            "blog.auto_permalink": "/blog/:year/:month/:day/:title" }
+            "blog.auto_permalink.enabled": True,
+            "blog.auto_permalink.path": "/blog/:year/:month/:day/:title" }
         main.main("build")
         rendered = open(os.path.join(self.build_path,"_site","blog","2010","03",
                                      "27","this-is-a-test-post","index.html"

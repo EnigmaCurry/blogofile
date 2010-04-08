@@ -162,8 +162,9 @@ class Post:
             
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
-        if not self.permalink and config.blog.auto_permalink_enabled:
-            self.permalink = config.site.url.rstrip("/")+config.blog.auto_permalink
+        if not self.permalink and config.blog.auto_permalink.enabled:
+            self.permalink = config.site.url.rstrip("/")+\
+                config.blog.auto_permalink.path
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
             self.permalink = re.sub(":month",  self.date.strftime("%m"),
