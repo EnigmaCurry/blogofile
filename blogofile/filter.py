@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import imp
+import operator
 
 import util
 
@@ -45,9 +46,10 @@ def parse_chain(chain):
     return parts
 
 def preload_filters(directory="_filters"):
+    #Find all the standalone .py files and modules
+    #in the _filters dir and load them into bf
     if(not os.path.isdir(directory)): #pragma: no cover
         return
-    #Find all the standalone .py files and modules in the _filters dir
     for fn in os.listdir(directory):
         p = os.path.join(directory,fn)
         if os.path.isfile(p):
@@ -57,14 +59,31 @@ def preload_filters(directory="_filters"):
             if os.path.isfile(os.path.join(p,"__init__.py")):
                 load_filter(fn)
 
+def init_filters():
+    """Filters have an optional init method that runs before the site is built"""
+    for filt in bf.config.filters.values():
+        try:
+            filt.mod.init()
+        except AttributeError:
+            pass
+        
 def load_filter(name):
     """Load a filter from the site's _filters directory"""
     logger.debug("Loading filter: "+name)
+    #Don't generate pyc files in the _filters directory
+    #Reset the original sys.dont_write_bytecode setting where we're done
+    try:
+        initial_dont_write_bytecode = sys.dont_write_bytecode
+    except KeyError:
+        initial_dont_write_bytecode = False
+    #Return the cached filter, or load it from scratch it not cached.
     try:
         return __loaded_filters[name]
     except KeyError:
         try:
             sys.path.insert(0,"_filters")
+            #Don't generate .pyc files in the _filters directory
+            sys.dont_write_bytecode = True
             mod = __loaded_filters[name] = __import__(name)
             #Load the module into the bf context
             bf.config.filters[name].mod = mod
@@ -91,3 +110,4 @@ def load_filter(name):
             raise
         finally:
             sys.path.remove("_filters")
+            sys.dont_write_bytecode = initial_dont_write_bytecode

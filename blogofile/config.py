@@ -57,7 +57,7 @@ def recompile():
 def __load_config(path=None):
     #Strategy:
     # 1) Load the default config
-    # 2) Load the controllers
+    # 2) Load the filters and controllers
     # 3) Finally load the user's config.
     # This will ensure that we have good default values if the user's
     # config is missing something.

@@ -52,6 +52,7 @@ class Writer:
     def write_site(self):
         self.__setup_output_dir()
         self.__load_bf_cache()
+        self.__init_filters_controllers()
         self.__run_controllers()
         self.__write_files()
             
@@ -120,6 +121,11 @@ class Writer:
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: "+f_path)
                     shutil.copyfile(f_path,util.path_join(self.output_dir,f_path))
+
+    def __init_filters_controllers(self):
+        #Run filter/controller defined init methods
+        filter.init_filters()
+        controller.init_controllers()
         
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""

@@ -8,3 +8,5 @@
 /dist/*
 /blogofile/.ropeproject*
 /blogofile/site_init/*.zip
+_site/*
+_documentation/themes/blogofile/layout.html

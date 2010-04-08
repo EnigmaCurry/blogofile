@@ -79,18 +79,34 @@ def __find_controller_names(directory="_controllers"):
             if os.path.isfile(os.path.join(p,"__init__.py")):
                 yield fn
 
+def init_controllers():
+    """Controllers have an optional init method that runs before the run
+    method"""
+    for controller in sorted(
+        bf.config.controllers.values(), key=operator.attrgetter("priority")):
+        try:
+            if controller.has_key("mod"):
+                if type(controller.mod).__name__ == "module":
+                    controller.mod.init()
+        except AttributeError:
+            pass
+                
 def load_controllers(directory="_controllers"):
     """Find all the controllers in the _controllers directory
     and import them into the bf context"""
+    #Don't generate pyc files in the _controllers directory
+    #Reset the original sys.dont_write_bytecode setting where we're done
+    try:
+        initial_dont_write_bytecode = sys.dont_write_bytecode
+    except KeyError:
+        initial_dont_write_bytecode = False
     try:
         sys.path.insert(0, "_controllers")
         for module in __find_controller_names():
+            logger.debug("loading controller: %s"%module)
             try:
+                sys.dont_write_bytecode = True
                 controller = __import__(module)
-                try:
-                    controller.init()
-                except AttributeError:
-                    pass
             except ImportError:
                 logger.warn(
                     "cannot find controller referenced in _config.py : %s" %
@@ -111,6 +127,8 @@ def load_controllers(directory="_controllers"):
                 pass
     finally:
         sys.path.remove("_controllers")
+        sys.dont_write_bytecode = initial_dont_write_bytecode
+
 
 def defined_controllers(only_enabled=True):
     """Find all the enabled controllers in order of priority
