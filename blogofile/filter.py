@@ -12,6 +12,11 @@ bf.filter = sys.modules['blogofile.filter']
 
 __loaded_filters = {} #name -> mod
 
+default_filter_config = {"name"        : "None",
+                         "description" : "None",
+                         "author"      : "None",
+                         "url"         : "None"}
+
 def run_chain(chain, content):
     """Run content through a filter chain.
 
@@ -61,11 +66,24 @@ def load_filter(name):
         try:
             sys.path.insert(0,"_filters")
             mod = __loaded_filters[name] = __import__(name)
+            #Load the module into the bf context
+            bf.config.filters[name].mod = mod
             #If the filter has any aliases, load those as well
             try:
                 for alias in mod.config['aliases']:
                     __loaded_filters[alias] = mod
+                    bf.config.filters[alias] = bf.config.filters[name]
             except:
+                pass
+            #Load the default blogofile config for filters:
+            for k, v in default_filter_config.items():
+                bf.config.filters[name][k] = v
+            #Load any filter defined defaults:
+            try:
+                filter_config = getattr(mod, "config")
+                for k,v in filter_config.items():
+                    bf.config.filters[name][k] = v
+            except AttributeError:
                 pass
             return mod
         except: #pragma: no cover

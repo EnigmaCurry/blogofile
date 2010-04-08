@@ -4,8 +4,6 @@ import sys
 from urlparse import urlparse
 import logging
 
-import config
-
 from cache import bf
 bf.util = sys.modules['blogofile.util']
 
@@ -30,7 +28,7 @@ def html_escape(text): #pragma: no cover
     
 def should_ignore_path(path):
     """See if a given path matches the ignore patterns"""
-    for p in config.site.compiled_file_ignore_patterns:
+    for p in bf.config.site.compiled_file_ignore_patterns:
         if p.match(path):
             return True
     return False
@@ -86,10 +84,10 @@ def site_path_helper(*parts):
     """Make an absolute path on the site, appending a sequence of path parts to
     the site path
 
-    >>> config.site.url = "http://www.blogofile.com"
+    >>> bf.config.site.url = "http://www.blogofile.com"
     >>> site_path_helper("blog")
     '/blog'
-    >>> config.site.url = "http://www.blgofile.com/~ryan/site1"
+    >>> bf.config.site.url = "http://www.blgofile.com/~ryan/site1"
     >>> site_path_helper("blog")
     '/~ryan/site1/blog'
     >>> site_path_helper("/blog")
@@ -97,7 +95,7 @@ def site_path_helper(*parts):
     >>> site_path_helper("blog","/category1")
     '/~ryan/site1/blog/category1'
     """
-    site_path = urlparse(config.site.url).path
+    site_path = urlparse(bf.config.site.url).path
     path = url_path_helper(site_path,*parts)
     if not path.startswith("/"):
         path = "/" + path
@@ -106,7 +104,7 @@ def site_path_helper(*parts):
 def fs_site_path_helper(*parts):
     """Build a path relative to the built site inside the _site dir
 
-    >>> config.site.url = "http://www.blogofile.com/ryan/site1"
+    >>> bf.config.site.url = "http://www.blogofile.com/ryan/site1"
     >>> fs_site_path_helper()
     ''
     >>> fs_site_path_helper("/blog","/category","stuff")

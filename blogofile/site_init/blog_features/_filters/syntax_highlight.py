@@ -5,6 +5,12 @@ import pygments
 from pygments import formatters, util, lexers
 import blogofile_bf as bf
 
+config = {"name"        : "Syntax Highlighter",
+          "description" : "Highlights blocks of code based on syntax",
+          "author"      : "Ryan McGuire",
+          "css_dir"     : "/css",
+          "style"       : "murphy" }
+
 example = """
 
 This is normal text.
@@ -98,7 +104,8 @@ def parse_args(args):
         opts[arg[0]] = arg[1]
     return opts
 
-def write_pygments_css(style, formatter, location="/css"):
+def write_pygments_css(style, formatter,
+                       location=bf.config.filters.syntax_highlight.css_dir):
     path = bf.util.path_join("_site",bf.util.fs_site_path_helper(location))
     bf.util.mkdir(path)
     css_path = os.path.join(path,"pygments_"+style+".css")
@@ -131,7 +138,7 @@ def run(src):
         try:
             style = args['style']
         except KeyError:
-            style = bf.config.site.syntax_highlight.style
+            style = bf.config.filters.syntax_highlight.style
         try:
             css_class = args['cssclass']
         except KeyError:

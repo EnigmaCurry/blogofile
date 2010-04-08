@@ -52,7 +52,6 @@ class Writer:
     def write_site(self):
         self.__setup_output_dir()
         self.__load_bf_cache()
-        self.__load_filters()
         self.__run_controllers()
         self.__write_files()
             
@@ -122,10 +121,6 @@ class Writer:
                     logger.debug("Copying file: "+f_path)
                     shutil.copyfile(f_path,util.path_join(self.output_dir,f_path))
         
-    def __load_filters(self):
-        """Preload all the filters"""
-        filter.preload_filters()
-
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""
         controller.run_all()

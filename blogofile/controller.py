@@ -103,7 +103,7 @@ def load_controllers(directory="_controllers"):
                 bf.config.controllers[module][k] = v
             # Load any of the controller defined defaults:
             try:
-                controller_config = getattr(controller,"default_config")
+                controller_config = getattr(controller,"config")
                 for k,v in controller_config.items():
                     if k != "enabled":
                         bf.config.controllers[module][k] = v
