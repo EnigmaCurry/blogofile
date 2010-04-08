@@ -128,16 +128,16 @@ class Writer:
     def template_render(self, template, attrs={}):
         """Render a template"""
         #Create a context object that is fresh for each template render
-        self.bf.context = cache.Cache(**attrs)
+        self.bf.template_context = cache.Cache(**attrs)
         #Provide the name of the template we are rendering:
-        self.bf.context.template_name = template.uri
+        self.bf.template_context.template_name = template.uri
         attrs['bf'] = self.bf
         try:
             return template.render(**attrs)
         except: #pragma: no cover
             logger.error("Error rendering template")
             print(mako_exceptions.text_error_template().render())
-        del self.bf.context
+        del self.bf.template_context
 
     def materialize_template(self, template_name, location, attrs={}):
         """Render a named template with attrs to a location in the _site dir"""
