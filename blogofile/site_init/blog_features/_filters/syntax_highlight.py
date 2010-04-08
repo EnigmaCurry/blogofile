@@ -4,13 +4,21 @@ import os
 import pygments
 from pygments import formatters, util, lexers
 import blogofile_bf as bf
+ 
+config = {"name"           : "Syntax Highlighter",
+          "description"    : "Highlights blocks of code based on syntax",
+          "author"         : "Ryan McGuire",
+          "css_dir"        : "/css",
+          "preload_styles" : []}
 
-config = {"name"        : "Syntax Highlighter",
-          "description" : "Highlights blocks of code based on syntax",
-          "author"      : "Ryan McGuire",
-          "css_dir"     : "/css",
-          "style"       : "murphy" }
-
+def init():
+    #This filter normally only loads pygments styles when needed.
+    #This will force a particular style to get loaded at startup.
+    for style in bf.config.filters.syntax_highlight.preload_styles:
+        formatter = pygments.formatters.HtmlFormatter(
+            linenos=False, cssclass="pygments_"+style, style=style)
+        write_pygments_css(style,formatter)
+        
 example = """
 
 This is normal text.
@@ -104,17 +112,17 @@ def parse_args(args):
         opts[arg[0]] = arg[1]
     return opts
 
-def write_pygments_css(style, formatter,
-                       location=bf.config.filters.syntax_highlight.css_dir):
+def write_pygments_css(style, formatter, location=bf.config.filters.syntax_highlight.css_dir):
     path = bf.util.path_join("_site",bf.util.fs_site_path_helper(location))
     bf.util.mkdir(path)
     css_path = os.path.join(path,"pygments_"+style+".css")
-    if css_path in css_files_written:
+    css_site_path = css_path.replace("_site","")
+    if css_site_path in css_files_written:
         return #already written, no need to overwrite it.
     f = open(css_path,"w")
     f.write(formatter.get_style_defs(".pygments_"+style))
     f.close()
-    css_files_written.add(css_path)
+    css_files_written.add(css_site_path)
 
 def run(src):
     substitutions = {}
@@ -128,13 +136,16 @@ def run(src):
         else:
             lang = 'text'
         try:
-            linenos = args['linenos']
-            if linenos.lower().strip() == "true":
-                linenos = True
+            if args.has_key('linenums'):
+                linenums = args['linenums']
+            elif args.has_key("linenos"):
+                linenums = args['linenos']
+            if linenums.lower().strip() == "true":
+                linenums = True
             else:
-                linenos = False
-        except KeyError:
-            linenos = False
+                linenums = False
+        except:
+            linenums = False
         try:
             style = args['style']
         except KeyError:
@@ -144,7 +155,7 @@ def run(src):
         except KeyError:
             css_class = "pygments_"+style
         formatter = pygments.formatters.HtmlFormatter(
-            linenos=linenos, cssclass=css_class, style=style)
+            linenos=linenums, cssclass=css_class, style=style)
         write_pygments_css(style,formatter)
         substitutions[m.group()] = highlight_code(
             m.group('code'),lang,formatter)
