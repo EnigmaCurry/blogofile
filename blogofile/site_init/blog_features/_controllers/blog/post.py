@@ -22,17 +22,13 @@ import yaml
 import logging
 import BeautifulSoup
 
-import config
-import util
-from cache import bf
+import blogofile_bf as bf
 
-bf.post = sys.modules['blogofile.post']
-
-#Markdown logging is noisy, pot it down:
-logging.getLogger("MARKDOWN").setLevel(logging.ERROR)
 logger = logging.getLogger("blogofile.post")
 
-date_format = "%Y/%m/%d %H:%M:%S"
+config = bf.cache.HierarchicalCache()
+config.date_format = "%Y/%m/%d %H:%M:%S"
+config.mod = sys.modules[globals()["__name__"]]
 
 # These are all the Blogofile reserved field names for posts. It is not
 # recommended that users re-use any of these field names for purposes other than the
@@ -41,16 +37,21 @@ reserved_field_names = {
     "title"      :"A one-line free-form title for the post",
     "date"       :"The date that the post was originally created",
     "updated"    :"The date that the post was last updated",
-    "categories" :"A list of categories that the post pertains to, each seperated by commas",
-    "tags"       :"A list of tags that the post pertains to, each seperated by commas",
-    "permalink"  :"The full permanent URL for this post. Automatically created if not provided",
-    "guid"       :"A unique hash for the post, if not provided it is assumed that the permalink is the guid",
+    "categories" :"A list of categories that the post pertains to, "\
+        "each seperated by commas",
+    "tags"       :"A list of tags that the post pertains to, "\
+        "each seperated by commas",
+    "permalink"  :"The full permanent URL for this post. "\
+        "Automatically created if not provided",
+    "guid"       :"A unique hash for the post, if not provided it "\
+        "is assumed that the permalink is the guid",
     "author"     :"The name of the author of the post",
-    "filters"    :"The filter chain to apply to the entire post. If not specified, a "
-                  "default chain based on the file extension is applied. If set to "
-                  "'None' it disables all filters, even default ones.",
+    "filters"    :"The filter chain to apply to the entire post. "\
+        "If not specified, a default chain based on the file extension is "\
+        "applied. If set to 'None' it disables all filters, even default ones.",
     "filter"     :"synonym for filters",
-    "draft"      :"If 'true' or 'True', the post is considered to be only a draft and not to be published.",
+    "draft"      :"If 'true' or 'True', the post is considered to be only a "\
+        "draft and not to be published.",
     "source"     :"Reserved internally",
     "yaml"       :"Reserved internally",
     "content"    :"Reserved internally",
@@ -71,7 +72,7 @@ class Post:
         self.source     = source
         self.yaml       = None
         self.title      = None
-        self.__timezone = config.controllers.blog.timezone
+        self.__timezone = bf.config.controllers.blog.timezone
         self.date       = None
         self.updated    = None
         self.categories = set()
@@ -115,19 +116,19 @@ class Post:
         if self.filters == None:
             try:
                 file_extension = os.path.splitext(self.filename)[-1][1:]
-                self.filters = bf.config.blog.post_default_filters[
+                self.filters = bf.config.controllers.blog.post_default_filters[
                     file_extension]
             except KeyError:
                 self.filters = []
         self.content = bf.filter.run_chain(self.filters, post_src)
         
     def __parse_post_excerpting(self):
-        if config.blog.post_excerpts.enabled:
+        if bf.config.controllers.blog.post_excerpts.enabled:
             try:
-                self.excerpt = config.post_excerpt(
-                    self.content,config.blog.post_excerpts.word_length)
+                self.excerpt = bf.config.post_excerpt(
+                    self.content,bf.config.controllers.blog.post_excerpts.word_length)
             except AttributeError:
-                self.excerpt = self.__excerpt(config.blog.post_excerpts.word_length)
+                self.excerpt = self.__excerpt(bf.config.controllers.blog.post_excerpts.word_length)
 
     def __excerpt(self, num_words=50):
         #Default post excerpting function
@@ -162,9 +163,9 @@ class Post:
             
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
-        if not self.permalink and config.blog.auto_permalink.enabled:
-            self.permalink = config.site.url.rstrip("/")+\
-                config.blog.auto_permalink.path
+        if not self.permalink and bf.config.controllers.blog.auto_permalink.enabled:
+            self.permalink = bf.config.site.url.rstrip("/")+\
+                bf.config.controllers.blog.auto_permalink.path
             self.permalink = re.sub(":year",  self.date.strftime("%Y"),
                                     self.permalink)
             self.permalink = re.sub(":month",  self.date.strftime("%m"),
@@ -194,7 +195,7 @@ class Post:
         try:
             self.permalink = y['permalink']
             if self.permalink.startswith("/"):
-                self.permalink = urlparse.urljoin(config.site.url,self.permalink)
+                self.permalink = urlparse.urljoin(bf.config.site.url,self.permalink)
             #Ensure that the permalink is for the same site as bf.config.site.url
             if not self.permalink.startswith(bf.config.site.url):
                 raise PostParseException(self.filename+": permalink for a different site"
@@ -209,12 +210,12 @@ class Post:
             self.guid = self.permalink
         try:
             self.date = pytz.timezone(self.__timezone).localize(
-                datetime.datetime.strptime(y['date'],date_format))
+                datetime.datetime.strptime(y['date'],config.date_format))
         except KeyError:
             pass
         try:
             self.updated = pytz.timezone(self.__timezone).localize(
-                datetime.datetime.strptime(y['updated'],date_format))
+                datetime.datetime.strptime(y['updated'],config.date_format))
         except KeyError:
             pass
         try:
@@ -257,7 +258,7 @@ class Category:
     def __init__(self, name):
         self.name = unicode(name)
         self.url_name = self.name.lower().replace(" ","-")
-        self.path = util.site_path_helper(config.blog.path,config.blog.category_dir,self.url_name)
+        self.path = bf.util.site_path_helper(bf.config.controllers.blog.path,bf.config.controllers.blog.category_dir,self.url_name)
     def __eq__(self, other):
         if self.name == other.name:
             return True
@@ -282,7 +283,7 @@ def parse_posts(directory):
     if not os.path.isdir("_posts"):
         logger.warn("This site has no _posts directory.")
         return []
-    post_paths = [f for f in util.recursive_file_list(
+    post_paths = [f for f in bf.util.recursive_file_list(
             directory, post_filename_re) if post_filename_re.match(f)]
     
     for post_path in post_paths:
@@ -291,7 +292,7 @@ def parse_posts(directory):
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        src = open(post_path,"r").read().decode(config.controllers.blog.post_encoding)
+        src = open(post_path,"r").read().decode(bf.config.controllers.blog.post_encoding)
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:

@@ -130,26 +130,27 @@ def load_controllers(directory="_controllers"):
         sys.dont_write_bytecode = initial_dont_write_bytecode
 
 
-def defined_controllers(only_enabled=True):
+def defined_controllers(namespace=bf, only_enabled=True):
     """Find all the enabled controllers in order of priority
 
     if only_enabled == False, find all controllers, regardless of
     their enabled status
-    
-    >>> bf.config.controllers.one.enabled = True
-    >>> bf.config.controllers.one.priority = 30
-    >>> bf.config.controllers.two.enabled = False
-    >>> bf.config.controllers.two.priority = 90
-    >>> bf.config.controllers.three.enabled = True #default priority 50
-    >>> defined_controllers()
+
+    >>> bf_test = bf.cache.HierarchicalCache()
+    >>> bf_test.config.controllers.one.enabled = True
+    >>> bf_test.config.controllers.one.priority = 30
+    >>> bf_test.config.controllers.two.enabled = False
+    >>> bf_test.config.controllers.two.priority = 90
+    >>> bf_test.config.controllers.three.enabled = True #default priority 50
+    >>> defined_controllers(bf_test)
     ['three', 'one']
-    >>> defined_controllers(only_enabled=False)
+    >>> defined_controllers(bf_test, only_enabled=False)
     ['two', 'three', 'one']
     """
     controller_priorities = [] # [(controller_name, priority),...]
-    for name, settings in bf.config.controllers.items():
+    for name, settings in namespace.config.controllers.items():
         #Get only the ones that are enabled:
-        c = bf.config.controllers[name]
+        c = namespace.config.controllers[name]
         if (not c.has_key("enabled")) or c['enabled'] == False:
             #The controller is disabled
             if only_enabled: continue

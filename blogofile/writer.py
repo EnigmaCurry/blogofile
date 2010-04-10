@@ -25,7 +25,6 @@ import BeautifulSoup
 import util
 import config
 import cache
-import post
 import filter
 import controller
 

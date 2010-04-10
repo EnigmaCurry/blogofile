@@ -10,7 +10,6 @@ __date__   = "Tue Jul 28 20:40:29 2009"
 import os
 import sys
 
-import post
 import util
 import writer
 import blogofile_bf as bf

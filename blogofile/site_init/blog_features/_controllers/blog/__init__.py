@@ -7,16 +7,18 @@ import categories
 import chronological
 import feed
 import permapage
+import post
 
 config = {"name"        : "Blog",
           "description" : "Creates a Blog",
-          "priority"    : 90.0}
+          "priority"    : 90.0,
+          "post"        : post.config }
 
 def run():
     blog = bf.config.controllers.blog
 
     #Parse the posts
-    blog.posts = bf.post.parse_posts("_posts")
+    blog.posts = post.parse_posts("_posts")
     blog.dir = bf.util.path_join(bf.writer.output_dir,blog.path)
 
 

@@ -55,3 +55,4 @@ class HierarchicalCache(Cache):
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
 sys.modules['blogofile_bf'] = bf
+bf.cache = sys.modules['blogofile.cache']

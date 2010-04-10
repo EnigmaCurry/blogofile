@@ -19,16 +19,20 @@ import codecs
 import datetime
 import pytz
 from BeautifulSoup import BeautifulSoup
+import util
 
-import post
 import config
+import blogofile_bf as bf
+
 
 logger = logging.getLogger("blogofile.org")
 
 class EmacsNotFoundException(Exception):
     pass
 
-import util
+
+post = bf.config.controllers.blog.post.mod
+print "post mod:",post
 
 class org:
     """
