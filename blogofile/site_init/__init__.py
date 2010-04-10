@@ -31,9 +31,12 @@ all_sites.extend(hidden_sites)
 
 site_modules = dict((x[0],x[2]) for x in all_sites)
 
-def zip_site_init():
-    """Zip up all of the subdirectories of site_init"""
-    try:
+def zip_site_init(): #pragma: no cover .. only used by setuptools
+    """Zip up all of the subdirectories of site_init
+
+    This function should only be called by setuptools
+    """
+    try: 
         curdir = os.getcwd()
         root = os.path.join(curdir,"blogofile","site_init")
         for d in os.listdir(root):
@@ -110,6 +113,6 @@ def do_init(args):
         try:
             for feature in extra_features[template]:
                 import_site_init(feature)
-        except KeyError:
+        except KeyError: #pragma: no cover
             pass
         
