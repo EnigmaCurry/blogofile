@@ -107,11 +107,11 @@ def load_controllers(directory="_controllers"):
             try:
                 sys.dont_write_bytecode = True
                 controller = __import__(module)
-            except ImportError:
-                logger.warn(
-                    "cannot find controller referenced in _config.py : %s" %
-                            module)
-                continue
+            except (ImportError,),e:
+                logger.error(
+                    "Cannot import controller : %s (%s)" %
+                            (module,e))
+                raise
             # Remember the actual imported module
             bf.config.controllers[module].mod = controller
             # Load the blogofile defaults for controllers:
