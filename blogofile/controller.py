@@ -57,13 +57,14 @@ from cache import bf
 
 logger = logging.getLogger("blogofile.controller")
 
+__loaded_controllers = {} #name -> module
+
 default_controller_config = {"name"        : None,
                              "description" : None,
                              "author"      : None,
                              "url"         : None,
                              "priority"    : 50.0,
                              "enabled"     : False}
-
 
 
 def __find_controller_names(directory="_controllers"):
@@ -90,53 +91,65 @@ def init_controllers():
                     controller.mod.init()
         except AttributeError:
             pass
-                
-def load_controllers(directory="_controllers"):
-    """Find all the controllers in the _controllers directory
-    and import them into the bf context"""
+
+def load_controller(name, directory="_controllers"):
+    """Load a single controller by name"""
     #Don't generate pyc files in the _controllers directory
     #Reset the original sys.dont_write_bytecode setting where we're done
+    try:
+        return __loaded_controllers[name]
+    except KeyError:
+        pass
     try:
         initial_dont_write_bytecode = sys.dont_write_bytecode
     except KeyError:
         initial_dont_write_bytecode = False
     try:
-        sys.path.insert(0, "_controllers")
-        for module in __find_controller_names():
-            logger.debug("loading controller: %s"%module)
-            try:
-                sys.dont_write_bytecode = True
-                controller = __import__(module)
-            except (ImportError,),e:
-                logger.error(
-                    "Cannot import controller : %s (%s)" %
-                            (module,e))
-                raise
-            # Remember the actual imported module
-            bf.config.controllers[module].mod = controller
-            # Load the blogofile defaults for controllers:
-            for k, v in default_controller_config.items():
-                bf.config.controllers[module][k] = v
-            # Load any of the controller defined defaults:
-            try:
-                controller_config = getattr(controller,"config")
-                for k,v in controller_config.items():
-                    if k != "enabled":
-                        if "." in k:
-                            #This is a hierarchical setting
-                            tail = bf.config.controllers[module]
-                            parts = k.split(".")
-                            for part in parts[:-1]:
-                                tail = tail[part]
-                            tail[parts[-1]] = v
-                        else:
-                            bf.config.controllers[module][k] = v
-            except AttributeError:
-                pass
+        sys.path.insert(0, directory)
+        logger.debug("loading controller: %s"%name)
+        try:
+            sys.dont_write_bytecode = True
+            controller = __import__(name)
+        except (ImportError,),e:
+            logger.error(
+                "Cannot import controller : %s (%s)" %
+                        (name,e))
+            raise
+        # Remember the actual imported module
+        bf.config.controllers[name].mod = controller
+        # Load the blogofile defaults for controllers:
+        for k, v in default_controller_config.items():
+            bf.config.controllers[name][k] = v
+        # Load any of the controller defined defaults:
+        try:
+            controller_config = getattr(controller,"config")
+            for k,v in controller_config.items():
+                if k != "enabled":
+                    if "." in k:
+                        #This is a hierarchical setting
+                        tail = bf.config.controllers[name]
+                        parts = k.split(".")
+                        for part in parts[:-1]:
+                            tail = tail[part]
+                        tail[parts[-1]] = v
+                    else:
+                        bf.config.controllers[name][k] = v
+        except AttributeError:
+            pass
+        #Provide every controller with a logger:
+        c_logger = logging.getLogger("blogofile.controllers."+name)
+        bf.config.controllers[name]["logger"] = c_logger
+        return bf.config.controllers[name].mod
     finally:
         sys.path.remove("_controllers")
         sys.dont_write_bytecode = initial_dont_write_bytecode
-
+    
+        
+def load_controllers(directory="_controllers"):
+    """Find all the controllers in the _controllers directory
+    and import them into the bf context"""
+    for name in __find_controller_names():
+        load_controller(name, directory)
 
 def defined_controllers(namespace=bf, only_enabled=True):
     """Find all the enabled controllers in order of priority
