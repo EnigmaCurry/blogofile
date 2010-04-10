@@ -19,20 +19,15 @@ import codecs
 import datetime
 import pytz
 from BeautifulSoup import BeautifulSoup
-import util
 
-import config
 import blogofile_bf as bf
-
 
 logger = logging.getLogger("blogofile.org")
 
 class EmacsNotFoundException(Exception):
     pass
 
-
 post = bf.config.controllers.blog.post.mod
-print "post mod:",post
 
 class org:
     """
@@ -57,24 +52,24 @@ class org:
     def __convert(self):
         tempFile = tempfile.NamedTemporaryFile(suffix='.org')
         try:
-            tempFile.write(config.emacs_orgmode_preamble)
+            tempFile.write(bf.config.blog.emacs_orgmode_preamble)
             tempFile.write("\n")
         except AttributeError:
             pass
-        tempFile.write(self.source.encode(config.blog_post_encoding))
+        tempFile.write(self.source.encode(bf.config.blog_post_encoding))
         tempFile.flush()
 
         pname = ""
 
         try:
-            pname = config.emacs_binary
+            pname = bf.config.blog.emacs_binary
         except AttributeError:
             raise EmacsNotFoundException, "Emacs binary is not defined"
 
         pname += " --batch"
         try:
-            if config.emacs_preload_elisp:
-                pname += " --load=%s" % config.emacs_preload_elisp
+            if bf.config.blog.emacs_preload_elisp:
+                pname += " --load=%s" % bf.config.blog.emacs_preload_elisp
         except AttributeError:
             pass
 
@@ -93,7 +88,7 @@ class org:
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        content = open(html,"rb").read().decode(config.blog_post_encoding)
+        content = open(html,"rb").read().decode(bf.config.blog_post_encoding)
 
         # remote the temporary file
         os.remove(html)
@@ -121,7 +116,7 @@ class org:
             date = metaline('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
             # date_format = "%Y/%m/%d %H:%M:%S"
             self.date = datetime.datetime.strptime(date, "%Y-%m-%d %a %H:%M")
-            self.date = self.date.replace(tzinfo=pytz.timezone(config.blog_timezone))
+            self.date = self.date.replace(tzinfo=pytz.timezone(bf.config.blog_timezone))
         except:
             self.date = None
 
@@ -139,7 +134,7 @@ class org:
             if toc != None:
                 content = str(toc) + str(content)
                 
-            self.content = str(content).decode(config.blog_post_encoding)
+            self.content = str(content).decode(bf.config.blog_post_encoding)
         except:
             pass
         
