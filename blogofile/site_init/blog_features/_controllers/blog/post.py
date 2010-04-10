@@ -27,6 +27,7 @@ import blogofile_bf as bf
 logger = logging.getLogger("blogofile.post")
 
 config = bf.config.controllers.blog.post
+config.mod = sys.modules[globals()["__name__"]]
 
 # These are all the Blogofile reserved field names for posts. It is not
 # recommended that users re-use any of these field names for purposes other than the
