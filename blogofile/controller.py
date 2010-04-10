@@ -122,7 +122,15 @@ def load_controllers(directory="_controllers"):
                 controller_config = getattr(controller,"config")
                 for k,v in controller_config.items():
                     if k != "enabled":
-                        bf.config.controllers[module][k] = v
+                        if "." in k:
+                            #This is a hierarchical setting
+                            tail = bf.config.controllers[module]
+                            parts = k.split(".")
+                            for part in parts[:-1]:
+                                tail = tail[part]
+                            tail[parts[-1]] = v
+                        else:
+                            bf.config.controllers[module][k] = v
             except AttributeError:
                 pass
     finally:

@@ -9,10 +9,13 @@ import feed
 import permapage
 import post
 
-config = {"name"        : "Blog",
-          "description" : "Creates a Blog",
-          "priority"    : 90.0,
-          "post"        : post.config }
+config = {"name"             : "Blog",
+          "description"      : "Creates a Blog",
+          "priority"         : 90.0,
+
+          #Posts
+          "post.date_format" : "%Y/%m/%d %H:%M:%S"
+          }
 
 def run():
     blog = bf.config.controllers.blog

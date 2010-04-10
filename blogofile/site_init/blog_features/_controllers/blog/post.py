@@ -26,9 +26,7 @@ import blogofile_bf as bf
 
 logger = logging.getLogger("blogofile.post")
 
-config = bf.cache.HierarchicalCache()
-config.date_format = "%Y/%m/%d %H:%M:%S"
-config.mod = sys.modules[globals()["__name__"]]
+config = bf.config.controllers.blog.post
 
 # These are all the Blogofile reserved field names for posts. It is not
 # recommended that users re-use any of these field names for purposes other than the
