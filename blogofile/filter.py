@@ -101,7 +101,15 @@ def load_filter(name):
             try:
                 filter_config = getattr(mod, "config")
                 for k,v in filter_config.items():
-                    bf.config.filters[name][k] = v
+                    if "." in k:
+                        #This is a hierarchical setting
+                        tail = bf.config.filters[name]
+                        parts = k.split(".")
+                        for part in parts[:-1]:
+                            tail = tail[part]
+                        tail[parts[-1]] = v
+                    else:
+                        bf.config.filters[name][k] = v
             except AttributeError:
                 pass
             return mod
