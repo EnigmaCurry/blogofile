@@ -57,10 +57,10 @@ from cache import bf
 
 logger = logging.getLogger("blogofile.controller")
 
-default_controller_config = {"name"        : "None",
-                             "description" : "None",
-                             "author"      : "None",
-                             "url"         : "None",
+default_controller_config = {"name"        : None,
+                             "description" : None,
+                             "author"      : None,
+                             "url"         : None,
                              "priority"    : 50.0,
                              "enabled"     : False}
 

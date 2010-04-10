@@ -13,10 +13,10 @@ bf.filter = sys.modules['blogofile.filter']
 
 __loaded_filters = {} #name -> mod
 
-default_filter_config = {"name"        : "None",
-                         "description" : "None",
-                         "author"      : "None",
-                         "url"         : "None"}
+default_filter_config = {"name"        : None,
+                         "description" : None,
+                         "author"      : None,
+                         "url"         : None}
 
 def run_chain(chain, content):
     """Run content through a filter chain.
