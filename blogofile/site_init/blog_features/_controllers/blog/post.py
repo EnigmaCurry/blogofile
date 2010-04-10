@@ -42,6 +42,7 @@ reserved_field_names = {
         "each seperated by commas",
     "permalink"  :"The full permanent URL for this post. "\
         "Automatically created if not provided",
+    "path"       :"The path from the permalink of the post",
     "guid"       :"A unique hash for the post, if not provided it "\
         "is assumed that the permalink is the guid",
     "author"     :"The name of the author of the post",
@@ -182,8 +183,6 @@ class Post:
             self.permalink = re.sub(":uuid",  hashlib.sha1(
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
-            self.path = urlparse.urlparse(self.permalink).path
-            
         logger.debug("Permalink: %s" % self.permalink)
         
     def __parse_yaml(self, yaml_src):
@@ -199,7 +198,6 @@ class Post:
             if not self.permalink.startswith(bf.config.site.url):
                 raise PostParseException(self.filename+": permalink for a different site"
                                          " than configured")
-            self.path = urlparse.urlparse(self.permalink).path
             logger.debug("path from permalink: "+self.path)
         except KeyError:
             pass
@@ -252,6 +250,13 @@ class Post:
         return cmp(self.date, other_post.date)
     def __eq__(self, other_post):
         return self is other_post
+    def __getattr__(self, name):
+        if name == "path":
+            #Always generate the path from the permalink
+            return self.permapath()
+        else:
+            raise AttributeError, name
+
 
 class Category:
     def __init__(self, name):
