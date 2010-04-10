@@ -24,7 +24,7 @@ blog = controllers.blog
 
 ## blog_enabled -- Should the blog be enabled?
 #  (You don't _have_ to use blogofile to build blogs)
-blog.enabled = True
+blog.enabled = False
 
 ## blog_path -- Blog path.
 #  This is the path of the blog relative to the site_url.
