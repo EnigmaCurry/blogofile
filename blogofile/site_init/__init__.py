@@ -2,6 +2,10 @@ import os
 import pkgutil
 import zipfile
 import StringIO
+import logging
+import shutil
+
+logger = logging.getLogger("blogofile.site_init")
 
 from .. import util
 
@@ -59,17 +63,35 @@ def do_help(): #pragma: no cover
     print("   blogofile init simple_blog\n")
 
 def import_site_init(name):
-    "Load the site_init zip file and write it to the current directory"
-    zip_data = pkgutil.get_data("blogofile.site_init",name+".zip")
-    zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
-    for name in zip_file.namelist():
-        if name.endswith('/'):
-            util.mkdir(name)
-        else:
-            util.mkdir(os.path.split(name)[0])
-            f = open(name, 'wb')
-            f.write(zip_file.read(name))
-            f.close()
+    """Copy a site_init template to the build dir.
+
+    site_init templates can either be directories or zip files.
+    directories are usually used in development,
+    whereas zip files are used in production."""
+    #If the directory exists, just use that.
+    directory = os.path.join(os.path.split(__file__)[0],name)
+    if os.path.isdir(directory):
+        logger.info("Initializing site from directory: "+directory)
+        for root,dirs,files in os.walk(directory):
+            for fn in files:
+                fn = os.path.join(root,fn)
+                dst_fn = fn.replace(directory+os.path.sep,"")
+                dst_dir = os.path.split(dst_fn)[0]
+                util.mkdir(dst_dir)
+                shutil.copyfile(fn,dst_fn)
+    #Otherwise, load it from the zip file
+    else:
+        logger.info("Initializing site from zip file")
+        zip_data = pkgutil.get_data("blogofile.site_init",name+".zip")
+        zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
+        for name in zip_file.namelist():
+            if name.endswith('/'):
+                util.mkdir(name)
+            else:
+                util.mkdir(os.path.split(name)[0])
+                f = open(name, 'wb')
+                f.write(zip_file.read(name))
+                f.close()
     
 def do_init(args):
     if not args.SITE_TEMPLATE: #pragma: no cover
