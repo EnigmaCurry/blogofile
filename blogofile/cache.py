@@ -38,19 +38,43 @@ class HierarchicalCache(Cache):
     'whatever'
     >>> c.sub.d['one'].value.stuff
     'whatever'
+    >>> c.sub.d['one.value.stuff']
+    'whatever'
+    >>> c.sub.d['one.value.stuff'] = "whatever2"
+    >>> c.sub.d.one.value.stuff
+    'whatever2'
     """
     def __getattr__(self, attr):
         if not attr.startswith("_") and \
                 not "(" in attr and \
+                not "[" in attr and \
                 not attr == "trait_names": 
             c = HierarchicalCache()
-            self.__dict__[attr] = c
+            Cache.__setitem__(self, attr, c)
             return c
+        else:
+            raise AttributeError
     def __getitem__(self, item):
+        dotted_parts = item.split(".")
         try:
-            return self.__getattribute__(item)
+            c = self.__getattribute__(dotted_parts[0])
         except AttributeError:
-            return self.__getattr__(item)
+            c = self.__getattr__(item)
+        for dotted_part in dotted_parts[1:]:
+            c = getattr(c,dotted_part)
+        return c
+    def __setitem__(self, key, item):
+        c = self
+        try:
+            try:
+                dotted_parts = key.split(".")
+            except AttributeError:
+                return
+            if len(dotted_parts) > 1:
+                c = self.__getitem__(".".join(dotted_parts[:-1]))
+                key = dotted_parts[-1]
+        finally:
+            Cache.__setitem__(c, key, item)
 
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
