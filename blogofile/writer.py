@@ -137,6 +137,9 @@ class Writer:
         #Provide the name of the template we are rendering:
         self.bf.template_context.template_name = template.uri
         attrs['bf'] = self.bf
+        #Provide the template with other user defined namespaces:
+        for name, obj in self.bf.config.site.template_vars.items():
+            attrs[name] = obj
         try:
             return template.render(**attrs)
         except: #pragma: no cover
