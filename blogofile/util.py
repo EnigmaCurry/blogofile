@@ -64,6 +64,8 @@ def url_path_helper(*parts):
     'one/two/three'
     >>> url_path_helper("one","/two/","three")
     'one/two/three'
+    >>> url_path_helper("/one","two","three")
+    'one/two/three'
     """
     new_parts = []
     for p in parts:
