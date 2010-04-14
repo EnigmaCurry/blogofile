@@ -151,4 +151,7 @@ class TestBuild(unittest.TestCase):
         assert os.path.isfile(os.path.join(
                 self.build_path,"_site","blog","2009","08",
                 "29","this-title-has-a-question-mark-","index.html"))
-
+    def testSimpleBlog(self):
+        """Just do a quick check to make sure simple_blog builds"""
+        main.main("init simple_blog")
+        main.main("build")
