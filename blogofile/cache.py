@@ -43,6 +43,10 @@ class HierarchicalCache(Cache):
     >>> c.sub.d['one.value.stuff'] = "whatever2"
     >>> c.sub.d.one.value.stuff
     'whatever2'
+    >>> c.sub.d.one.value.items()
+    [('stuff', 'whatever2')]
+    >>> c.sub.d.has_key("doesn't have this")
+    False
     """
     def __getattr__(self, attr):
         if not attr.startswith("_") and \
