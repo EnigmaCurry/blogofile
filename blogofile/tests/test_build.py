@@ -155,3 +155,7 @@ class TestBuild(unittest.TestCase):
         """Just do a quick check to make sure simple_blog builds"""
         main.main("init simple_blog")
         main.main("build")
+    def testBareBlog(self):
+        """Just do a quick check to make sure bare template builds"""
+        main.main("init bare")
+        main.main("build")
