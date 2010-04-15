@@ -62,10 +62,11 @@ def preload_filters(directory="_filters"):
 def init_filters():
     """Filters have an optional init method that runs before the site is built"""
     for filt in bf.config.filters.values():
-        try:
-            filt.mod.init()
-        except AttributeError:
-            pass
+        if filt.has_key("mod"):
+            try:
+                filt.mod.init()
+            except AttributeError:
+                pass
         
 def load_filter(name):
     """Load a filter from the site's _filters directory"""
