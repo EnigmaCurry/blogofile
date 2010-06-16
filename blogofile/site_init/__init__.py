@@ -4,6 +4,7 @@ import zipfile
 import StringIO
 import logging
 import shutil
+import imp
 
 logger = logging.getLogger("blogofile.site_init")
 
@@ -13,7 +14,7 @@ available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
     ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
-    ("blogofile.com", "The blogofile.com blog fully themed (requires git)", "blogofile_com")
+    ("blogofile.com", "The blogofile.com blog fully themed (requires git)", "blogofile_com.py")
     ]
 
 #These are hidden site templates that are not shown in the list shown in help
@@ -68,20 +69,29 @@ def do_help(): #pragma: no cover
 def import_site_init(name):
     """Copy a site_init template to the build dir.
 
-    site_init templates can either be directories or zip files.
-    directories are usually used in development,
-    whereas zip files are used in production."""
+    site_init templates can be of three forms:
+      1) A directory
+      2) A zip file
+      3) A .py file
+    Directories are usually used in development,
+    whereas zip files are used in production.
+    .py files are special in that they control how to initialize a site,
+    for example, pulling from a git repository."""
     #If the directory exists, just use that.
-    directory = os.path.join(os.path.split(__file__)[0],name)
-    if os.path.isdir(directory):
-        logger.info("Initializing site from directory: "+directory)
-        for root,dirs,files in os.walk(directory):
+    path = os.path.join(os.path.split(__file__)[0],name)
+    if os.path.isdir(path):
+        logger.info("Initializing site from directory: "+path)
+        for root,dirs,files in os.walk(path):
             for fn in files:
                 fn = os.path.join(root,fn)
-                dst_fn = fn.replace(directory+os.path.sep,"")
+                dst_fn = fn.replace(path+os.path.sep,"")
                 dst_dir = os.path.split(dst_fn)[0]
                 util.mkdir(dst_dir)
                 shutil.copyfile(fn,dst_fn)
+    #If a .py file exists, run with that:
+    elif os.path.isfile(path) and path.endswith(".py"):
+        mod = imp.load_source("mod",path)
+        mod.do_init()
     #Otherwise, load it from the zip file
     else:
         logger.info("Initializing site from zip file")
