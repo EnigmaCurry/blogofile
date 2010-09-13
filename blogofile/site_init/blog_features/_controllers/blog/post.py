@@ -296,7 +296,11 @@ def parse_posts(directory):
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        src = open(post_path,"r").read().decode(bf.config.controllers.blog.post_encoding)
+        try:
+            src = open(post_path,"r").read().decode(bf.config.controllers.blog.post_encoding)
+        except:
+            logger.exception("Error reading post: %s" % post_path)
+            raise
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:
