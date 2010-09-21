@@ -14,46 +14,56 @@ bf.server = sys.modules['blogofile.server']
 
 logger = logging.getLogger("blogofile.server")
 
+
 class Server(threading.Thread):
+
     def __init__(self, port):
         self.port = int(port)
         threading.Thread.__init__(self)
         self.is_shutdown = False
-        server_address = ('',self.port)
+        server_address = ('', self.port)
         HandlerClass = BlogofileRequestHandler
         ServerClass = BaseHTTPServer.HTTPServer
-        HandlerClass.protocol_version="HTTP/1.0"
+        HandlerClass.protocol_version = "HTTP/1.0"
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
+
     def run(self):
-        print("Blogofile server started on port %s ..." % self.sa[1])
+        print("Blogofile server started on port {0}...".format(self.sa[1]))
         self.httpd.serve_forever()
+
     def shutdown(self):
         print("\nshutting down webserver...")
         self.httpd.shutdown()
         self.httpd.socket.close()
         self.is_shutdown = True
 
+
 class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        self.BLOGOFILE_SUBDIR_ERROR = """\
+
+    error_template = """
 <head>
 <title>Error response</title>
 </head>
 <body>
 <h1>404 Error</h1>
 Your Blogofile site is configured for a subdirectory, maybe you were looking
-for the root page? : <a href='"""+\
-    urlparse(config.site.url).path + "'>"+urlparse(config.site.url).path+\
-    "</a>\n"+\
-    "</body>"
-        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
+for the root page? : <a href="{0}">{1}</a>
+</body>"""
+
+    def __init__(self, *args, **kwargs):
+        path = urlparse(config.site.url).path
+        self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
+        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(
+                self, *args, **kwargs)
+
     def translate_path(self, path):
         site_path = urlparse(config.site.url).path
         if(len(site_path.strip("/")) > 0 and
-           not path.startswith(site_path)):
+                not path.startswith(site_path)):
             self.error_message_format = self.BLOGOFILE_SUBDIR_ERROR
             return "" #Results in a 404
+
         p = SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(
             self, path)
         if len(site_path.strip("/")) > 0:

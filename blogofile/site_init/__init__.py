@@ -14,6 +14,7 @@ available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
     ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
+    ("simple_html5_blog", "A (very) simple blog with no theme, but in hot & sexy HTML5!", "simple_html5_blog"),
     ("blogofile.com", "The blogofile.com blog fully themed (requires git)", "blogofile_com.py")
     ]
 
@@ -24,6 +25,7 @@ hidden_sites = [
 
 extra_features = {
     "simple_blog": ["blog_features"],
+    "simple_html5_blog": ["blog_features", "html5_blog_features"],
     "blog_unit_test":["blog_features"]
     }
 
