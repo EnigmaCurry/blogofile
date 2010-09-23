@@ -7,7 +7,9 @@ import BeautifulSoup
 from .. import main
 from .. import server
 
+
 class TestServer(unittest.TestCase):
+
     def setUp(self):
         main.do_debug()
         #Remember the current directory to preserve state
@@ -26,6 +28,7 @@ class TestServer(unittest.TestCase):
         self.url = "http://localhost:"+str(self.port)
         self.server = server.Server(self.port)
         self.server.start()
+
     def tearDown(self):
         #Revert the config overridden options
         main.config.override_options = {}
@@ -35,6 +38,7 @@ class TestServer(unittest.TestCase):
         os.chdir(self.previous_dir)
         #Clean up the build directory
         shutil.rmtree(self.build_path)
+
     def testBuildAndServe(self):
         br = mechanize.Browser()
         #Test the index page
@@ -70,6 +74,7 @@ class TestServer(unittest.TestCase):
         #Come back to the 1st archive page
         br.follow_link(text_regex="Previous Page")
         assert br.geturl() == self.url + "/blog/archive/2009/08/1/"
+
     def testServeSubdirectory(self):
         #The site was already built in setUp
         #Rebuild the site with a new config:

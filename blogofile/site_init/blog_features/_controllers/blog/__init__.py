@@ -9,21 +9,21 @@ import feed
 import permapage
 import post
 
-config = {"name"             : "Blog",
-          "description"      : "Creates a Blog",
-          "priority"         : 90.0,
+config = {
+        "name": "Blog",
+        "description": "Creates a Blog",
+        "priority": 90.0,
 
-          #Posts
-          "post.date_format" : "%Y/%m/%d %H:%M:%S"
-          }
+        #Posts
+        "post.date_format": "%Y/%m/%d %H:%M:%S"
+        }
 
 def run():
     blog = bf.config.controllers.blog
 
     #Parse the posts
     blog.posts = post.parse_posts("_posts")
-    blog.dir = bf.util.path_join(bf.writer.output_dir,blog.path)
-
+    blog.dir = bf.util.path_join(bf.writer.output_dir, blog.path)
 
     # Find all the categories and archives before we write any pages
     blog.archived_posts = {} ## "/archive/Year/Month" -> [post, post, ... ]
@@ -34,7 +34,6 @@ def run():
     categories.sort_into_categories()
 
     blog.logger = logging.getLogger(config['name'])
-
     
     permapage.run()
     chronological.run()

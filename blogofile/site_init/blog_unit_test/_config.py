@@ -21,7 +21,7 @@
 #  If you're hosting a blogofile powered site as a subdirectory of a larger
 #  non-blogofile site, then you would set the site_url to the full URL
 #  including that subdirectory: "http://www.yoursite.com/path/to/blogofile-dir"
-site.url         = "http://www.yoursite.com"
+site.url = "http://www.yoursite.com"
 
 #### Blog Settings ####
 blog = controllers.blog
@@ -40,14 +40,14 @@ blog.path = "/blog"
 
 ## blog_name -- Your Blog's name.
 # This is used repeatedly in default blog templates
-blog.name        = "Your Blog's Name"
+blog.name = "Your Blog's Name"
 
 ## blog_description -- A short one line description of the blog
 # used in the RSS/Atom feeds.
 blog.description = "Your Blog's short description"
 
 ## blog_timezone -- the timezone that you normally write your blog posts from
-blog.timezone    = "US/Eastern"
+blog.timezone = "US/Eastern"
 
 ## blog_posts_per_page -- Blog posts per page
 blog.posts_per_page = 5
@@ -62,19 +62,19 @@ blog.posts_per_page = 5
 # :filename           -> article's filename without suffix
 blog.auto_permalink.enabled = True
 # This is relative to site_url
-blog.auto_permalink.path    = "/blog/:year/:month/:day/:title"
+blog.auto_permalink.path = "/blog/:year/:month/:day/:title"
 
 ######################################################################
 # Intermediate Settings
 ######################################################################
 #### Disqus.com comment integration ####
 blog.disqus.enabled = False
-blog.disqus.name    = "your_disqus_name"
+blog.disqus.name = "your_disqus_name"
 
 #### Emacs Integration ####
 blog.emacs_orgmode_enabled = False
 # emacs binary (orgmode must be installed)
-blog.emacs_binary    = "/usr/bin/emacs"               # emacs 22 or 23 is recommended
+blog.emacs_binary = "/usr/bin/emacs"               # emacs 22 or 23 is recommended
 blog.emacs_preload_elisp = "_emacs/setup.el"          # preloaded elisp file
 blog.emacs_orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added in preamble
 
@@ -82,7 +82,7 @@ blog.emacs_orgmode_preamble = r"#+OPTIONS: H:3 num:nil toc:nil \n:nil"   # added
 site.syntax_highlight.enabled = True
 # You can change the style to any builtin Pygments style
 # or, make your own: http://pygments.org/docs/styles
-site.syntax_highlight.style   = "murphy"
+site.syntax_highlight.style = "murphy"
 
 #### Custom blog index ####
 # If you want to create your own index page at your blog root
@@ -93,7 +93,7 @@ blog.custom_index = False
 #### Post excerpts ####
 # If you want to generate excerpts of your posts in addition to the
 # full post content turn this feature on
-blog.post_excerpts.enabled     = True
+blog.post_excerpts.enabled = True
 blog.post_excerpts.word_length = 25
 #Also, if you don't like the way the post excerpt is generated
 #You can define assign a new function to blog.post_excerpts.method
@@ -154,6 +154,7 @@ blog.post_default_filters = {
 def pre_build():
     #Do whatever you want before the _site is built
     pass
+
 def post_build():
     #Do whatever you want after the _site is built
     pass

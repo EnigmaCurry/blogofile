@@ -13,8 +13,10 @@ import chronological
 
 blog = bf.config.controllers.blog
 
+
 def run():
     write_monthly_archives()
+
 
 def sort_into_archives():
     #This is run in 0.initial.py
@@ -28,8 +30,9 @@ def sort_into_archives():
         blog.archived_posts.items(), key=operator.itemgetter(0), reverse=True):
         name = posts[0].date.strftime("%B %Y")
         blog.archive_links.append((archive, name, len(posts)))
-    
+
+
 def write_monthly_archives():
     for link, posts in blog.archived_posts.items():
         name = posts[0].date.strftime("%B %Y")
-        chronological.write_blog_chron(posts,root=link)
+        chronological.write_blog_chron(posts, root=link)

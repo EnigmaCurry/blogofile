@@ -8,7 +8,9 @@ from .. import main
 from .. import util
 import logging
 
+
 class TestBuild(unittest.TestCase):
+
     def setUp(self):
         main.do_debug()
         #Remember the current directory to preserve state
@@ -19,6 +21,7 @@ class TestBuild(unittest.TestCase):
         os.chdir(self.build_path)
         #Reinitialize the configuration
         main.config.init()
+
     def tearDown(self):
         #Revert the config overridden options
         main.config.override_options = {}
@@ -26,6 +29,7 @@ class TestBuild(unittest.TestCase):
         os.chdir(self.previous_dir)
         #Clean up the build directory
         shutil.rmtree(self.build_path)
+
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories
         off the webroot work"""
@@ -38,6 +42,7 @@ class TestBuild(unittest.TestCase):
                                         "path","to","blog"))
         for fn in ("category","page","feed"):
             assert(fn in lsdir)
+
     def testPermaPages(self):
         """Test that permapages are written"""
         main.main("init blog_unit_test")
@@ -51,6 +56,7 @@ class TestBuild(unittest.TestCase):
         assert "index.html" in os.listdir(
             os.path.join(self.build_path,"_site","blog",
                          "2009","07","24","post-2"))
+    
     def testNoPosts(self):
         """Test when there are no posts, site still builds cleanly"""
         main.main("init blog_unit_test")
@@ -60,9 +66,11 @@ class TestBuild(unittest.TestCase):
         shutil.rmtree("_posts")
         util.mkdir("_posts")
         main.main("build")
+
     def testPostInSubdir(self):
         "Test a post in a subdirectory of _posts"
         pass
+    
     def testNoPostsDir(self):
         """Test when there is no _posts dir, site still builds cleanly"""
         main.main("init blog_unit_test")
@@ -75,6 +83,7 @@ class TestBuild(unittest.TestCase):
         logger.setLevel(logging.CRITICAL) 
         main.main("build")
         logger.setLevel(logging.ERROR)
+
     def testCategoryPages(self):
         """Test that categories are written"""
         main.main("init blog_unit_test")
@@ -144,6 +153,7 @@ class TestBuild(unittest.TestCase):
             os.path.join(self.build_path,"_site"))
         assert not "test.py" in os.listdir(
             os.path.join(self.build_path,"_site"))
+
     def testAutoPermalinks(self):
         main.main("init blog_unit_test")
         main.main("build")
@@ -151,10 +161,12 @@ class TestBuild(unittest.TestCase):
         assert os.path.isfile(os.path.join(
                 self.build_path,"_site","blog","2009","08",
                 "29","this-title-has-a-question-mark-","index.html"))
+
     def testSimpleBlog(self):
         """Just do a quick check to make sure simple_blog builds"""
         main.main("init simple_blog")
         main.main("build")
+
     def testBareBlog(self):
         """Just do a quick check to make sure bare template builds"""
         main.main("init bare")
