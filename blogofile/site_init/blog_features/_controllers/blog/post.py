@@ -173,13 +173,15 @@ class Post(object):
             self.permalink = bf.config.site.url.rstrip("/") + \
                 bf.config.controllers.blog.auto_permalink.path
             self.permalink = \
+                    re.sub(":blog_path", bf.config.blog.path, self.permalink)
+            self.permalink = \
                     re.sub(":year", self.date.strftime("%Y"), self.permalink)
             self.permalink = \
                     re.sub(":month", self.date.strftime("%m"), self.permalink)
             self.permalink = \
                     re.sub(":day", self.date.strftime("%d"), self.permalink)
             self.permalink = \
-                    re.sub(":title", re.sub("[ ?]","-", self.title).lower(),
+                    re.sub(":title", re.sub("[ ?]", "-", self.title).lower(),
                             self.permalink)
 
             self.permalink = re.sub(

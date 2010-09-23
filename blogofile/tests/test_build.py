@@ -35,34 +35,34 @@ class TestBuild(unittest.TestCase):
         off the webroot work"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com/~username",
-            "blog.path":"/path/to/blog" }
+            "site.url": "http://www.test.com/~username",
+            "blog.path": "/path/to/blog" }
         main.main("build")
-        lsdir = os.listdir(os.path.join(self.build_path,"_site",
-                                        "path","to","blog"))
-        for fn in ("category","page","feed"):
+        lsdir = os.listdir(os.path.join(self.build_path, "_site",
+                                        "path", "to", "blog"))
+        for fn in ("category", "page", "feed"):
             assert(fn in lsdir)
 
     def testPermaPages(self):
         """Test that permapages are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com/",
-            "blog.path":"/blog" }
+            "site.url": "http://www.test.com/",
+            "blog.path": "/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","blog",
-                         "2009","07","23","post-1"))
+            os.path.join(self.build_path, "_site", "blog",
+                         "2009", "07", "23", "post-1"))
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","blog",
-                         "2009","07","24","post-2"))
-    
+            os.path.join(self.build_path, "_site", "blog",
+                         "2009", "07", "24", "post-2"))
+
     def testNoPosts(self):
         """Test when there are no posts, site still builds cleanly"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site_url":"http://www.test.com/",
-            "blog_path":"/blog" }
+            "site_url": "http://www.test.com/",
+            "blog_path": "/blog" }
         shutil.rmtree("_posts")
         util.mkdir("_posts")
         main.main("build")
@@ -75,8 +75,8 @@ class TestBuild(unittest.TestCase):
         """Test when there is no _posts dir, site still builds cleanly"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com/",
-            "blog.path":"/blog" }
+            "site.url": "http://www.test.com/",
+            "blog.path": "/blog" }
         shutil.rmtree("_posts")
         logger = logging.getLogger("blogofile")
         #We don't need to see the error that this test checks for:
@@ -88,60 +88,62 @@ class TestBuild(unittest.TestCase):
         """Test that categories are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com",
-            "blog.path":"/path/to/blog" }
+            "site.url": "http://www.test.com",
+            "blog.path": "/path/to/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-1","1"))
+            os.path.join(self.build_path, "_site", "path",
+                         "to", "blog", "category", "category-1", "1"))
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-1"))
+            os.path.join(self.build_path, "_site", "path",
+                         "to", "blog", "category", "category-1"))
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-2"))
+            os.path.join(self.build_path, "_site", "path",
+                         "to", "blog", "category", "category-2"))
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-2","1"))
+            os.path.join(self.build_path, "_site", "path",
+                         "to", "blog", "category", "category-2", "1"))
+
     def testArchivePages(self):
         """Test that archives are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com",
-            "blog.path":"/path/to/blog" }
+            "site.url": "http://www.test.com",
+            "blog.path": "/path/to/blog" }
         main.main("build")
         assert "index.html" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","archive","2009","07","1"))
+            os.path.join(self.build_path, "_site", "path",
+                         "to", "blog", "archive", "2009", "07", "1"))
+
     def testFeeds(self):
         """Test that RSS/Atom feeds are written"""
         main.main("init blog_unit_test")
         main.config.override_options = {
-            "site.url":"http://www.test.com",
-            "blog.path":"/path/to/blog" }
+            "site.url": "http://www.test.com",
+            "blog.path": "/path/to/blog" }
         main.main("build")
         #Whole blog feeds
         assert "index.xml" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","feed"))
+            os.path.join(self.build_path, "_site", "path", "to",
+                         "blog", "feed"))
         assert "index.xml" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","feed","atom"))
+            os.path.join(self.build_path, "_site", "path", "to",
+                         "blog", "feed", "atom"))
         #Per category feeds
         assert "index.xml" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-1","feed"))
+            os.path.join(self.build_path, "_site", "path", "to",
+                         "blog", "category", "category-1", "feed"))
         assert "index.xml" in os.listdir(
-            os.path.join(self.build_path,"_site","path",
-                         "to","blog","category","category-1","feed","atom"))
+            os.path.join(self.build_path, "_site", "path", "to",
+                         "blog", "category", "category-1", "feed", "atom"))
     
     def testFileIgnorePatterns(self):
         main.main("init blog_unit_test")
         #Initialize the config manually
         main.config.init("_config.py")
         #Add some file_ignore_patterns:
-        open("test.txt","w").close()
-        open("test.py","w").close()
+        open("test.txt", "w").close()
+        open("test.py", "w").close()
         #File ignore patterns can be strings
         main.config.site.file_ignore_patterns.append(r".*test\.txt$")
         #Or, they can be precompiled regexes
@@ -150,17 +152,32 @@ class TestBuild(unittest.TestCase):
         main.config.recompile()
         main.do_build([], load_config=False)
         assert not "test.txt" in os.listdir(
-            os.path.join(self.build_path,"_site"))
+            os.path.join(self.build_path, "_site"))
         assert not "test.py" in os.listdir(
-            os.path.join(self.build_path,"_site"))
+            os.path.join(self.build_path, "_site"))
 
     def testAutoPermalinks(self):
         main.main("init blog_unit_test")
         main.main("build")
         #Make sure the post with question mark in title was generated properly
         assert os.path.isfile(os.path.join(
-                self.build_path,"_site","blog","2009","08",
-                "29","this-title-has-a-question-mark-","index.html"))
+                self.build_path, "_site", "blog", "2009", "08",
+                "29", "this-title-has-a-question-mark-", "index.html"))
+
+    def testAutoPermalinkPagesRespectBlogPath(self):
+        """Test that default auto_permalink.path incorporates the
+           configured blog.path setting"""
+        main.main("init blog_unit_test")
+        main.config.override_options = {
+            "site.url": "http://www.test.com",
+            "blog.path": "" }
+        main.main("build")
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path, "_site", "blog",
+                         "2009", "07", "23", "post-1"))
+        assert "index.html" in os.listdir(
+            os.path.join(self.build_path, "_site", "blog",
+                         "2009", "07", "24", "post-2"))
 
     def testSimpleBlog(self):
         """Just do a quick check to make sure simple_blog builds"""
