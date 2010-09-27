@@ -35,7 +35,7 @@ controllers = cache.HierarchicalCache()
 filters = cache.HierarchicalCache()
 
 default_config = open(os.path.join(
-        os.path.split(site_init.__file__)[0],"_config.py")).read()
+        os.path.split(site_init.__file__)[0], "_config.py")).read()
 
 def recompile():
     #Compile file_ignore_patterns
@@ -43,15 +43,15 @@ def recompile():
     global site
     site.compiled_file_ignore_patterns = []
     for p in site.file_ignore_patterns:
-        if isinstance(p,basestring):
+        if isinstance(p, basestring):
             site.compiled_file_ignore_patterns.append(
-                re.compile(p,re.IGNORECASE))
+                re.compile(p, re.IGNORECASE))
         else:
             #p could just be a pre-compiled regex
             site.compiled_file_ignore_patterns.append(p)
     import urlparse
     global blog
-    blog.url = urlparse.urljoin(site.url,blog.path)
+    blog.url = urlparse.urljoin(site.url, blog.path)
         
 def __load_config(path=None):
     #Strategy:
@@ -66,10 +66,10 @@ def __load_config(path=None):
     if path:
         execfile(path)
     #config is now in locals() but needs to be in globals()
-    for k,v in locals().items():
+    for k, v in locals().items():
         globals()[k] = v
     #Override any options (from unit tests)
-    for k,v in override_options.items():
+    for k, v in override_options.items():
         if "." in k:
             parts = k.split(".")
             cache_object = ".".join(parts[:-1])

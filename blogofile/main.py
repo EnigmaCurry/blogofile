@@ -43,8 +43,8 @@ logging.basicConfig()
 logger = logging.getLogger("blogofile")
 bf.logger = logger
 
-def get_args(cmd=None):
 
+def get_args(cmd=None):
     ##parser_template to base other parsers on
     parser_template = argparse.ArgumentParser(add_help=False)
     parser_template.add_argument("-s", "--src-dir", dest="src_dir",
@@ -61,7 +61,8 @@ def get_args(cmd=None):
 
     global parser, subparsers
     parser = argparse.ArgumentParser(parents=[parser_template])
-    parser.version = "Blogofile " + __version__ + " -- http://www.blogofile.com"
+    parser.version = "Blogofile {0} -- http://www.blogofile.com".format(
+            __version__)
     subparsers = parser.add_subparsers()
 
     p_help = subparsers.add_parser("help", help="Show help for a command",
@@ -101,6 +102,7 @@ def get_args(cmd=None):
         args = parser.parse_args(args)
     return (parser, args)
 
+
 def main(cmd=None):
     do_debug()   
     parser, args = get_args(cmd)
@@ -108,6 +110,7 @@ def main(cmd=None):
     if args.verbose: #pragma: no cover
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
+
     if args.veryverbose: #pragma: no cover
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
@@ -119,9 +122,10 @@ def main(cmd=None):
 
     #The src_dir, which is now the current working directory,
     #should already be on the sys.path, but let's make this explicit:
-    sys.path.insert(0,os.curdir)
+    sys.path.insert(0, os.curdir)
 
     args.func(args)
+
 
 def do_help(args): #pragma: no cover
     global parser
@@ -143,14 +147,17 @@ def do_help(args): #pragma: no cover
                     break
             else:
                 helptext[subcommand] = ""
+
         # Print help for each subcommand requested.
         for subcommand in args.command:
-            print >>sys.stderr, "%s - %s" % (subcommand, helptext[subcommand])
+            #TODO: consider switching to new-style print syntax?
+            print >>sys.stderr, "{0} - {1}".format(
+                    subcommand, helptext[subcommand])
             parser = subparsers.choices[subcommand]
             parser.print_help()
             print >>sys.stderr, "\n"
             #Perform any extra help tasks:
-            if hasattr(parser,"extra_help"):
+            if hasattr(parser, "extra_help"):
                 parser.extra_help()
 
 def config_init(args):
@@ -159,15 +166,17 @@ def config_init(args):
         # We already changed to the directory specified with --src-dir
         config.init("_config.py")
     except config.ConfigNotFoundException: #pragma: no cover
-        print >>sys.stderr, ("No configuration found in source dir: %s" % args.src_dir)
+        print >>sys.stderr, \
+                "No configuration found in source dir: {0}".format(args.src_dir)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
-        
+ 
+
 def do_serve(args): #pragma: no cover
     config_init(args)
     import server
     bfserver = server.Server(args.PORT)
     bfserver.start()
-    while(not bfserver.is_shutdown):
+    while not bfserver.is_shutdown:
         try:
             time.sleep(0.5)
         except KeyboardInterrupt:
@@ -176,15 +185,18 @@ def do_serve(args): #pragma: no cover
 def do_build(args, load_config=True):
     if load_config:
         config_init(args)
-    writer = Writer(output_dir=util.path_join("_site",util.fs_site_path_helper()))
-    logger.debug("Running user's pre_build() function..")
+    output_dir = util.path_join("_site", util.fs_site_path_helper())
+    writer = Writer(output_dir=output_dir)
+    logger.debug("Running user's pre_build() function...")
     config.pre_build()
     writer.write_site()
-    logger.debug("Running user's post_build() function..")
+    logger.debug("Running user's post_build() function...")
     config.post_build()
+
 
 def do_init(args):
     site_init.do_init(args)
+
 
 def do_debug():
     """Run inside winpdb if the environment variable BLOGOFILE_DEBUG is set to
@@ -192,7 +204,8 @@ def do_debug():
     try:
         if os.environ['BLOGOFILE_DEBUG'] != "0":
             print("Running in debug mode. Enter a password for Winpdb to use.")
-            import rpdb2; rpdb2.start_embedded_debugger_interactive_password()
+            import rpdb2
+            rpdb2.start_embedded_debugger_interactive_password()
     except KeyError:
         pass #Not running in debug mode
     

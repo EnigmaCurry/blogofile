@@ -21,11 +21,12 @@ html_escape_table = {
     
 def html_escape(text): #pragma: no cover
     """Produce entities within text."""
-    L=[]
+    L = []
     for c in text:
-        L.append(html_escape_table.get(c,c))
+        L.append(html_escape_table.get(c, c))
     return "".join(L)
     
+
 def should_ignore_path(path):
     """See if a given path matches the ignore patterns"""
     if os.path.sep == '\\':
@@ -34,6 +35,7 @@ def should_ignore_path(path):
         if p.match(path):
             return True
     return False
+
 
 def mkdir(newdir):
     """works the way a good mkdir should :)
@@ -45,12 +47,12 @@ def mkdir(newdir):
         pass
     elif os.path.isfile(newdir):
         raise OSError("a file with the same name as the desired " \
-                          "dir, '%s', already exists." % newdir)
+                          "dir, '{0}', already exists.".format(newdir))
     else:
         head, tail = os.path.split(newdir)
         if head and not os.path.isdir(head):
             mkdir(head)
-        #print "mkdir %s" % repr(newdir)
+        #print "mkdir {0}.format(repr(newdir))
         if tail:
             os.mkdir(newdir)
 
@@ -71,13 +73,14 @@ def url_path_helper(*parts):
     """
     new_parts = []
     for p in parts:
-        if hasattr(p,"__iter__"):
+        if hasattr(p, "__iter__"):
             #This part is a sequence itself, recurse into it
-            p = path_join(*p, **{'sep':"/"})
+            p = path_join(*p, **{'sep': "/"})
         p = p.strip("/")
-        if p in ("","\\","/"):
+        if p in ("", "\\", "/"):
             continue
         new_parts.append(p)
+
     if len(new_parts) > 0:
         return "/".join(new_parts)
     else:
@@ -100,10 +103,11 @@ def site_path_helper(*parts):
     '/~ryan/site1/blog/category1'
     """
     site_path = urlparse(bf.config.site.url).path
-    path = url_path_helper(site_path,*parts)
+    path = url_path_helper(site_path, *parts)
     if not path.startswith("/"):
         path = "/" + path
     return path
+
 
 def fs_site_path_helper(*parts):
     """Build a path relative to the built site inside the _site dir
@@ -116,6 +120,8 @@ def fs_site_path_helper(*parts):
     """
     return path_join(url_path_helper(*parts).strip("/"))
 
+
+#TODO: seems to have a lot in common with url_path_helper; commonize
 def path_join(*parts, **kwargs):
     """A better os.path.join
 
@@ -135,25 +141,27 @@ def path_join(*parts, **kwargs):
         wrong_slash_type = "\\"
     new_parts = []
     for p in parts:
-        if hasattr(p,"__iter__"):
+        if hasattr(p, "__iter__"):
             #This part is a sequence itself, recurse into it
             p = path_join(*p)
-        if p in ("","\\","/"):
+        if p in ("", "\\", "/"):
             continue
         new_parts.append(p.replace(wrong_slash_type,os.sep))
     return sep.join(new_parts)
+
 
 def recursive_file_list(directory, regex=None):
     "Recursively walk a directory tree and find all the files matching regex"
     if type(regex) == basestring:
         regex = re.compile(regex)
-    for root,dirs,files in os.walk(directory):
+    for root, dirs, files in os.walk(directory):
         for f in files:
             if regex:
                 if regex.match(f):
-                    yield os.path.join(root,f)
+                    yield os.path.join(root, f)
             else:
-                yield os.path.join(root,f)
+                yield os.path.join(root, f)
+
 
 def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #pragma: no cover
     """

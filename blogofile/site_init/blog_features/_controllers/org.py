@@ -24,12 +24,15 @@ import blogofile_bf as bf
 
 logger = logging.getLogger("blogofile.org")
 
+
 class EmacsNotFoundException(Exception):
     pass
 
+
 post = bf.config.controllers.blog.post.mod
 
-class org:
+
+class org(object):
     """
         Class to Convert org file into html file
 
@@ -46,49 +49,49 @@ class org:
 
 	"""
     def __init__(self, source):
-        self.source    = source
+        self.source = source
         return self.__convert()
         
     def __convert(self):
-        tempFile = tempfile.NamedTemporaryFile(suffix='.org')
+        temp_file = tempfile.NamedTemporaryFile(suffix='.org')
         try:
-            tempFile.write(bf.config.blog.emacs_orgmode_preamble)
-            tempFile.write("\n")
+            temp_file.write(bf.config.blog.emacs_orgmode_preamble)
+            temp_file.write("\n")
         except AttributeError:
             pass
-        tempFile.write(self.source.encode(bf.config.blog_post_encoding))
-        tempFile.flush()
+        temp_file.write(self.source.encode(bf.config.blog_post_encoding))
+        temp_file.flush()
 
         pname = ""
-
         try:
             pname = bf.config.blog.emacs_binary
         except AttributeError:
-            raise EmacsNotFoundException, "Emacs binary is not defined"
+            raise EmacsNotFoundException("Emacs binary is not defined")
 
         pname += " --batch"
         try:
             if bf.config.blog.emacs_preload_elisp:
-                pname += " --load=%s" % bf.config.blog.emacs_preload_elisp
+                pname += " --load={0}".format(
+                        bf.config.blog.emacs_preload_elisp)
         except AttributeError:
             pass
 
-        pname += " --visit=%s --funcall org-export-as-html-batch"
-        pname = pname % tempFile.name
+        pname += " --visit={0} --funcall org-export-as-html-batch".format(
+                temp_file.name)
         logger.debug("Exec name::: %s" % pname)
 
         status, output = commands.getstatusoutput(pname)
         logger.debug("Convert output:::\n\t%s"%output)
         if status:
-            raise EmacsNotFoundException, "orgfile filter failed"
+            raise EmacsNotFoundException("orgfile filter failed")
         
-        html = tempFile.name[:-4] + '.html'
-        tempFile.close()
+        html = temp_file.name[:-4] + '.html'
+        temp_file.close()
 
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
-        content = open(html,"rb").read().decode(bf.config.blog_post_encoding)
+        content = open(html, "rb").read().decode(bf.config.blog_post_encoding)
 
         # remote the temporary file
         os.remove(html)
@@ -107,7 +110,8 @@ class org:
         # extract category
         try:
             categories = metaline('span', {'class':'tag'})[0].string
-            self.categories = set([post.Category(x) for x in categories.split('&nbsp;')])
+            self.categories = set([post.Category(x)
+                    for x in categories.split('&nbsp;')])
         except:
             self.categories = None
 
@@ -116,7 +120,8 @@ class org:
             date = metaline('span', {'class':'timestamp'})[0].string # 2009-08-22 Sat 15:22
             # date_format = "%Y/%m/%d %H:%M:%S"
             self.date = datetime.datetime.strptime(date, "%Y-%m-%d %a %H:%M")
-            self.date = self.date.replace(tzinfo=pytz.timezone(bf.config.blog_timezone))
+            self.date = self.date.replace(
+                    tzinfo=pytz.timezone(bf.config.blog_timezone))
         except:
             self.date = None
 
@@ -128,7 +133,7 @@ class org:
 
         # print soup.body
         try:
-            toc = soup.find('div',  {'id': 'table-of-contents'})
+            toc = soup.find('div',{'id': 'table-of-contents'})
             content = soup.find('div', {'id': 'outline-container-1'})
 
             if toc != None:
@@ -137,8 +142,9 @@ class org:
             self.content = str(content).decode(bf.config.blog_post_encoding)
         except:
             pass
-        
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod(verbose=True)
-    
+

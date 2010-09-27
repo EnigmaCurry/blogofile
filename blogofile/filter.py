@@ -18,21 +18,23 @@ default_filter_config = {"name"        : None,
                          "author"      : None,
                          "url"         : None}
 
+
 def run_chain(chain, content):
     """Run content through a filter chain.
 
     Works with either a string or a sequence of filters"""
-    if chain == None: #pragma: no cover
+    if chain is None: #pragma: no cover
         return content
-    if not hasattr(chain,'__iter__'):
+    if not hasattr(chain, '__iter__'):
         #Not a sequence, must be a string, parse it
         chain = parse_chain(chain)
     for fn in chain:
         f = load_filter(fn)
-        logger.debug("Applying filter: "+fn)
+        logger.debug("Applying filter: " + fn)
         content = f.run(content)
-    logger.debug("Content:"+content)
+    logger.debug("Content: " + content)
     return util.force_unicode(content)
+
 
 def parse_chain(chain):
     """Parse a filter chain into a sequence of filters"""
@@ -41,10 +43,12 @@ def parse_chain(chain):
         p = p.strip()
         if p.lower() == "none":
             continue
-        if len(p)>0:
+        if len(p) > 0:
             parts.append(p)
     return parts
 
+
+#TODO: seems almost identical to controllers.__find_controller_names; commonize
 def preload_filters(directory="_filters"):
     #Find all the standalone .py files and modules
     #in the _filters dir and load them into bf
@@ -56,21 +60,26 @@ def preload_filters(directory="_filters"):
             if fn.endswith(".py"):
                 load_filter(fn[:-3])
         elif os.path.isdir(p):
-            if os.path.isfile(os.path.join(p,"__init__.py")):
+            if os.path.isfile(os.path.join(p, "__init__.py")):
                 load_filter(fn)
 
+
+#TODO: seems almost identical to controllers.init_controllers; commonize
 def init_filters():
-    """Filters have an optional init method that runs before the site is built"""
+    """Filters have an optional init method that runs before the site is 
+    built"""
     for filt in bf.config.filters.values():
-        if filt.has_key("mod"):
+        if "mod" in filt:
             try:
                 filt.mod.init()
             except AttributeError:
                 pass
-        
+
+
+#TODO: seems almost identical to controllers.load_controller; commonize
 def load_filter(name):
     """Load a filter from the site's _filters directory"""
-    logger.debug("Loading filter: "+name)
+    logger.debug("Loading filter: " + name)
     #Don't generate pyc files in the _filters directory
     #Reset the original sys.dont_write_bytecode setting where we're done
     try:
@@ -82,7 +91,7 @@ def load_filter(name):
         return __loaded_filters[name]
     except KeyError:
         try:
-            sys.path.insert(0,"_filters")
+            sys.path.insert(0, "_filters")
             #Don't generate .pyc files in the _filters directory
             sys.dont_write_bytecode = True
             mod = __loaded_filters[name] = __import__(name)
@@ -101,7 +110,7 @@ def load_filter(name):
             #Load any filter defined defaults:
             try:
                 filter_config = getattr(mod, "config")
-                for k,v in filter_config.items():
+                for k, v in filter_config.items():
                     if "." in k:
                         #This is a hierarchical setting
                         tail = bf.config.filters[name]

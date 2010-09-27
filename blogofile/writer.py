@@ -30,17 +30,19 @@ import controller
 
 logger = logging.getLogger("blogofile.writer")
 
-class Writer:
+
+class Writer(object):
+
     def __init__(self, output_dir):
         self.config = config
         #Base templates are templates (usually in ./_templates) that are only
         #referenced by other templates.
-        self.base_template_dir = util.path_join(".","_templates")
-        self.output_dir        = output_dir
+        self.base_template_dir = util.path_join(".", "_templates")
+        self.output_dir = output_dir
         self.template_lookup = TemplateLookup(
-            directories=[".", self.base_template_dir],
-            input_encoding='utf-8', output_encoding='utf-8',
-            encoding_errors='replace')
+                directories=[".", self.base_template_dir],
+                input_encoding='utf-8', output_encoding='utf-8',
+                encoding_errors='replace')
 
     def __load_bf_cache(self):
         #Template cache object, used to transfer state to/from each template:
@@ -60,11 +62,11 @@ class Writer:
         import sys
         if os.path.isdir(self.output_dir): #pragma: no cover
             # I *would* just shutil.rmtree the whole thing and recreate it,
-            # but I want the output_dir to retain it's same inode on the
+            # but I want the output_dir to retain its same inode on the
             # filesystem to be compatible with some HTTP servers.
             # So this just deletes the *contents* of output_dir
             for f in os.listdir(self.output_dir):
-                f = util.path_join(self.output_dir,f)
+                f = util.path_join(self.output_dir, f)
                 try:
                     os.remove(f)
                 except OSError:
@@ -89,20 +91,20 @@ class Writer:
                 #Exclude some dirs
                 d_path = util.path_join(root,d)
                 if util.should_ignore_path(d_path):
-                    logger.debug("Ignoring directory: "+d_path)
+                    logger.debug("Ignoring directory: " + d_path)
                     dirs.remove(d)
             try:
                 util.mkdir(util.path_join(self.output_dir, root))
             except OSError: #pragma: no cover
                 pass
             for t_fn in files:
-                t_fn_path = util.path_join(root,t_fn)
+                t_fn_path = util.path_join(root, t_fn)
                 if util.should_ignore_path(t_fn_path):
                     #Ignore this file.
-                    logger.debug("Ignoring file: "+t_fn_path)
+                    logger.debug("Ignoring file: " + t_fn_path)
                     continue
                 elif t_fn.endswith(".mako"):
-                    logger.info("Processing mako file: "+t_fn_path)
+                    logger.info("Processing mako file: " + t_fn_path)
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(t_fn_path)
@@ -110,16 +112,17 @@ class Writer:
                                         output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     t_file.close()
-                    path = util.path_join(self.output_dir,root,t_name)
-                    html_file = open(path,"w")
+                    path = util.path_join(self.output_dir, root, t_name)
+                    html_file = open(path, "w")
                     html = self.template_render(template)
                     #Write to disk
                     html_file.write(html)
                 else:
                     #Copy this non-template file
                     f_path = util.path_join(root, t_fn)
-                    logger.debug("Copying file: "+f_path)
-                    shutil.copyfile(f_path,util.path_join(self.output_dir,f_path))
+                    logger.debug("Copying file: " + f_path)
+                    shutil.copyfile(f_path,
+                            util.path_join(self.output_dir, f_path))
 
     def __init_filters_controllers(self):
         #Run filter/controller defined init methods
@@ -152,9 +155,9 @@ class Writer:
         template = self.template_lookup.get_template(template_name)
         template.output_encoding = "utf-8"
         rendered = self.template_render(template, attrs)
-        path = util.path_join(self.output_dir,location)
+        path = util.path_join(self.output_dir, location)
         #Create the path if it doesn't exist:
         util.mkdir(os.path.split(path)[0])
-        f = open(path,"w")
+        f = open(path, "w")
         f.write(rendered)
         f.close()

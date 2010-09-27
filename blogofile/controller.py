@@ -67,31 +67,36 @@ default_controller_config = {"name"        : None,
                              "enabled"     : False}
 
 
+#TODO: seems almost identical to filters.preload_filters; commonize
 def __find_controller_names(directory="_controllers"):
     if(not os.path.isdir(directory)): #pragma: no cover
-            return
+        return
     #Find all the standalone .py files and modules in the _controllers dir
     for fn in os.listdir(directory):
-        p = os.path.join(directory,fn)
+        p = os.path.join(directory, fn)
         if os.path.isfile(p):
             if fn.endswith(".py"):
                 yield fn[:-3]
         elif os.path.isdir(p):
-            if os.path.isfile(os.path.join(p,"__init__.py")):
+            if os.path.isfile(os.path.join(p, "__init__.py")):
                 yield fn
 
+
+#TODO: seems almost identical to filters.init_filters; commonize
 def init_controllers():
     """Controllers have an optional init method that runs before the run
     method"""
-    for controller in sorted(
-        bf.config.controllers.values(), key=operator.attrgetter("priority")):
+    for controller in sorted(bf.config.controllers.values(),
+            key=operator.attrgetter("priority")):
         try:
-            if controller.has_key("mod"):
+            if "mod" in controller:
                 if type(controller.mod).__name__ == "module":
                     controller.mod.init()
         except AttributeError:
             pass
 
+
+# TODO: seems almost identical to filters.load_filter; commonize
 def load_controller(name, directory="_controllers"):
     """Load a single controller by name"""
     #Don't generate pyc files in the _controllers directory
@@ -106,14 +111,13 @@ def load_controller(name, directory="_controllers"):
         initial_dont_write_bytecode = False
     try:
         sys.path.insert(0, directory)
-        logger.debug("loading controller: %s"%name)
+        logger.debug("loading controller: {0}".format(name))
         try:
             sys.dont_write_bytecode = True
             controller = __import__(name)
         except (ImportError,),e:
             logger.error(
-                "Cannot import controller : %s (%s)" %
-                        (name,e))
+                "Cannot import controller : {0} ({1})".format(name, e))
             raise
         # Remember the actual imported module
         bf.config.controllers[name].mod = controller
@@ -122,8 +126,8 @@ def load_controller(name, directory="_controllers"):
             bf.config.controllers[name][k] = v
         # Load any of the controller defined defaults:
         try:
-            controller_config = getattr(controller,"config")
-            for k,v in controller_config.items():
+            controller_config = getattr(controller, "config")
+            for k, v in controller_config.items():
                 if k != "enabled":
                     if "." in k:
                         #This is a hierarchical setting
@@ -137,7 +141,7 @@ def load_controller(name, directory="_controllers"):
         except AttributeError:
             pass
         #Provide every controller with a logger:
-        c_logger = logging.getLogger("blogofile.controllers."+name)
+        c_logger = logging.getLogger("blogofile.controllers." + name)
         bf.config.controllers[name]["logger"] = c_logger
         return bf.config.controllers[name].mod
     finally:
@@ -150,6 +154,7 @@ def load_controllers(directory="_controllers"):
     and import them into the bf context"""
     for name in __find_controller_names():
         load_controller(name, directory)
+
 
 def defined_controllers(namespace=bf, only_enabled=True):
     """Find all the enabled controllers in order of priority
@@ -172,15 +177,16 @@ def defined_controllers(namespace=bf, only_enabled=True):
     for name, settings in namespace.config.controllers.items():
         #Get only the ones that are enabled:
         c = namespace.config.controllers[name]
-        if (not c.has_key("enabled")) or c['enabled'] == False:
+        if "enabled" not in c or c['enabled'] == False:
             #The controller is disabled
-            if only_enabled: continue
+            if only_enabled:
+                continue
         #Get the priority:
-        if c.has_key("priority"):
+        if "priority" in c:
             priority = c['priority']
         else:
             priority = c['priority'] = 50
-        controller_priorities.append((name,priority))
+        controller_priorities.append((name, priority))
     #Sort the controllers by priority
     return [x[0] for x in sorted(controller_priorities,
                                  key=operator.itemgetter(1),
@@ -194,8 +200,8 @@ def run_all():
     for name in controller_names:
         controller = bf.config.controllers[name].mod
         if "run" in dir(controller):
-            logger.info("running controller: %s" % name)
+            logger.info("running controller: {0}".format(name))
             controller.run()
         else:
-            logger.debug("controller %s has no run() method, skipping it." %
-                         name)
+            logger.debug(
+                "controller {0} has no run() method, skipping it.".format(name))

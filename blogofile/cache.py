@@ -15,8 +15,8 @@ class Cache(dict):
       ...
     AttributeError: 'Cache' object has no attribute 'section'
     """
-    def __init__(self,**kw):
-        dict.__init__(self,kw)
+    def __init__(self, **kw):
+        dict.__init__(self, kw)
         self.__dict__ = self
 
 class HierarchicalCache(Cache):
@@ -50,14 +50,15 @@ class HierarchicalCache(Cache):
     """
     def __getattr__(self, attr):
         if not attr.startswith("_") and \
-                not "(" in attr and \
-                not "[" in attr and \
-                not attr == "trait_names": 
+                "(" not in attr and \
+                "[" not in attr and \
+                attr != "trait_names": 
             c = HierarchicalCache()
             Cache.__setitem__(self, attr, c)
             return c
         else:
             raise AttributeError
+
     def __getitem__(self, item):
         dotted_parts = item.split(".")
         try:
@@ -67,6 +68,7 @@ class HierarchicalCache(Cache):
         for dotted_part in dotted_parts[1:]:
             c = getattr(c,dotted_part)
         return c
+
     def __setitem__(self, key, item):
         c = self
         try:
