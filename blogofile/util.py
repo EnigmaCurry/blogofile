@@ -144,7 +144,7 @@ def path_join(*parts, **kwargs):
             p = path_join(*p)
         if p in ("", "\\", "/"):
             continue
-        new_parts.append(p.replace(wrong_slash_type,os.sep))
+        new_parts.append(p.replace(wrong_slash_type, os.sep))
     return sep.join(new_parts)
 
 

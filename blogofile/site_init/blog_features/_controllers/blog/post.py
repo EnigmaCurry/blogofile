@@ -184,12 +184,13 @@ class Post(object):
                     re.sub(":title", re.sub("[ ?]", "-", self.title).lower(),
                             self.permalink)
 
+            # TODO: slugification should be abstracted out somewhere reusable
             self.permalink = re.sub(
                     ":filename", re.sub(
-                            "[ ?]","-", self.filename).lower(), self.permalink)
+                            "[ ?]", "-", self.filename).lower(), self.permalink)
 
             # Generate sha hash based on title
-            self.permalink = re.sub(":uuid",  hashlib.sha1(
+            self.permalink = re.sub(":uuid", hashlib.sha1(
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
             
         logger.debug("Permalink: {0}".format(self.permalink))
@@ -275,6 +276,8 @@ class Category(object):
 
     def __init__(self, name):
         self.name = unicode(name)
+        # TODO: slugification should be abstracted out somewhere reusable
+        # TODO: consider making url_name and path read-only properties?
         self.url_name = self.name.lower().replace(" ", "-")
         self.path = bf.util.site_path_helper(
                 bf.config.controllers.blog.path,
