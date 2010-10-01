@@ -29,6 +29,8 @@ def html_escape(text): #pragma: no cover
 
 def should_ignore_path(path):
     """See if a given path matches the ignore patterns"""
+    if os.path.sep == '\\':
+        path = path.replace('\\', '/')
     for p in bf.config.site.compiled_file_ignore_patterns:
         if p.match(path):
             return True
