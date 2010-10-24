@@ -69,6 +69,11 @@ class HierarchicalCache(Cache):
             c = getattr(c,dotted_part)
         return c
 
+    def __call__(self):
+        raise TypeError("HierarchicalCache objects are not callable. If "
+                        "you were expecting this to be a method, a "
+                        "parent cache object may be inproperly configured ")
+    
     def __setitem__(self, key, item):
         c = self
         try:
