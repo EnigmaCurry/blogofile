@@ -123,7 +123,7 @@ site.file_ignore_patterns = [
     r".*/_.*",      # All files that start with an underscore
     r".*/#.*",      # Emacs temporary files
     r".*~$",        # Emacs temporary files
-    r".*/\..*\.swp" # Vim swap files
+    r".*/\..*\.swp", # Vim swap files
     r".*/\.git$",   # Git VCS dir
     r".*/.gitignore", # Git ignored files
     r".*/\.hg$",    # Mercurial VCS dir
