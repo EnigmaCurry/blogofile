@@ -64,7 +64,7 @@ class HierarchicalCache(Cache):
             raise TypeError("HierarchicalCache objects are not indexable nor "
                             "sliceable. If you were expecting another object "
                             "here, a parent cache object may be inproperly "
-                            "configured ")
+                            "configured.")
         dotted_parts = item.split(".")
         try:
             c = self.__getattribute__(dotted_parts[0])
@@ -77,7 +77,7 @@ class HierarchicalCache(Cache):
     def __call__(self):
         raise TypeError("HierarchicalCache objects are not callable. If "
                         "you were expecting this to be a method, a "
-                        "parent cache object may be inproperly configured ")
+                        "parent cache object may be inproperly configured.")
     
     def __setitem__(self, key, item):
         c = self
