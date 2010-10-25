@@ -60,6 +60,11 @@ class HierarchicalCache(Cache):
             raise AttributeError
 
     def __getitem__(self, item):
+        if(type(item) == slice or not hasattr(item,"split")):
+            raise TypeError("HierarchicalCache objects are not indexable nor "
+                            "sliceable. If you were expecting another object "
+                            "here, a parent cache object may be inproperly "
+                            "configured ")
         dotted_parts = item.split(".")
         try:
             c = self.__getattribute__(dotted_parts[0])
