@@ -45,8 +45,9 @@ reserved_field_names = {
     "path"       :"The path from the permalink of the post",
     "guid"       :"A unique hash for the post, if not provided it "\
         "is assumed that the permalink is the guid",
-    "slug"       :"The final part of the URL for the post, if not "\
-        "provided it is generated from the title.",
+    "slug"       :"The title part of the URL for the post, if not "\
+        "provided it is automatically generated from the title."\
+        "It is not used if permalink does not contain :title",
     "author"     :"The name of the author of the post",
     "filters"    :"The filter chain to apply to the entire post. "\
         "If not specified, a default chain based on the file extension is "\
