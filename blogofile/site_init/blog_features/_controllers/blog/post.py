@@ -45,6 +45,8 @@ reserved_field_names = {
     "path"       :"The path from the permalink of the post",
     "guid"       :"A unique hash for the post, if not provided it "\
         "is assumed that the permalink is the guid",
+    "slug"       :"The final part of the URL for the post, if not "\
+        "provided it is generated from the title.",
     "author"     :"The name of the author of the post",
     "filters"    :"The filter chain to apply to the entire post. "\
         "If not specified, a default chain based on the file extension is "\
@@ -87,6 +89,7 @@ class Post(object):
         self.filename = filename
         self.author = ""
         self.guid = None
+        self.slug = None
         self.draft = False
         self.filters = None
         self.__parse()
@@ -160,7 +163,10 @@ class Post(object):
         if not self.title:
             self.title = u"Untitled - {0}".format(
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-         
+        
+        if not self.slug:
+            self.slug = re.sub("[ ?]", "-", self.title).lower()
+
         if not self.date:
             self.date = datetime.datetime.now(pytz.timezone(self.__timezone))
         if not self.updated:
@@ -181,8 +187,7 @@ class Post(object):
             self.permalink = \
                     re.sub(":day", self.date.strftime("%d"), self.permalink)
             self.permalink = \
-                    re.sub(":title", re.sub("[ ?]", "-", self.title).lower(),
-                            self.permalink)
+                    re.sub(":title", self.slug, self.permalink)
 
             # TODO: slugification should be abstracted out somewhere reusable
             self.permalink = re.sub(
