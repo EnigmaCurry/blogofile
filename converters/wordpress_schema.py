@@ -76,9 +76,9 @@ class Post(Base):
             pass
         structure = structure.replace("%author%", self.author.user_nicename)
         return site_url.rstrip("/") + "/" + structure.lstrip("/")
-    
-class User(Base):
 
+
+class User(Base):
     __tablename__ = table_prefix + "wp_users"
     __table_args__ = {'autoload': True}
     id = sa.Column("ID", sa.Integer, primary_key=True)
@@ -99,7 +99,7 @@ class Term(Base):
 class TermTaxonomy(Base):
     __tablename__ = table_prefix + "wp_term_taxonomy"
     __table_args__ = {'autoload': True}
-    id = sa.Column('term_taxonomy_id', primary_key=True)
+    id = sa.Column('term_taxonomy_id', sa.Integer, primary_key=True)
     term_id = sa.Column("term_id",
             sa.ForeignKey(table_prefix + "wp_terms.term_id"))
     term = orm.relation("Term", primaryjoin="Term.id == TermTaxonomy.term_id")
