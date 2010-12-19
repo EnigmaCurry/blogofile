@@ -62,6 +62,7 @@ def write_categories():
                 next_link = None
             
             env = {
+                "category": category,
                 "posts": page_posts,
                 "prev_link": prev_link,
                 "next_link": next_link
