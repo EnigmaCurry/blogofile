@@ -127,6 +127,7 @@ site.file_ignore_patterns = [
     r".*/\.git$",   # Git VCS dir
     r".*/.gitignore", # Git ignored files
     r".*/\.hg$",    # Mercurial VCS dir
+    r".*/.hgignore", # Mercurial ignored files
     r".*/\.bzr$",   # Bazaar VCS dir
     r".*/\.svn$",   # Subversion VCS dir
     r".*/CVS$",     # CVS dir
