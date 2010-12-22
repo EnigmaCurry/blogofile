@@ -120,17 +120,20 @@ blog.post_encoding = "utf-8"
 # These can be strings or compiled patterns.
 # Strings are assumed to be case insensitive.
 site.file_ignore_patterns = [
-    ".*/_.*",      # All files that start with an underscore
-    ".*/#.*",      # Emacs temporary files
-    ".*~$",        # Emacs temporary files
-    ".*/\..*\.swp", # Vim swap files
-    ".*/\.git$",   # Git VCS dir
-    ".*/.gitignore", # Git ignored files
-    ".*/\.hg$",    # Mercurial VCS dir
-    ".*/.hgignore", # Mercurial ignored files
-    ".*/\.bzr$",   # Bazaar VCS dir
-    ".*/\.svn$",   # Subversion VCS dir
-    ".*/CVS$",     # CVS dir
+    # All files that start with an underscore
+    ".*/_.*",
+    # Emacs temporary files
+    ".*/#.*",
+    # Emacs/Vim temporary files
+    ".*~$",
+    # Vim swap files
+    ".*/\..*\.swp$",
+    # VCS directories
+    ".*/\.(git|hg|svn|bzr)$",
+    # Git and Mercurial ignored files definitions
+    ".*/.(git|hg)ignore$",
+    # CVS dir
+    ".*/CVS$",
     ]
 
 #### Default post filters ####
