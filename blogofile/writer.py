@@ -12,15 +12,10 @@ __date__   = "Tue Feb  3 12:50:17 2009"
 import logging
 import os
 import shutil
-import urlparse
-import re
-import operator
-import imp
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
 from mako import exceptions as mako_exceptions
-import BeautifulSoup
 
 import util
 import config
@@ -59,7 +54,6 @@ class Writer(object):
             
     def __setup_output_dir(self):
         """Setup the staging directory"""
-        import sys
         if os.path.isdir(self.output_dir): #pragma: no cover
             # I *would* just shutil.rmtree the whole thing and recreate it,
             # but I want the output_dir to retain its same inode on the
@@ -84,7 +78,6 @@ class Writer(object):
         Copy other non-template files directly"""
         #find mako templates in template_dir
         for root, dirs, files in os.walk("."):
-            excluded_roots = []
             if root.startswith("./"):
                 root = root[2:]
             for d in list(dirs):

@@ -32,7 +32,6 @@ import time
 
 import argparse
 
-import cache
 from cache import bf
 from writer import Writer
 import config

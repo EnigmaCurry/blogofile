@@ -3,7 +3,6 @@ import tempfile
 import shutil
 import os
 import mechanize
-import BeautifulSoup
 from .. import main
 from .. import server
 

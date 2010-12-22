@@ -50,7 +50,6 @@
 import sys
 import os
 import operator
-import imp
 import logging
 
 from cache import bf
