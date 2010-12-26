@@ -110,7 +110,8 @@ class Writer(object):
                     t_file = open(t_fn_path)
                     template = Template(t_file.read().decode("utf-8"),
                                         output_encoding="utf-8",
-                                        lookup=self.template_lookup)
+                                        lookup=self.template_lookup,
+                                        uri=t_fn_path)
                     t_file.close()
                     path = util.path_join(self.output_dir, root, t_name)
                     html_file = open(path, "w")
