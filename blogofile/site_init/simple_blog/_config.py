@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 ######################################################################
-# This is the main Blogofile configuration file.
+# This is your site's Blogofile configuration file.
 # www.Blogofile.com
+#
+# This file doesn't list every possible setting, it relies on defaults
+# set in the core blogofile _config.py. To see where the default
+# configuration is on your system run 'blogofile info'
+#
 ######################################################################
 
 ######################################################################

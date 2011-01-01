@@ -4,7 +4,11 @@
 # This is the main Blogofile configuration file.
 # www.Blogofile.com
 #
-# This is the canonical _config.py with every single default setting
+# This is the canonical _config.py with every single default setting.
+#
+# Don't edit this file directly; create your own _config.py (from
+# scratch or using 'blogofile init') and your settings will override
+# these defaults.
 #
 ######################################################################
 
@@ -117,8 +121,8 @@ blog.post_encoding = "utf-8"
 ######################################################################
 # Use hard links when copying files. This saves disk space and shortens
 # the time to build sites that copy lots of static files.
-# This is turned off by default though because hard links are not
-# necessarily intuitive to every user.
+# This is turned off by default though, because hard links are not
+# necessarily what every user wants.
 site.use_hard_links = False
 
 # These are the default ignore patterns for excluding files and dirs

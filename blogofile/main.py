@@ -217,6 +217,22 @@ def do_debug():
             rpdb2.start_embedded_debugger_interactive_password()
     except KeyError:
         pass #Not running in debug mode
+
+def do_info(args):
+    """Print some information about the Blogofile installation and the current site"""
+    print("This is Blogofile (version {0}) -- http://www.blogofile.com".\
+        format(__version__))
+    print("")
+    ### Show _config.py paths
+    print("Default config file: {0}".format(config.default_config_path()))
+    print("(Override these default settings in your own _config.py, don't edit "
+          "the file above.)")
+    print("")
+    if os.path.isfile("_config.py"):
+        print("Found site _config.py: {0}".format(os.path.abspath("_config.py")))
+    else:
+        print("The specified directory has no _config.py")
+    
     
 if __name__ == "__main__":
     main()

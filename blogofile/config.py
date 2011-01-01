@@ -34,8 +34,10 @@ site = cache.HierarchicalCache()
 controllers = cache.HierarchicalCache()
 filters = cache.HierarchicalCache()
 
-default_config = open(os.path.join(
-        os.path.split(site_init.__file__)[0], "_config.py")).read()
+def default_config_path():
+    return os.path.join(os.path.split(site_init.__file__)[0], "_config.py")
+
+default_config = open(default_config_path()).read()
 
 def recompile():
     #Compile file_ignore_patterns
