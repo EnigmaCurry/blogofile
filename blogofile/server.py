@@ -17,11 +17,15 @@ logger = logging.getLogger("blogofile.server")
 
 class Server(threading.Thread):
 
-    def __init__(self, port):
+    def __init__(self, port, address="127.0.0.1"):
         self.port = int(port)
+        self.address = address
+        if self.address == "0.0.0.0":
+            #Bind to all addresses available
+            address = ""
         threading.Thread.__init__(self)
         self.is_shutdown = False
-        server_address = ('', self.port)
+        server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
         ServerClass = BaseHTTPServer.HTTPServer
         HandlerClass.protocol_version = "HTTP/1.0"
@@ -29,7 +33,7 @@ class Server(threading.Thread):
         self.sa = self.httpd.socket.getsockname()
 
     def run(self):
-        print("Blogofile server started on port {0}...".format(self.sa[1]))
+        print("Blogofile server started on {0}:{1} ...".format(self.sa[0],self.sa[1]))
         self.httpd.serve_forever()
 
     def shutdown(self):

@@ -65,18 +65,18 @@ def get_args(cmd=None):
             __version__)
     subparsers = parser.add_subparsers()
 
-    p_help = subparsers.add_parser("help", help="Show help for a command",
+    p_help = subparsers.add_parser("help", help="Show help for a command.",
                                    add_help=False, parents=[parser_template])
-    p_help.add_argument("command", help="a blogofile subcommand e.g. build",
+    p_help.add_argument("command", help="a Blogofile subcommand e.g. build",
                         nargs="*", default="none")
     p_help.set_defaults(func=do_help)
 
-    p_build = subparsers.add_parser("build", help="Build the site from source",
+    p_build = subparsers.add_parser("build", help="Build the site from source.",
                                     parents=[parser_template])
     p_build.set_defaults(func=do_build)
 
-    p_init = subparsers.add_parser("init", help="Create a minimal blogofile "
-                                   "configuration in the current directory",
+    p_init = subparsers.add_parser("init", help="Create a new Blogofile site from "
+                                   "an existing template.",
                                    parents=[parser_template])
     p_init.add_argument("SITE_TEMPLATE", nargs="?",
                         help="The site template to initialize")
@@ -84,13 +84,22 @@ def get_args(cmd=None):
     p_init.extra_help = site_init.do_help
 
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
-                                    "the builtin webserver. This is for DEV "
-                                    "work only, don't use this outside of a "
-                                    "firewall!",
+                                    "the builtin webserver. Useful for quickly testing "
+                                    "your site. Not for production use, please use "
+                                    "Apache instead ;)",
                                     parents=[parser_template])
     p_serve.add_argument("PORT", nargs="?", default="8080",
-                         help="port on which to serve")
+                         help="TCP port to use")
+    p_serve.add_argument("IP_ADDR", nargs="?", default="127.0.0.1",
+                         help="IP address to bind to. Defaults to loopback only "
+                         "(127.0.0.1). 0.0.0.0 binds to all network interfaces, "
+                         "please be careful!")
     p_serve.set_defaults(func=do_serve)
+
+    p_info = subparsers.add_parser("info", help="Show information about the "
+                                   "Blogofile installation and the current site.",
+                                   parents=[parser_template])
+    p_info.set_defaults(func=do_info)
 
     if not cmd: #pragma: no cover
         if len(sys.argv) <= 1:
@@ -104,7 +113,7 @@ def get_args(cmd=None):
 
 
 def main(cmd=None):
-    do_debug()   
+    do_debug()
     parser, args = get_args(cmd)
 
     if args.verbose: #pragma: no cover
@@ -174,7 +183,7 @@ def config_init(args):
 def do_serve(args): #pragma: no cover
     config_init(args)
     import server
-    bfserver = server.Server(args.PORT)
+    bfserver = server.Server(args.PORT, args.IP_ADDR)
     bfserver.start()
     while not bfserver.is_shutdown:
         try:
