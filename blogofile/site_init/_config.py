@@ -115,6 +115,12 @@ blog.post_encoding = "utf-8"
 ######################################################################
 # Advanced Settings
 ######################################################################
+# Use hard links when copying files. This saves disk space and shortens
+# the time to build sites that copy lots of static files.
+# This is turned off by default though because hard links are not
+# necessarily intuitive to every user.
+site.use_hard_links = False
+
 # These are the default ignore patterns for excluding files and dirs
 # from the _site directory
 # These can be strings or compiled patterns.

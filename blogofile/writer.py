@@ -123,10 +123,13 @@ class Writer(object):
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
                     out_path = util.path_join(self.output_dir, f_path)
-                    # Try hardlinking first, and if that fails copy
-                    try:
-                        os.link(f_path, out_path)
-                    except StandardError:
+                    if self.bf.config.site.use_hard_links:
+                        # Try hardlinking first, and if that fails copy
+                        try:
+                            os.link(f_path, out_path)
+                        except StandardError:
+                            shutil.copyfile(f_path, out_path)
+                    else:
                         shutil.copyfile(f_path, out_path)
 
     def __init_filters_controllers(self):
