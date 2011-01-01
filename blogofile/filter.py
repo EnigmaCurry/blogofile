@@ -1,8 +1,6 @@
 import sys
 import os
 import logging
-import imp
-import operator
 
 import util
 

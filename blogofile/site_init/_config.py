@@ -130,16 +130,20 @@ site.use_hard_links = False
 # These can be strings or compiled patterns.
 # Strings are assumed to be case insensitive.
 site.file_ignore_patterns = [
-    r".*/_.*",      # All files that start with an underscore
-    r".*/#.*",      # Emacs temporary files
-    r".*~$",        # Emacs temporary files
-    r".*/\..*\.swp", # Vim swap files
-    r".*/\.git$",   # Git VCS dir
-    r".*/.gitignore", # Git ignored files
-    r".*/\.hg$",    # Mercurial VCS dir
-    r".*/\.bzr$",   # Bazaar VCS dir
-    r".*/\.svn$",   # Subversion VCS dir
-    r".*/CVS$",     # CVS dir
+    # All files that start with an underscore
+    ".*/_.*",
+    # Emacs temporary files
+    ".*/#.*",
+    # Emacs/Vim temporary files
+    ".*~$",
+    # Vim swap files
+    ".*/\..*\.swp$",
+    # VCS directories
+    ".*/\.(git|hg|svn|bzr)$",
+    # Git and Mercurial ignored files definitions
+    ".*/.(git|hg)ignore$",
+    # CVS dir
+    ".*/CVS$",
     ]
 
 #### Default post filters ####

@@ -1,7 +1,6 @@
 import unittest
 import tempfile
 import shutil
-import glob
 import os
 import re
 from .. import main
