@@ -301,12 +301,8 @@ class Category(object):
     def __repr__(self):
         return self.name
     
-    # FIXME: remove the first __cmp__ since the second one overwrites it?
     def __cmp__(self, other):
         return cmp(self.name, other.name)
-
-    def __cmp__(self, other):
-        return self is other
 
 
 def parse_posts(directory):
