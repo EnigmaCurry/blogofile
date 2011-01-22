@@ -104,6 +104,8 @@ class Writer(object):
                     template = Template(t_file.read().decode("utf-8"),
                                         output_encoding="utf-8",
                                         lookup=self.template_lookup)
+                    #Remember the original path for later when setting context
+                    template.bf_meta = {"path":t_fn_path}
                     t_file.close()
                     path = util.path_join(self.output_dir, root, t_name)
                     html_file = open(path, "w")
@@ -139,6 +141,12 @@ class Writer(object):
         self.bf.template_context = cache.Cache(**attrs)
         #Provide the name of the template we are rendering:
         self.bf.template_context.template_name = template.uri
+        try:
+            #Static pages will have a template.uri like memory:0x1d80a90
+            #We conveniently remembered the original path to use instead.
+            self.bf.template_context.template_name = template.bf_meta['path']
+        except AttributeError:
+            pass
         attrs['bf'] = self.bf
         #Provide the template with other user defined namespaces:
         for name, obj in self.bf.config.site.template_vars.items():
