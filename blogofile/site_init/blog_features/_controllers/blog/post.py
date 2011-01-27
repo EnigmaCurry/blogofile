@@ -97,7 +97,7 @@ class Post(object):
         self.__post_process()
         
     def __repr__(self): #pragma: no cover
-        return "<Post title='{0}' date='{1}'>".format(
+        return u"<Post title='{0}' date='{1}'>".format(
             self.title, self.date.strftime("%Y/%m/%d %H:%M:%S"))
      
     def __parse(self):
@@ -105,7 +105,7 @@ class Post(object):
         yaml_sep = re.compile("^---$", re.MULTILINE)
         content_parts = yaml_sep.split(self.source, maxsplit=2)
         if len(content_parts) < 2:
-            raise PostParseException("{0}: Post has no YAML section".format(
+            raise PostParseException(u"{0}: Post has no YAML section".format(
                     self.filename))
         else:
             #Extract the yaml at the top
@@ -213,7 +213,7 @@ class Post(object):
                         self.permalink)
             #Ensure that the permalink is for the same site as bf.config.site.url
             if not self.permalink.startswith(bf.config.site.url):
-                raise PostParseException("{0}: permalink for a different site"
+                raise PostParseException(u"{0}: permalink for a different site"
                         " than configured".format(self.filename))
             logger.debug(u"path from permalink: {0}".format(self.path))
         except KeyError:
@@ -315,9 +315,9 @@ def parse_posts(directory):
     if not os.path.isdir("_posts"):
         logger.warn("This site has no _posts directory.")
         return []
-    post_paths = [f for f in bf.util.recursive_file_list(
+    post_paths = [f.decode("utf-8") for f in bf.util.recursive_file_list(
             directory, post_filename_re) if post_filename_re.match(f)]
-    
+
     for post_path in post_paths:
         post_fn = os.path.split(post_path)[1]
         logger.debug(u"Parsing post: {0}".format(post_path))
