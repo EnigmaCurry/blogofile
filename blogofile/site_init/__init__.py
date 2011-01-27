@@ -84,7 +84,7 @@ def import_site_init(name):
     #If the directory exists, just use that.
     path = os.path.join(os.path.split(__file__)[0], name)
     if os.path.isdir(path):
-        logger.info("Initializing site from directory: " + path)
+        logger.info(u"Initializing site from directory: " + path)
         for root, dirs, files in os.walk(path):
             for fn in files:
                 fn = os.path.join(root, fn)

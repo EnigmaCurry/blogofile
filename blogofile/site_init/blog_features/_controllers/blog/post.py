@@ -198,8 +198,8 @@ class Post(object):
             # Generate sha hash based on title
             self.permalink = re.sub(":uuid", hashlib.sha1(
                     self.title.encode('utf-8')).hexdigest(), self.permalink)
-            
-        logger.debug("Permalink: {0}".format(self.permalink))
+
+        logger.debug(u"Permalink: {0}".format(self.permalink))
      
     def __parse_yaml(self, yaml_src):
         y = yaml.load(yaml_src)
@@ -215,7 +215,7 @@ class Post(object):
             if not self.permalink.startswith(bf.config.site.url):
                 raise PostParseException("{0}: permalink for a different site"
                         " than configured".format(self.filename))
-            logger.debug("path from permalink: {0}".format(self.path))
+            logger.debug(u"path from permalink: {0}".format(self.path))
         except KeyError:
             pass
         try:
@@ -248,7 +248,7 @@ class Post(object):
         try:
             if y['draft']:
                 self.draft = True
-                logger.info("Post {0} is set to draft, "
+                logger.info(u"Post {0} is set to draft, "
                         "ignoring this post".format(self.filename))
             else:
                 self.draft = False
@@ -320,7 +320,7 @@ def parse_posts(directory):
     
     for post_path in post_paths:
         post_fn = os.path.split(post_path)[1]
-        logger.debug("Parsing post: {0}".format(post_path))
+        logger.debug(u"Parsing post: {0}".format(post_path))
         #IMO codecs.open is broken on Win32.
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
@@ -328,12 +328,12 @@ def parse_posts(directory):
             src = open(post_path, "r").read().decode(
                     bf.config.controllers.blog.post_encoding)
         except:
-            logger.exception("Error reading post: {0}".format(post_path))
+            logger.exception(u"Error reading post: {0}".format(post_path))
             raise
         try:
             p = Post(src, filename=post_fn)
         except PostParseException as e:
-            logger.warning("{0} : Skipping this post.".format(e.value))
+            logger.warning(u"{0} : Skipping this post.".format(e.value))
             continue
         #Exclude some posts
         if not (p.permalink is None or p.draft is True):

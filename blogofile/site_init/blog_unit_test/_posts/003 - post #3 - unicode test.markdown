@@ -1,10 +1,9 @@
-
 ---
 categories: Unicode
 date: 2009/08/22 15:22:00
 format: markdown
 permalink: http://www.yoursite.com/blog/2009/08/22/Unicode
-title: Post 3 - Unicode Test
+title: Post 3 - Unicode Test - How about some 日本語テスト
 ---
 Anglo-Saxon Rune Poem:
 
