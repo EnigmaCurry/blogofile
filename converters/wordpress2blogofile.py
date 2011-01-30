@@ -38,11 +38,11 @@ table_prefix = "wp_"
 #MySQL config options.
 #   (Other databases probably supported, but untested. Just craft your own
 #    db_conn string according to the SQLAlchemy docs. See : http://is.gd/M1vU6j )
-db_username  = "ryan"
-db_password  = "blogofile"
+db_username  = "your_database_username"
+db_password  = "your_database_password"
 db_host      = "127.0.0.1"
 db_port      = "3306"
-db_database  = "wordpress"
+db_database  = "name_of_wordpress_database"
 db_encoding  = "utf8"
 db_conn      = "mysql://{db_username}:{db_password}@{db_host}:{db_port}/{db_database}?charset={db_encoding}".format(**locals())
 
