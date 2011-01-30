@@ -163,5 +163,9 @@ def pre_build():
     pass
 
 def post_build():
-    #Do whatever you want after the _site is built
+    #Do whatever you want after the _site is built successfully.
+    pass
+
+def build_finally():
+    #Do whatever you want after the _site is built successfully OR after a fatal error
     pass

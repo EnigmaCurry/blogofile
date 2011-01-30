@@ -197,9 +197,13 @@ def do_build(args, load_config=True):
     writer = Writer(output_dir=output_dir)
     logger.debug("Running user's pre_build() function...")
     config.pre_build()
-    writer.write_site()
-    logger.debug("Running user's post_build() function...")
-    config.post_build()
+    try:
+        writer.write_site()
+        logger.debug("Running user's post_build() function...")
+        config.post_build()
+    finally:
+        logger.debug("Running user's build_finally() function...")
+        config.build_finally()
 
 
 def do_init(args):
