@@ -179,6 +179,7 @@ if __name__ == '__main__':
     else:
         os.mkdir("_posts")
 
+    post_num = 1
     for post in get_published_posts():
         yaml_data = {
             "title": post.post_title,
@@ -189,8 +190,8 @@ if __name__ == '__main__':
             "guid": post.guid
             }
         fn = u"{0}. {1}.html".format(
-                str(post.id).zfill(4),
-                post.post_title.strip())
+                str(post_num).zfill(4),
+                re.sub(r'[/!:?\-,\']', '', post.post_title.strip().lower().replace(' ', '_')))
         print "writing " + fn
         f = codecs.open(os.path.join("_posts", fn), "w", "utf-8")
         f.write("---\n")
@@ -198,3 +199,4 @@ if __name__ == '__main__':
         f.write("---\n")
         f.write(post.post_content.replace(u"\r\n", u"\n"))
         f.close()
+        post_num += 1
