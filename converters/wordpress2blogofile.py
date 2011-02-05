@@ -23,6 +23,7 @@ Requirements:
 """
 
 import os
+import re
 import sys
 import yaml
 import codecs
