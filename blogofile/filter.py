@@ -77,7 +77,6 @@ def init_filters():
 #TODO: seems almost identical to controllers.load_controller; commonize
 def load_filter(name):
     """Load a filter from the site's _filters directory"""
-    logger.debug("Loading filter: " + name)
     #Don't generate pyc files in the _filters directory
     #Reset the original sys.dont_write_bytecode setting where we're done
     try:
@@ -86,10 +85,13 @@ def load_filter(name):
         initial_dont_write_bytecode = False
     #Return the cached filter, or load it from scratch it not cached.
     try:
+        logger.debug("Retrieving already loaded filter: " + name)
         return __loaded_filters[name]
     except KeyError:
-        try:
+        if "_filters" not in sys.path:
             sys.path.insert(0, "_filters")
+        logger.debug("Loading filter for first time: " + name)
+        try:
             #Don't generate .pyc files in the _filters directory
             sys.dont_write_bytecode = True
             mod = __loaded_filters[name] = __import__(name)
