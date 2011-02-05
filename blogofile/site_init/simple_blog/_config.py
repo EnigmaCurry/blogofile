@@ -46,3 +46,14 @@ blog.description = "Your Blog's short description"
 
 ## blog_timezone -- the timezone that you normally write your blog posts from
 blog.timezone = "US/Eastern"
+
+
+## Markdown extensions
+## These are turned off by default, but turned on
+## to show examples in /blog/2009/07/24/post-2/
+filters.markdown.extensions.def_list.enabled = True
+filters.markdown.extensions.abbr.enabled = True
+filters.markdown.extensions.footnotes.enabled = True
+filters.markdown.extensions.fenced_code.enabled = True
+filters.markdown.extensions.headerid.enabled = True
+filters.markdown.extensions.tables.enabled = True

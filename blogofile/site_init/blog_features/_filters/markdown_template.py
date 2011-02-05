@@ -6,13 +6,13 @@ config = {
     "name": "Markdown",
     "description": "Renders markdown formatted text to HTML",
     "aliases": ["markdown"],
-    "extensions_enabled": {"def_list"    : True,
-                           "abbr"        : True,
-                           "footnotes"   : True,
-                           "fenced_code" : True,
-                           "headerid"    : True,
-                           "tables"      : True},
-    "extension_parameters": {"headerid": {"level":1,"forceid":True}}
+    "extensions": HC(def_list    = HC(enabled=False),
+                     abbr        = HC(enabled=False),
+                     footnotes   = HC(enabled=False),
+                     fenced_code = HC(enabled=False),
+                     headerid    = HC(enabled=False),
+                     tables      = HC(enabled=False)),
+    "extension_parameters": HC(headerid = HC(level=1,forceid=True))
     }
 
 #Markdown logging is noisy, pot it down:
@@ -22,18 +22,17 @@ extensions = []
 
 def init():
     #Create the list of enabled extensions with their arguments
-    for ext, enabled in config["extensions_enabled"].items():
-        if enabled:
+    for name, ext in config["extensions"].items():
+        if ext.enabled:
             params = []
-            try:
-                p = config["extension_parameters"][ext]
-            except KeyError:
-                extensions.append(ext)
+            if config["extension_parameters"].has_key(name):
+                p = config["extension_parameters"][name]
+            else:
+                extensions.append(name)
                 continue
             for param,value in p.items():
                 params.append(param+"="+repr(value))
-            extensions.append(ext+"("+",".join(params)+")")
-    print extensions
-    
+            extensions.append(name+"("+",".join(params)+")")
+
 def run(content):
     return markdown.markdown(content, extensions)
