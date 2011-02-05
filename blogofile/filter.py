@@ -66,13 +66,17 @@ def preload_filters(directory="_filters"):
 def init_filters():
     """Filters have an optional init method that runs before the site is 
     built"""
-    for filt in bf.config.filters.values():
+    for name, filt in bf.config.filters.items():
         if "mod" in filt:
-            try:
-                filt.mod.init()
-            except AttributeError:
-                pass
-
+            if not filt.mod.__initialized:
+                try:
+                    init_method = filt.mod.init
+                except AttributeError:
+                    filt.mod.__initialized = True
+                    continue
+                logger.debug("Initializing filter: "+name)
+                init_method()
+                filt.mod.__initialized = True
 
 #TODO: seems almost identical to controllers.load_controller; commonize
 def load_filter(name):
@@ -95,6 +99,7 @@ def load_filter(name):
             #Don't generate .pyc files in the _filters directory
             sys.dont_write_bytecode = True
             mod = __loaded_filters[name] = __import__(name)
+            mod.__initialized = False
             #Load the module into the bf context
             bf.config.filters[name].mod = mod
             #If the filter has any aliases, load those as well
