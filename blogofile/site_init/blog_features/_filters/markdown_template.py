@@ -2,6 +2,21 @@ import markdown
 import logging
 from blogofile.cache import HierarchicalCache as HC
 
+"""
+A markdown filter - see http://daringfireball.net/projects/markdown
+
+Extensions (http://www.freewisdom.org/projects/python-markdown/Extensions)
+are disabled by default, but can be turned on in _config.py:
+
+filters.markdown.extensions.def_list.enabled    = True
+filters.markdown.extensions.abbr.enabled        = True
+filters.markdown.extensions.footnotes.enabled   = True
+filters.markdown.extensions.fenced_code.enabled = True
+filters.markdown.extensions.headerid.enabled    = True
+filters.markdown.extensions.tables.enabled      = True
+"""
+
+
 config = {
     "name": "Markdown",
     "description": "Renders markdown formatted text to HTML",
