@@ -53,6 +53,7 @@ import operator
 import logging
 
 from cache import bf
+bf.controller = sys.modules['blogofile.controller']
 
 logger = logging.getLogger("blogofile.controller")
 
