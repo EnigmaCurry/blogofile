@@ -3,6 +3,7 @@ import os
 import sys
 from urlparse import urlparse
 import logging
+import fileinput
 
 from cache import bf
 bf.util = sys.modules['blogofile.util']
@@ -162,6 +163,13 @@ def recursive_file_list(directory, regex=None):
             else:
                 yield os.path.join(root, f)
 
+def rewrite_strings_in_files(existing_string, replacement_string, paths):
+    """Replace existing_string with replacement_string
+    in all the files listed in paths"""
+    for line in fileinput.input(paths,inplace=True):
+        line=line.replace(existing_string,replacement_string)
+        #inplace=True redirects sys.stdout back to the file
+        sys.stdout.write(line)
 
 def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #pragma: no cover
     """

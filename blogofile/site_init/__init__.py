@@ -5,9 +5,11 @@ import StringIO
 import logging
 import shutil
 import imp
+import traceback
+from .. import __version__ as bf_version
 
 logger = logging.getLogger("blogofile.site_init")
-
+    
 from .. import util
 
 available_sites = [
@@ -25,14 +27,17 @@ hidden_sites = [
 extra_features = {
     "simple_blog": ["blog_features"],
     "simple_html5_blog": ["blog_features", "html5_blog_features"],
-    "blog_unit_test":["blog_features"]
+    "blog_unit_test":["blog_features"],
+    "blog_features":[(util.rewrite_strings_in_files,
+                     {"existing_string":"@BLOGOFILE_VERSION_REPLACED_HERE@",
+                      "replacement_string":bf_version,
+                      "paths":["_controllers/blog/__init__.py"]})]
     }
 
 all_sites = list(available_sites)
 all_sites.extend(hidden_sites)
 
 site_modules = dict((x[0], x[2]) for x in all_sites)
-
 
 def zip_site_init(): #pragma: no cover .. only used by setuptools
     """Zip up all of the subdirectories of site_init
@@ -59,7 +64,6 @@ def zip_site_init(): #pragma: no cover .. only used by setuptools
     finally:
         os.chdir(curdir)
 
-
 def do_help(): #pragma: no cover
     print("Available site templates:\n")
     for meta in available_sites:
@@ -69,20 +73,24 @@ def do_help(): #pragma: no cover
     print("For example, create a simple site, with a blog, and no theme:\n")
     print("   blogofile init simple_blog\n")
 
-
-def import_site_init(name):
+def import_site_init(feature):
     """Copy a site_init template to the build dir.
 
-    site_init templates can be of three forms:
+    site_init templates can be of four forms:
       1) A directory
       2) A zip file
       3) A .py file
+      4) A function and args tuple
     Directories are usually used in development,
     whereas zip files are used in production.
-    .py files are special in that they control how to initialize a site,
+    .py files and functions are special in that they control how to initialize a site,
     for example, pulling from a git repository."""
     #If the directory exists, just use that.
-    path = os.path.join(os.path.split(__file__)[0], name)
+    if type(feature) == tuple:
+        feature[0](**feature[1])
+        return
+
+    path = os.path.join(os.path.split(__file__)[0], feature)
     if os.path.isdir(path):
         logger.info(u"Initializing site from directory: " + path)
         for root, dirs, files in os.walk(path):
@@ -98,8 +106,8 @@ def import_site_init(name):
         mod.do_init()
     #Otherwise, load it from the zip file
     else:
-        logger.info("Initializing site from zip file")
-        zip_data = pkgutil.get_data("blogofile.site_init", name + ".zip")
+        logger.info("Initializing feature from zip file: {0}".format(feature))
+        zip_data = pkgutil.get_data("blogofile.site_init", feature + ".zip")
         zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
         for name in zip_file.namelist():
             if name.endswith('/'):
@@ -109,7 +117,14 @@ def import_site_init(name):
                 f = open(name, 'wb')
                 f.write(zip_file.read(name))
                 f.close()
-
+    #Recursively import child features of this feature
+    try:
+        child_features = extra_features[feature]
+    except KeyError:
+        pass
+    else:
+        for child_feature in child_features:
+            import_site_init(child_feature)
 
 def do_init(args):
     if not args.SITE_TEMPLATE: #pragma: no cover
@@ -127,9 +142,3 @@ def do_init(args):
                 args.SITE_TEMPLATE))
         template = site_modules[args.SITE_TEMPLATE]
         import_site_init(template)
-        try:
-            for feature in extra_features[template]:
-                import_site_init(feature)
-        except KeyError: #pragma: no cover
-            pass
-        

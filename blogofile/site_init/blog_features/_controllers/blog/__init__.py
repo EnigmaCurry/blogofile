@@ -12,6 +12,7 @@ import post
 config = {
         "name": "Blog",
         "description": "Creates a Blog",
+        "version": "@BLOGOFILE_VERSION_REPLACED_HERE@",
         "priority": 90.0,
 
         #Posts
