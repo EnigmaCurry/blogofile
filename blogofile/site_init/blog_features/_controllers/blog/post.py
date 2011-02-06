@@ -58,7 +58,8 @@ reserved_field_names = {
     "source"     :"Reserved internally",
     "yaml"       :"Reserved internally",
     "content"    :"Reserved internally",
-    "filename"   :"Reserved internally"
+    "filename"   :"Reserved internally",
+    "encoding"   :"The file encoding format"
     }
 
 
@@ -125,7 +126,7 @@ class Post(object):
         if self.filters is None:
             try:
                 file_extension = os.path.splitext(self.filename)[-1][1:]
-                self.filters = bf.config.controllers.blog.post_default_filters[
+                self.filters = bf.config.controllers.blog.post.default_filters[
                     file_extension]
             except KeyError:
                 self.filters = []
@@ -325,8 +326,7 @@ def parse_posts(directory):
         #It refuses to open files without replacing newlines with CR+LF
         #reverting to regular open and decode:
         try:
-            src = open(post_path, "r").read().decode(
-                    bf.config.controllers.blog.post_encoding)
+            src = open(post_path, "r").read().decode("utf-8")
         except:
             logger.exception(u"Error reading post: {0}".format(post_path))
             raise
