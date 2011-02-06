@@ -1,4 +1,4 @@
-<h1><a href="${bf.util.site_path_helper()}">${bf.config.controllers.blog.name}</a></h1>
+<h1><a href="${bf.util.site_path_helper()}">${bf.config.blog.name}</a></h1>
 <p>This is a simple blog build with Blogofile.</p>
 <p>It's completely unthemed and is written as minimally as possible, while still
 retaining most of the blog features.</p>
