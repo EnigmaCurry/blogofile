@@ -34,6 +34,7 @@ import argparse
 
 from cache import bf
 from writer import Writer
+import server
 import config
 import site_init
 import util
@@ -41,7 +42,6 @@ import util
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
 bf.logger = logger
-
 
 def get_args(cmd=None):
     ##parser_template to base other parsers on
@@ -110,7 +110,6 @@ def get_args(cmd=None):
         args = parser.parse_args(args)
     return (parser, args)
 
-
 def main(cmd=None):
     do_debug()
     parser, args = get_args(cmd)
@@ -133,7 +132,6 @@ def main(cmd=None):
     sys.path.insert(0, os.curdir)
 
     args.func(args)
-
 
 def do_help(args): #pragma: no cover
     global parser
@@ -181,7 +179,6 @@ def config_init(args):
 
 def do_serve(args): #pragma: no cover
     config_init(args)
-    import server
     bfserver = server.Server(args.PORT, args.IP_ADDR)
     bfserver.start()
     while not bfserver.is_shutdown:
