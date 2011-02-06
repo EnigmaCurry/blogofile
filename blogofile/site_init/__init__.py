@@ -28,7 +28,8 @@ extra_features = {
     "simple_blog": ["blog_features"],
     "simple_html5_blog": ["blog_features", "html5_blog_features"],
     "blog_unit_test":["blog_features"],
-    "blog_features":[(util.rewrite_strings_in_files,
+    "blog_features":["blog_controller","blog_templates","blog_filters",
+                     (util.rewrite_strings_in_files,
                      {"existing_string":"@BLOGOFILE_VERSION_REPLACED_HERE@",
                       "replacement_string":bf_version,
                       "paths":["_controllers/blog/__init__.py"]})]
@@ -89,7 +90,6 @@ def import_site_init(feature):
     if type(feature) == tuple:
         feature[0](**feature[1])
         return
-
     path = os.path.join(os.path.split(__file__)[0], feature)
     if os.path.isdir(path):
         logger.info(u"Initializing site from directory: " + path)
@@ -106,17 +106,21 @@ def import_site_init(feature):
         mod.do_init()
     #Otherwise, load it from the zip file
     else:
-        logger.info("Initializing feature from zip file: {0}".format(feature))
-        zip_data = pkgutil.get_data("blogofile.site_init", feature + ".zip")
-        zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
-        for name in zip_file.namelist():
-            if name.endswith('/'):
-                util.mkdir(name)
-            else:
-                util.mkdir(os.path.split(name)[0])
-                f = open(name, 'wb')
-                f.write(zip_file.read(name))
-                f.close()
+        try:
+            zip_data = pkgutil.get_data("blogofile.site_init", feature + ".zip")
+        except IOError:
+            pass
+        else:
+            logger.info("Initializing feature from zip file: {0}".format(feature))
+            zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
+            for name in zip_file.namelist():
+                if name.endswith('/'):
+                    util.mkdir(name)
+                else:
+                    util.mkdir(os.path.split(name)[0])
+                    f = open(name, 'wb')
+                    f.write(zip_file.read(name))
+                    f.close()
     #Recursively import child features of this feature
     try:
         child_features = extra_features[feature]
