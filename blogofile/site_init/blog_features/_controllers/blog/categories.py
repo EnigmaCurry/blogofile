@@ -6,10 +6,8 @@ from blogofile.cache import bf
 
 blog = bf.config.controllers.blog
 
-
 def run():
     write_categories()
-
 
 def sort_into_categories():
     categories = set()
@@ -22,7 +20,6 @@ def sort_into_categories():
     for category, posts in sorted(
         blog.categorized_posts.items(), key=operator.itemgetter(0)):
         blog.all_categories.append((category, len(posts)))
-
 
 def write_categories():
     """Write all the blog posts in categories"""
@@ -67,7 +64,7 @@ def write_categories():
                 "prev_link": prev_link,
                 "next_link": next_link
             }
-            bf.writer.materialize_template("chronological.mako", path, env)
+            blog.mod.materialize_template("chronological.mako", path, env)
             
             #Copy category/1 to category/index.html
             if page_num == 1:

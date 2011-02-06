@@ -1,9 +1,7 @@
 import urlparse
 from blogofile.cache import bf
 import re
-
 blog = bf.config.controllers.blog
-
 
 def run():
     write_permapages()
@@ -33,6 +31,6 @@ def write_permapages():
             env['prev_post'] = blog.posts[i + 1]
         if i > 0:
             env['next_post'] = blog.posts[i - 1]
-        
-        bf.writer.materialize_template(
-                "permapage.mako", bf.util.path_join(path, "index.html"), env)
+
+        blog.mod.materialize_template(
+            "permapage.mako", bf.util.path_join(path, "index.html"), env)

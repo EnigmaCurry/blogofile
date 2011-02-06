@@ -1,4 +1,5 @@
 import logging
+from mako.lookup import TemplateLookup
 
 from blogofile.cache import bf
 
@@ -14,10 +15,30 @@ config = {
         "description": "Creates a Blog",
         "version": "@BLOGOFILE_VERSION_REPLACED_HERE@",
         "priority": 90.0,
+        "template_path": "_templates/blog",
+        "base_template": "site.mako",
 
         #Posts
         "post.date_format": "%Y/%m/%d %H:%M:%S"
         }
+
+template_lookup = None #instantiate in init
+
+def materialize_template(template_name, location, attrs={}, lookup=None):
+    #Just like the regular bf.writer.materialize_template.
+    #However, this uses the blog template lookup by default.
+    if lookup==None:
+        lookup = template_lookup
+    bf.writer.materialize_template(template_name, location, attrs, lookup)
+    
+def init():
+    global template_lookup
+    template_lookup = TemplateLookup(
+        directories=[config["template_path"],"_templates"],
+        input_encoding='utf-8', output_encoding='utf-8',
+        encoding_errors='replace')
+    base_template = template_lookup.get_template(config["base_template"])
+    template_lookup.put_template("blog_base_template",base_template)
 
 def run():
     blog = bf.config.controllers.blog

@@ -13,4 +13,4 @@ def write_feed(posts, root, template):
     path = bf.util.path_join(root, "index.xml")
     blog.logger.info("Writing RSS/Atom feed: " + path)
     env = {"posts": posts, "root": root}
-    bf.writer.materialize_template(template, path, env)
+    blog.mod.materialize_template(template, path, env)

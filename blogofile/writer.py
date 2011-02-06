@@ -25,7 +25,6 @@ import controller
 
 logger = logging.getLogger("blogofile.writer")
 
-
 class Writer(object):
 
     def __init__(self, output_dir):
@@ -158,9 +157,11 @@ class Writer(object):
             print(mako_exceptions.text_error_template().render())
         del self.bf.template_context
 
-    def materialize_template(self, template_name, location, attrs={}):
+    def materialize_template(self, template_name, location, attrs={}, lookup=None):
         """Render a named template with attrs to a location in the _site dir"""
-        template = self.template_lookup.get_template(template_name)
+        if lookup==None:
+            lookup = self.template_lookup
+        template = lookup.get_template(template_name)
         template.output_encoding = "utf-8"
         rendered = self.template_render(template, attrs)
         path = util.path_join(self.output_dir, location)
