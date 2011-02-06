@@ -1,4 +1,5 @@
 import sys
+from . import __version__ as bf_version
 
 class Cache(dict):
     """A cache object used for attatching things we want to remember
@@ -96,3 +97,4 @@ class HierarchicalCache(Cache):
 bf = HierarchicalCache()
 sys.modules['blogofile_bf'] = bf
 bf.cache = sys.modules['blogofile.cache']
+bf.__version__ = bf_version
