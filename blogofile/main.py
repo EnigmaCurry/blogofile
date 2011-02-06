@@ -206,15 +206,21 @@ def do_build(args, load_config=True):
 def do_init(args):
     site_init.do_init(args)
 
-
 def do_debug():
-    """Run inside winpdb if the environment variable BLOGOFILE_DEBUG is set to
-    anything other than 0"""
+    """Run blogofile in debug mode depending on the BLOGOFILE_DEBUG environment
+    variable:
+    If set to "ipython" just start up an embeddable ipython shell at bf.ipshell
+    If set to anything else besides 0, setup winpdb environment 
+    """
     try:
-        if os.environ['BLOGOFILE_DEBUG'] != "0":
-            print("Running in debug mode. Enter a password for Winpdb to use.")
+        if os.environ['BLOGOFILE_DEBUG'] == "ipython":
+            from IPython.Shell import IPShellEmbed
+            bf.ipshell = IPShellEmbed()
+        elif os.environ['BLOGOFILE_DEBUG'] != "0":
+            print("Running in debug mode, waiting for debugger to connect. "
+                  "Password is set to 'blogofile'")
             import rpdb2
-            rpdb2.start_embedded_debugger_interactive_password()
+            rpdb2.start_embedded_debugger("blogofile")
     except KeyError:
         pass #Not running in debug mode
 
