@@ -46,7 +46,6 @@ def parse_chain(chain):
     return parts
 
 
-#TODO: seems almost identical to controllers.__find_controller_names; commonize
 def preload_filters(directory="_filters"):
     #Find all the standalone .py files and modules
     #in the _filters dir and load them into bf
@@ -62,23 +61,22 @@ def preload_filters(directory="_filters"):
                 load_filter(fn)
 
 
-#TODO: seems almost identical to controllers.init_controllers; commonize
 def init_filters():
     """Filters have an optional init method that runs before the site is 
     built"""
     for name, filt in bf.config.filters.items():
-        if "mod" in filt:
-            if not filt.mod.__initialized:
-                try:
-                    init_method = filt.mod.init
-                except AttributeError:
-                    filt.mod.__initialized = True
-                    continue
-                logger.debug("Initializing filter: "+name)
-                init_method()
+        if "mod" in filt \
+                and type(filt.mod).__name__ == "module"\
+                and not filt.mod.__initialized:
+            try:
+                init_method = filt.mod.init
+            except AttributeError:
                 filt.mod.__initialized = True
+                continue
+            logger.debug("Initializing filter: "+name)
+            init_method()
+            filt.mod.__initialized = True
 
-#TODO: seems almost identical to controllers.load_controller; commonize
 def load_filter(name):
     """Load a filter from the site's _filters directory"""
     #Don't generate pyc files in the _filters directory

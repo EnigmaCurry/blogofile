@@ -67,7 +67,6 @@ default_controller_config = {"name"        : None,
                              "enabled"     : False}
 
 
-#TODO: seems almost identical to filters.preload_filters; commonize
 def __find_controller_names(directory="_controllers"):
     if(not os.path.isdir(directory)): #pragma: no cover
         return
@@ -82,21 +81,22 @@ def __find_controller_names(directory="_controllers"):
                 yield fn
 
 
-#TODO: seems almost identical to filters.init_filters; commonize
 def init_controllers():
     """Controllers have an optional init method that runs before the run
     method"""
     for controller in sorted(bf.config.controllers.values(),
             key=operator.attrgetter("priority")):
-        try:
-            if "mod" in controller:
-                if type(controller.mod).__name__ == "module":
-                    controller.mod.init()
-        except AttributeError:
-            pass
+        if "mod" in controller \
+                and type(controller.mod).__name__ == "module"\
+                and not controller.mod.__initialized:
+            try:
+                init_method = controller.mod.init
+            except AttributeError:
+                controller.mod.__initialized = True
+                continue
+            else:
+                init_method()
 
-
-# TODO: seems almost identical to filters.load_filter; commonize
 def load_controller(name, directory="_controllers"):
     """Load a single controller by name"""
     #Don't generate pyc files in the _controllers directory
@@ -115,6 +115,7 @@ def load_controller(name, directory="_controllers"):
         try:
             sys.dont_write_bytecode = True
             controller = __import__(name)
+            controller.__initialized = False
         except (ImportError,),e:
             logger.error(
                 "Cannot import controller : {0} ({1})".format(name, e))
