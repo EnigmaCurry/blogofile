@@ -51,9 +51,6 @@ def recompile():
         else:
             #p could just be a pre-compiled regex
             site.compiled_file_ignore_patterns.append(p)
-    import urlparse
-    global blog
-    blog.url = urlparse.urljoin(site.url, blog.path)
         
 def __load_config(path=None):
     #Strategy:

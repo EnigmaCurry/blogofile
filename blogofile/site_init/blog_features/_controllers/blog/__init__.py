@@ -1,4 +1,5 @@
 import logging
+import urlparse
 from mako.lookup import TemplateLookup
 
 from blogofile.cache import bf
@@ -102,6 +103,7 @@ def materialize_template(template_name, location, attrs={}, lookup=None):
     bf.writer.materialize_template(template_name, location, attrs, lookup)
     
 def init():
+    config["url"] = urlparse.urljoin(bf.config.site.url, config["path"])
     global template_lookup
     template_lookup = TemplateLookup(
         directories=[config["template_path"],"_templates"],
@@ -126,7 +128,7 @@ def run():
     categories.sort_into_categories()
 
     blog.logger = logging.getLogger(config['name'])
-    
+
     permapage.run()
     chronological.run()
     archives.run()
