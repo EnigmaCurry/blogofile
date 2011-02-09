@@ -8,7 +8,7 @@ zip_site_init()
 
 setup(name='Blogofile',
       version=blogofile.__version__,
-      description='A blog engine/compiler, inspired by Jekyll.',
+      description='A static website compiler and blog engine',
       author='Ryan McGuire',
       author_email='ryan@enigmacurry.com',
       url='http://www.blogofile.com',
