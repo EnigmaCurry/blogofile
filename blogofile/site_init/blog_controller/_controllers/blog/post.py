@@ -16,6 +16,8 @@ import operator
 import urlparse
 import hashlib
 import codecs
+import base64
+import urllib
 
 import pytz
 import yaml
@@ -176,6 +178,12 @@ class Post(object):
 
         if not self.categories or len(self.categories) == 0:
             self.categories = set([Category('Uncategorized')])
+        if self.guid:
+            uuid = urllib.quote(self.guid) #used for expandling :uuid in permalink template code below
+        else:
+            toHash = self.date.isoformat() + self.title.encode('utf8')
+            self.guid = base64.urlsafe_b64encode(hashlib.sha1(toHash).digest())
+            uuid = self.guid 
         if not self.permalink and \
                 bf.config.controllers.blog.auto_permalink.enabled:
             self.permalink = bf.config.site.url.rstrip("/") + \
@@ -196,9 +204,8 @@ class Post(object):
                     ":filename", re.sub(
                             "[ ?]", "-", self.filename).lower(), self.permalink)
 
-            # Generate sha hash based on title
-            self.permalink = re.sub(":uuid", hashlib.sha1(
-                    self.title.encode('utf-8')).hexdigest(), self.permalink)
+            # See guid logic above
+            self.permalink = re.sub(":uuid", uuid, self.permalink)
 
         logger.debug(u"Permalink: {0}".format(self.permalink))
      
