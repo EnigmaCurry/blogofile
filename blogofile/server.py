@@ -76,7 +76,7 @@ for the root page? : <a href="{0}">{1}</a>
                 util.path_join(site_path.strip("/")))
         else:
             build_path = os.getcwd()
-        build_path = re.sub(build_path, os.path.join(os.getcwd(),"_site"), p)
+        build_path = p.replace(build_path, os.path.join(os.getcwd(),"_site"))
         return build_path
     
     def log_message(self, format, *args):
