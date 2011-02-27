@@ -20,7 +20,7 @@ def run():
 
 def sort_into_archives():
     #This is run in 0.initial.py
-    for post in blog.posts:
+    for post in blog.iter_posts_published():
         link = post.date.strftime("archive/%Y/%m")
         try:
             blog.archived_posts[link].append(post)

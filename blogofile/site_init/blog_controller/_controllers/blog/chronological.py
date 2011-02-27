@@ -6,9 +6,10 @@ blog = bf.config.controllers.blog
 
 
 def run():
-    write_blog_chron(posts=blog.posts, root=blog.pagination_dir.lstrip("/"))
-    write_blog_first_page()
-
+    posts = list(blog.iter_posts_published())
+    write_blog_chron(posts=posts,
+                     root=blog.pagination_dir.lstrip("/"))
+    write_blog_first_page(posts=posts)
 
 def write_blog_chron(posts, root):
     page_num = 1
@@ -37,12 +38,12 @@ def write_blog_chron(posts, root):
         page_num += 1
 
 
-def write_blog_first_page():
+def write_blog_first_page(posts):
     if not blog.custom_index:
-        page_posts = blog.posts[:blog.posts_per_page]
+        page_posts = posts[:blog.posts_per_page]
         path = bf.util.path_join(blog.path, "index.html")
         blog.logger.info(u"Writing blog index page: " + path)
-        if len(blog.posts) > blog.posts_per_page:
+        if len(posts) > blog.posts_per_page:
             next_link = bf.util.site_path_helper(
                     blog.path, blog.pagination_dir+"/2")
         else:

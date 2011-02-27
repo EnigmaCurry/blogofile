@@ -217,3 +217,24 @@ Plain text :
 $ echo &quot;hello&quot;
 hello
 </pre>""" in rendered
+
+
+    def testUnpublishedPost(self):
+        """A post marked 'draft: True' should never show up in
+        archives, categories, chronological listings, or feeds. It
+        should generate a single permapage and that's all."""
+        main.main("init blog_unit_test")
+        main.main("build")
+        #Make sure the permapage was written
+        rendered = open(os.path.join(
+                self.build_path,"_site","blog","2099","08",
+                "01","this-post-is-unpublished","index.html"
+                )).read()
+        #Make sure the archive was not written
+        assert not os.path.exists(os.path.join(
+                self.build_path,"_site","blog","archive",
+                "2099"))
+        #Make sure the category was not written
+        assert not os.path.exists(os.path.join(
+                self.build_path,"_site","blog","category",
+                "drafts"))

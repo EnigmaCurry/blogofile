@@ -342,8 +342,6 @@ def parse_posts(directory):
         except PostParseException as e:
             logger.warning(u"{0} : Skipping this post.".format(e.value))
             continue
-        #Exclude some posts
-        if not (p.permalink is None or p.draft is True):
-            posts.append(p)
+        posts.append(p)
     posts.sort(key=operator.attrgetter('date'), reverse=True)
     return posts

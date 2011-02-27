@@ -95,13 +95,31 @@ config = {
 
 template_lookup = None #instantiate in init
 
+def iter_posts(conditional, limit=None):
+    """Iterate over all the posts that conditional(post) == True"""
+    blog = bf.config.controllers.blog
+    num_yielded = 0
+    for post in blog.posts:
+        if conditional(post):
+            num_yielded += 1
+            yield post
+        if limit and num_yielded >= limit:
+            break
+
+def iter_posts_published(limit=None):
+    """Iterate over all the posts to be published"""
+    def is_publishable(post):
+        if post.draft == False and post.permalink != None:
+            return True
+    return iter_posts(is_publishable,limit)
+
 def materialize_template(template_name, location, attrs={}, lookup=None):
     #Just like the regular bf.writer.materialize_template.
     #However, this uses the blog template lookup by default.
     if lookup==None:
         lookup = template_lookup
     bf.writer.materialize_template(template_name, location, attrs, lookup)
-    
+        
 def init():
     config["url"] = urlparse.urljoin(bf.config.site.url, config["path"])
     global template_lookup
@@ -117,6 +135,8 @@ def run():
 
     #Parse the posts
     blog.posts = post.parse_posts("_posts")
+    blog.iter_posts = iter_posts
+    blog.iter_posts_published = iter_posts_published
     blog.dir = bf.util.path_join(bf.writer.output_dir, blog.path)
 
     # Find all the categories and archives before we write any pages

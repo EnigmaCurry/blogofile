@@ -4,8 +4,9 @@ blog = bf.config.controllers.blog
 
 
 def run():
-    write_feed(blog.posts, bf.util.path_join(blog.path, "feed"), "rss.mako")
-    write_feed(blog.posts, bf.util.path_join(blog.path, "feed", "atom"),
+    feed_posts = list(blog.iter_posts_published(limit=10))
+    write_feed(feed_posts, bf.util.path_join(blog.path, "feed"), "rss.mako")
+    write_feed(feed_posts, bf.util.path_join(blog.path, "feed", "atom"),
                           "atom.mako")
 
 def write_feed(posts, root, template):

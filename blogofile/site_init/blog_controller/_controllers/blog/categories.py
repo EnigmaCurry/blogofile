@@ -11,10 +11,10 @@ def run():
 
 def sort_into_categories():
     categories = set()
-    for post in blog.posts:
+    for post in blog.iter_posts_published():
         categories.update(post.categories)
     for category in categories:
-        category_posts = [post for post in blog.posts
+        category_posts = [post for post in blog.iter_posts_published()
                             if category in post.categories]
         blog.categorized_posts[category] = category_posts
     for category, posts in sorted(
@@ -26,7 +26,7 @@ def write_categories():
     root = bf.util.path_join(blog.path, blog.category_dir)
     #Find all the categories:
     categories = set()
-    for post in blog.posts:
+    for post in blog.iter_posts_published():
         categories.update(post.categories)
     for category, category_posts in blog.categorized_posts.items():
         #Write category RSS feed

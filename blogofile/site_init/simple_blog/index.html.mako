@@ -7,7 +7,7 @@ Here's the main <a href="${bf.util.site_path_helper(bf.config.blog.path)}">chron
 
 Here's the last 5 posts:
 <ul>
-% for post in bf.config.blog.posts[:5]:
+% for post in bf.config.blog.mod.iter_posts_published(limit=5):
     <li><a href="${post.path}">${post.title}</a></li>
 % endfor
 </ul>

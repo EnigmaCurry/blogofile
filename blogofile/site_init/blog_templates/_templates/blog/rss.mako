@@ -14,7 +14,7 @@
     <generator>Blogofile</generator>
     <sy:updatePeriod>hourly</sy:updatePeriod>
     <sy:updateFrequency>1</sy:updateFrequency>
-% for post in posts[:10]:
+% for post in posts:
     <item>
       <title>${post.title}</title>
       <link>${post.permalink}</link>
