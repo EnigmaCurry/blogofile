@@ -127,8 +127,7 @@ def run():
     archives.sort_into_archives()
     categories.sort_into_categories()
 
-    blog.logger = logging.getLogger(config['name'])
-
+    blog.logger = logging.getLogger("blogofile.controllers."+meta['name'])
     permapage.run()
     chronological.run()
     archives.run()
