@@ -14,7 +14,7 @@ def write_permapages():
     
     for i, post in enumerate(blog.posts):
         if post.permalink:
-            path = site_re.sub("", post.permalink)
+            path = site_re.sub("", post.permalink).rstrip('.html')
             blog.logger.info(u"Writing permapage for post: {0}".format(path))
         else:
             #Permalinks MUST be specified. No permalink, no page.
