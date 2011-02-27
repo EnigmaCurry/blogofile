@@ -1,14 +1,26 @@
 #!/usr/bin/env python
 
+__author__ = "Seth de l'Isle"
+
+#### Usage:
+## You can generate a Blogger export file by logging into blogger,
+## then going to Settings -> Basic -> Export Blog.  You will get a
+## file to download with the current date in the name and a .xml
+## extension.  Running blogger2blogofile.py in that directory, with
+## the filename of the export file as the only argument will generate
+## a _posts directory ready for use with Blogofile.
+
+
 import sys
 try:
     import feedparser
 except ImportError:
-    print >> sys.stderr, """Couldn\'t load the universal feedparser module. 
+    print >> sys.stderr, """This tool requires the universal feedparser module.
+
 Depending on your tools, try:
-    apt-get install python-feedparser or easy_install.py
+    apt-get install python-feedparser
 or: 
-    easy_install.py feedparser 
+    easy_install feedparser
 
 or check out the download files at http://code.google.com/p/feedparser/downloads/list
  """ 
@@ -68,7 +80,7 @@ class Entry:
                 'author': self.feedEntry.author_detail.name}
 
         if 'link' in self.feedEntry.keys():
-            data['permalink'] = self.feedEntry['link']
+            data['permalink'] = urlparse.urlparse(self.feedEntry['link']).path
 
         self.data = data
 
@@ -193,7 +205,7 @@ class TestBloggerfile(unittest.TestCase):
 
 def display_error_and_usage(error):
     print >> sys.stderr, error
-    print >> sys.stderr, "Usage: bloggerfile.py (-t [unittest options]) | BloggerExportfile.xml"
+    print >> sys.stderr, "Usage: bloggerfile.py BloggerExportfile.xml"
     sys.exit()
 
 if __name__ == '__main__':
