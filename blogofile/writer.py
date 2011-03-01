@@ -155,7 +155,8 @@ class Writer(object):
         except: #pragma: no cover
             logger.error("Error rendering template")
             print(mako_exceptions.text_error_template().render())
-        del self.bf.template_context
+        finally:
+            del self.bf.template_context
 
     def materialize_template(self, template_name, location, attrs={}, lookup=None):
         """Render a named template with attrs to a location in the _site dir"""
