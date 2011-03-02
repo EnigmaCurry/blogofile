@@ -115,7 +115,7 @@ class Writer(object):
                     #Copy this non-template file
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
-                    if self.config.site.overwrite_warning and os.path.exists(path):
+                    if getattr(self.config.site, 'overwrite_warning', True) and os.path.exists(path):
                         logger.warn("Location is used more than once: {0}".format(f_path))
                     out_path = util.path_join(self.output_dir, f_path)
                     if self.bf.config.site.use_hard_links:
@@ -170,7 +170,7 @@ class Writer(object):
         path = util.path_join(self.output_dir, location)
         #Create the path if it doesn't exist:
         util.mkdir(os.path.split(path)[0])
-        if self.config.site.overwrite_warning and os.path.exists(path):
+        if getattr(self.config.site, 'overwrite_warning', True) and os.path.exists(path):
             logger.warn("Location is used more than once: {0}".format(location))
         f = open(path, "w")
         f.write(rendered)
