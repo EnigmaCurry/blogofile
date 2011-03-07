@@ -102,7 +102,6 @@ def highlight_code(code, language, formatter):
     highlighted = highlighted.replace("\n","<br/>")
     #Surround the text with newlines so markdown etc parse properly:
     highlighted = "\n\n{0}\n\n".format(highlighted)
-    print highlighted
     return highlighted
 
 def parse_args(args):
