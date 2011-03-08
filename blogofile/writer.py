@@ -115,9 +115,9 @@ class Writer(object):
                     #Copy this non-template file
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
-                    if self.config.site.overwrite_warning and os.path.exists(path):
-                        logger.warn("Location is used more than once: {0}".format(f_path))
                     out_path = util.path_join(self.output_dir, f_path)
+                    if self.config.site.overwrite_warning and os.path.exists(out_path):
+                        logger.warn("Location is used more than once: {0}".format(f_path))
                     if self.bf.config.site.use_hard_links:
                         # Try hardlinking first, and if that fails copy
                         try:
