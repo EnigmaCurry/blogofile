@@ -98,8 +98,10 @@ def highlight_code(code, language, formatter):
         lexer = pygments.lexers.get_lexer_by_name("text")
     #Highlight with pygments
     highlighted = pygments.highlight(code, lexer, formatter)
-    #Replace newlines with breaks - markdown freaks out otherwise.
+    #Convert line endings to <br> tags:
     highlighted = highlighted.replace("\n","<br/>")
+    #But get rid of the last <br> which throws off line numbers:
+    highlighted = "</pre></div>".join(highlighted.rsplit("</pre></div><br/>"))
     #Surround the text with newlines so markdown etc parse properly:
     highlighted = "\n\n{0}\n\n".format(highlighted)
     return highlighted
