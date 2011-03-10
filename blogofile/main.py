@@ -24,6 +24,7 @@ Please take a moment to read LICENSE.txt. It's short.
 __author__  = "Ryan McGuire (ryan@enigmacurry.com)"
 from blogofile import __version__ 
 
+import locale
 import logging
 import os
 import sys
@@ -40,6 +41,8 @@ import site_init
 import util
 import plugin
 from exception import *
+
+locale.setlocale(locale.LC_ALL, '')
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
