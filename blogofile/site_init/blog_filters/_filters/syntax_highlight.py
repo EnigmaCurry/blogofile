@@ -4,25 +4,9 @@ import os
 import pygments
 from pygments import formatters, util, lexers
 import blogofile_bf as bf
- 
-config = {"name": "Syntax Highlighter",
-          "description": "Highlights blocks of code based on syntax",
-          "author": "Ryan McGuire",
-          "css_dir": "/css",
-          "preload_styles": []}
 
-
-def init():
-    #This filter normally only loads pygments styles when needed.
-    #This will force a particular style to get loaded at startup.
-    for style in bf.config.filters.syntax_highlight.preload_styles:
-        css_class = "pygments_{0}".format(style)
-        formatter = pygments.formatters.HtmlFormatter(
-            linenos=False, cssclass=css_class, style=style)
-        write_pygments_css(style, formatter)
-        
-
-example = """
+#Example usage:    
+"""
 
 This is normal text.
 
@@ -68,6 +52,23 @@ $$/code
 This is normal text
 """
 
+config = {"name": "Syntax Highlighter",
+          "description": "Highlights blocks of code based on syntax",
+          "author": "Ryan McGuire",
+          "css_dir": "/css",
+          "preload_styles": []}
+
+
+def init():
+    #This filter normally only loads pygments styles when needed.
+    #This will force a particular style to get loaded at startup.
+    for style in bf.config.filters.syntax_highlight.preload_styles:
+        css_class = "pygments_{0}".format(style)
+        formatter = pygments.formatters.HtmlFormatter(
+            linenos=False, cssclass=css_class, style=style)
+        write_pygments_css(style, formatter)
+    
+
 css_files_written = set()
 
 code_block_re = re.compile(
@@ -90,18 +91,20 @@ argument_re = re.compile(
     "[,\r\n]" # ends in a comma or newline
     )
 
-
 def highlight_code(code, language, formatter):
     try:
         lexer = pygments.lexers.get_lexer_by_name(language)
     except pygments.util.ClassNotFound:
         lexer = pygments.lexers.get_lexer_by_name("text")
-    #Highlight with pygments and surround by blank lines
-    #(blank lines required for markdown syntax)
-    highlighted = "\n\n{0}\n\n".format(
-            pygments.highlight(code, lexer, formatter))
+    #Highlight with pygments
+    highlighted = pygments.highlight(code, lexer, formatter)
+    #Convert line endings to <br> tags:
+    highlighted = highlighted.replace("\n","<br/>")
+    #But get rid of the last <br> which throws off line numbers:
+    highlighted = "</pre></div>".join(highlighted.rsplit("</pre></div><br/>"))
+    #Surround the text with newlines so markdown etc parse properly:
+    highlighted = "\n\n{0}\n\n".format(highlighted)
     return highlighted
-
 
 def parse_args(args):
     #Make sure the args are newline terminated (req'd by regex)
