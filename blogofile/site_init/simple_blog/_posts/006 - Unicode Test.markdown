@@ -2,7 +2,7 @@
 categories: Unicode
 date: 2009/08/22 15:22:00
 format: markdown
-title: Post 3 - Unicode Test - How about some 日本語テスト
+title: Unicode Test - How about some 日本語テスト
 ---
 Anglo-Saxon Rune Poem:
 

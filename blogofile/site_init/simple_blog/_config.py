@@ -22,7 +22,7 @@
 site.url = "http://www.yoursite.com"
 
 #### Blog Settings ####
-blog = controllers.blog
+blog = plugins.blog
 
 ## blog_enabled -- Should the blog be enabled?
 #  (You don't _have_ to use blogofile to build blogs)

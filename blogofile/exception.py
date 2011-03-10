@@ -1,0 +1,2 @@
+class SourceDirectoryNotFound(Exception):
+    pass

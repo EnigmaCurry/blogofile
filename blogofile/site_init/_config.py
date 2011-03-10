@@ -40,7 +40,8 @@ filters.syntax_highlight.css_dir = "/css"
 # This is turned off by default though, because hard links are not
 # necessarily what every user wants.
 site.use_hard_links = False
-
+#Warn when we're overwriting a file?
+site.overwrite_warning = True
 # These are the default ignore patterns for excluding files and dirs
 # from the _site directory
 # These can be strings or compiled patterns.

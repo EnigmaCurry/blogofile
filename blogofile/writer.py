@@ -22,6 +22,7 @@ import config
 import cache
 import filter
 import controller
+import plugin
 
 logger = logging.getLogger("blogofile.writer")
 
@@ -47,6 +48,7 @@ class Writer(object):
     def write_site(self):
         self.__setup_output_dir()
         self.__load_bf_cache()
+        self.__init_plugins()
         self.__init_filters_controllers()
         self.__run_controllers()
         self.__write_files()
@@ -115,6 +117,8 @@ class Writer(object):
                     #Copy this non-template file
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
+                    if self.config.site.overwrite_warning and os.path.exists(path):
+                        logger.warn("Location is used more than once: {0}".format(f_path))
                     out_path = util.path_join(self.output_dir, f_path)
                     if self.bf.config.site.use_hard_links:
                         # Try hardlinking first, and if that fails copy
@@ -125,14 +129,22 @@ class Writer(object):
                     else:
                         shutil.copyfile(f_path, out_path)
 
+    def __init_plugins(self):
+        #Run plugin defined init methods
+        plugin.init_plugins()
+        
     def __init_filters_controllers(self):
         #Run filter/controller defined init methods
         filter.init_filters()
-        controller.init_controllers()
+        controller.init_controllers(namespace=self.bf.config.controllers)
         
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""
-        controller.run_all()
+        namespaces = [self.bf.config]
+        for plugin in self.bf.config.plugins.values():
+            if plugin.enabled:
+                namespaces.append(plugin)
+        controller.run_all(namespaces)
         
     def template_render(self, template, attrs={}):
         """Render a template"""
@@ -155,7 +167,8 @@ class Writer(object):
         except: #pragma: no cover
             logger.error("Error rendering template")
             print(mako_exceptions.text_error_template().render())
-        del self.bf.template_context
+        finally:
+            del self.bf.template_context
 
     def materialize_template(self, template_name, location, attrs={}, lookup=None):
         """Render a named template with attrs to a location in the _site dir"""
@@ -167,6 +180,8 @@ class Writer(object):
         path = util.path_join(self.output_dir, location)
         #Create the path if it doesn't exist:
         util.mkdir(os.path.split(path)[0])
+        if self.config.site.overwrite_warning and os.path.exists(path):
+            logger.warn("Location is used more than once: {0}".format(location))
         f = open(path, "w")
         f.write(rendered)
         f.close()

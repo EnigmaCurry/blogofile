@@ -22,4 +22,4 @@ Please take a moment to read LICENSE.txt. It's short.
 """
 
 __author__  = "Ryan McGuire (ryan@enigmacurry.com)"
-__version__ = '1.0.0-DEV'
+__version__ = '0.8-DEV'

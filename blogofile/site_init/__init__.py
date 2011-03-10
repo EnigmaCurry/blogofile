@@ -25,7 +25,7 @@ hidden_sites = [
     ]
 
 extra_features = {
-    "simple_blog": ["blog_features"],
+    "simple_blog": ["blog_filters"],
     "simple_html5_blog": ["blog_features", "html5_blog_features"],
     "blog_unit_test":["blog_features"],
     "blog_features":["blog_controller","blog_templates","blog_filters",

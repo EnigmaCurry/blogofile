@@ -38,6 +38,8 @@ import server
 import config
 import site_init
 import util
+import plugin
+from exception import *
 
 logging.basicConfig()
 logger = logging.getLogger("blogofile")
@@ -47,9 +49,9 @@ def get_args(cmd=None):
     ##parser_template to base other parsers on
     parser_template = argparse.ArgumentParser(add_help=False)
     parser_template.add_argument("-s", "--src-dir", dest="src_dir",
-                        help="Your site's source directory "
+                                 help="Your site's source directory "
                                  "(default is current directory)",
-                        metavar="DIR", default=os.curdir)
+                        metavar="DIR", default=None)
     parser_template.add_argument("--version", action="version")
     parser_template.add_argument("-v", "--verbose", dest="verbose",
                                  default=False, action="store_true",
@@ -100,7 +102,25 @@ def get_args(cmd=None):
                                    parents=[parser_template])
     p_info.set_defaults(func=do_info)
 
-    if not cmd: #pragma: no cover
+    p_plugin = subparsers.add_parser("plugin", help="Plugin tools",
+                                   parents=[parser_template])
+    p_plugin_subparsers = p_plugin.add_subparsers()
+    p_plugin_list = p_plugin_subparsers.add_parser("list", help="List all the plugins installed",
+                                                   parents=[parser_template])
+    p_plugin_list.set_defaults(func=plugin.list_plugins)
+
+    for p in plugin.iter_plugins():
+        try:
+            plugin_parser_setup = p.__dist__['command_parser_setup']
+        except KeyError:
+            continue
+        #Setup the blog subcommand parser
+        plugin_parser = subparsers.add_parser(
+            p.__dist__['config_name'], help="Plugin: "+p.__dist__['description'], parents=[parser_template])
+        plugin_parser.version = "{name} plugin {version} by {author} -- {url}".format(**p.__dist__)
+        plugin_parser_setup(plugin_parser, parser_template)
+    
+    if not cmd:
         if len(sys.argv) <= 1:
             parser.print_help()
             parser.exit(1)
@@ -110,19 +130,38 @@ def get_args(cmd=None):
         args = parser.parse_args(args)
     return (parser, args)
 
+def find_src_root(path=os.curdir):
+    "Find the root src directory"
+    #peel away directories until we find a _config.py
+    #raises SourceDirectoryNotFound if we can't find one.
+    path = os.path.abspath(path)
+    while True:
+        if os.path.isfile(os.path.join(path,"_config.py")):
+            return path
+        parts = os.path.split(path)
+        if len(parts[1]) == 0:
+            raise SourceDirectoryNotFound
+        path = parts[0]
+    
 def main(cmd=None):
     do_debug()
     parser, args = get_args(cmd)
 
-    if args.verbose: #pragma: no cover
+    if args.verbose:
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
 
-    if args.veryverbose: #pragma: no cover
+    if args.veryverbose:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
-    if not os.path.isdir(args.src_dir): #pragma: no cover
+    if not args.src_dir:
+        try:
+            args.src_dir = find_src_root()
+        except SourceDirectoryNotFound:
+            args.src_dir = os.path.abspath(os.curdir)
+            #Not a valid src dir, the next block warns the user
+    if not args.src_dir or not os.path.isdir(args.src_dir):
         print("source dir does not exist : %s" % args.src_dir)
         sys.exit(1)
     os.chdir(args.src_dir)
@@ -133,7 +172,7 @@ def main(cmd=None):
 
     args.func(args)
 
-def do_help(args): #pragma: no cover
+def do_help(args):
     global parser
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
@@ -171,13 +210,13 @@ def config_init(args):
         # Always load the _config.py from the current directory.
         # We already changed to the directory specified with --src-dir
         config.init("_config.py")
-    except config.ConfigNotFoundException: #pragma: no cover
+    except config.ConfigNotFoundException:
         print >>sys.stderr, \
                 "No configuration found in source dir: {0}".format(args.src_dir)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
  
 
-def do_serve(args): #pragma: no cover
+def do_serve(args):
     config_init(args)
     bfserver = server.Server(args.PORT, args.IP_ADDR)
     bfserver.start()
