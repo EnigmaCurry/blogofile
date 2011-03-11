@@ -25,14 +25,6 @@ hidden_sites = [
     ]
 
 extra_features = {
-    "simple_blog": ["blog_filters"],
-    "simple_html5_blog": ["blog_features", "html5_blog_features"],
-    "blog_unit_test":["blog_features"],
-    "blog_features":["blog_controller","blog_templates","blog_filters",
-                     (util.rewrite_strings_in_files,
-                     {"existing_string":"@BLOGOFILE_VERSION_REPLACED_HERE@",
-                      "replacement_string":bf_version,
-                      "paths":["_controllers/blog/__init__.py"]})]
     }
 
 all_sites = list(available_sites)
