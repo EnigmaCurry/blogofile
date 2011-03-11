@@ -62,8 +62,19 @@ def load_plugins():
         check_plugin_config(plugin)
         namespace.mod = plugin
         plugin_dir = os.path.dirname(sys.modules[plugin.__name__].__file__)
-        #TODO: Load filters
-        plugin.filters = HierarchicalCache()
+        #Load filters
+        filter.preload_filters(
+            namespace=namespace.filters,
+            directory=os.path.join(plugin_dir,"site_src","_filters"))
+        for name, filter_ns in namespace.filters.items():
+            #Filters from plugins load in their own namespace, but
+            #they also load in the regular filter namespace as long as
+            #there isn't already a filter with that name. User filters
+            #from the _filters directory are loaded after plugins, so
+            #they are overlaid on top of these values and take
+            #precedence.
+            if not bf.config.filters.has_key(name):
+                bf.config.filters[name] = filter_ns
         #Load controllers
         controller.load_controllers(
             namespace=namespace.controllers,

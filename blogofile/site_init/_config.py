@@ -26,11 +26,6 @@ site.url = "http://www.yoursite.com"
 ######################################################################
 # Intermediate Settings
 ######################################################################
-#### Blog post syntax highlighting ####
-# You can change the style to any builtin Pygments style
-# or, make your own: http://pygments.org/docs/styles
-filters.syntax_highlight.style = "murphy"
-filters.syntax_highlight.css_dir = "/css"
 
 ######################################################################
 # Advanced Settings
