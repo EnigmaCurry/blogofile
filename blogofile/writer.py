@@ -7,7 +7,6 @@ current working directory.
 """
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
-__date__   = "Tue Feb  3 12:50:17 2009"
 
 import logging
 import os
