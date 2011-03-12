@@ -165,18 +165,21 @@ def defined_controllers(namespaces, only_enabled=True):
     their enabled status
 
     >>> bf_test = bf.cache.HierarchicalCache()
-    >>> bf_test.one.enabled = True
-    >>> bf_test.one.priority = 30
-    >>> bf_test.two.enabled = False
-    >>> bf_test.two.priority = 90
-    >>> bf_test.three.enabled = True #default priority 50
+    >>> bf_test.controllers.one.enabled = True
+    >>> bf_test.controllers.one.priority = 30
+    >>> bf_test.controllers.two.enabled = False
+    >>> bf_test.controllers.two.priority = 90
+    >>> bf_test.controllers.three.enabled = True
+    >>> bf_test.controllers.three.priority = 50
     >>> bf_test2 = bf.cache.HierarchicalCache()
-    >>> bf_test2.one.enabled = True
-    >>> bf_test2.one.priority = 100
-    >>> defined_controllers((bf_test,bf_test2))
-    [bf_test2.one, bf_test.two, bf_test.three, bf_test.one]
-    >>> defined_controllers(bf_test, only_enabled=False)
-    [bf_test2.one, bf_test.three, bf_test.one]
+    >>> bf_test2.controllers.one.enabled = True
+    >>> bf_test2.controllers.one.priority = 100
+    >>> c = defined_controllers((bf_test2,))
+    >>> c == [bf_test2.controllers.one]
+    True
+    >>> c = defined_controllers((bf_test,bf_test2))
+    >>> c == [bf_test2.controllers.one, bf_test.controllers.three, bf_test.controllers.one]
+    True
     """
     controllers = []
     for namespace in namespaces:

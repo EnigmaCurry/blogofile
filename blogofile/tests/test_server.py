@@ -60,7 +60,7 @@ class TestServer(unittest.TestCase):
         #Go to a permalink page:
         br.open("/blog/2009/08/29/post-seven/")
         #Go to one it's categories:
-        br.follow_link(text_regex="General Stuff")
+        br.follow_link(text_regex="general stuff")
         #Go to the next category page
         br.follow_link(text_regex="Next Page")
         #Come back to the 1st category page
