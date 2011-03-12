@@ -15,8 +15,7 @@ from .. import util
 available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
-    ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
-    ("blogofile.com", "The blogofile.com blog fully themed (requires git)", "blogofile_com.py")
+    ("simple_blog", "A (very) simple blog with no theme", "simple_blog")
     ]
 
 #These are hidden site templates that are not shown in the list shown in help
