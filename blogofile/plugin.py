@@ -6,9 +6,9 @@ import pprint
 
 from mako.lookup import TemplateLookup
 
-from cache import bf, HierarchicalCache
-import controller
-import filter
+from .cache import bf, HierarchicalCache
+from . import controller
+from . import filter
 
 logger = logging.getLogger("blogofile.plugin")
 
@@ -24,10 +24,10 @@ def iter_plugins():
 
 def list_plugins(args):
     for plugin in iter_plugins():
-        print "{0} ({1}) - {2} - {3}".format(plugin.__dist__['config_name'],
+        print("{0} ({1}) - {2} - {3}".format(plugin.__dist__['config_name'],
                                            plugin.__dist__['version'],
                                            plugin.__dist__['description'],
-                                           plugin.__dist__['author'])
+                                           plugin.__dist__['author']))
         
 def check_plugin_config(module):
     """Ensure that a plugin has the required components
@@ -35,17 +35,15 @@ def check_plugin_config(module):
     try:
         assert isinstance(module.config, HierarchicalCache)
     except AttributeError:
-        raise AssertionError, \
-            "Plugin {0} has no config HierarchicalCache".format(module)
+        raise AssertionError("Plugin {0} has no config HierarchicalCache".format(module))
     except AssertionError:
-        raise AssertionError, \
-            "Plugin {0} config object must extend from "\
-            "HierarchicalCache".format(module)
+        raise AssertionError("Plugin {0} config object must extend from "\
+            "HierarchicalCache".format(module))
     try:
         module.__dist__
     except AttributeError:
-        raise AssertionError, "Plugin {0} has no __dist__ dictionary, "\
-            "describing the plugins metadata.".format(module)
+        raise AssertionError("Plugin {0} has no __dist__ dictionary, "\
+            "describing the plugins metadata.".format(module))
     #TODO: Why does this fail in a test context? Not really *that* important..
     # for attr in reserved_attributes:
     #     if module.config.has_key(attr):
@@ -62,19 +60,20 @@ def load_plugins():
             getattr(plugin,"config")
         check_plugin_config(plugin)
         namespace.mod = plugin
+        print(plugin)
         plugin_dir = os.path.dirname(sys.modules[plugin.__name__].__file__)
         #Load filters
         filter.preload_filters(
             namespace=namespace.filters,
             directory=os.path.join(plugin_dir,"site_src","_filters"))
-        for name, filter_ns in namespace.filters.items():
+        for name, filter_ns in list(namespace.filters.items()):
             #Filters from plugins load in their own namespace, but
             #they also load in the regular filter namespace as long as
             #there isn't already a filter with that name. User filters
             #from the _filters directory are loaded after plugins, so
             #they are overlaid on top of these values and take
             #precedence.
-            if not bf.config.filters.has_key(name):
+            if name not in bf.config.filters:
                 bf.config.filters[name] = filter_ns
         #Load controllers
         controller.load_controllers(
@@ -83,7 +82,7 @@ def load_plugins():
             defaults={"enabled":True})
 
 def init_plugins():
-    for name, plugin in bf.config.plugins.items():
+    for name, plugin in list(bf.config.plugins.items()):
         if plugin.enabled:
             logger.info("Initializing plugin: {0}".format(
                     plugin.mod.__dist__['config_name']))
@@ -115,11 +114,11 @@ class PluginTools(object):
             os.path.dirname(sys.modules[self.module.__name__].__file__),
             "site_src")
     def initialize_controllers(self):
-        for name, controller in self.module.config.controllers.items():
+        for name, controller in list(self.module.config.controllers.items()):
             self.logger.info("Initializing controller: {0}".format(name))
             controller.mod.init()
     def run_controllers(self):
-        for name, controller in self.module.config.controllers.items():
+        for name, controller in list(self.module.config.controllers.items()):
             self.logger.info("Running controller: {0}".format(name))
             controller.mod.run()
         

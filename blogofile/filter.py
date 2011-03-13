@@ -4,13 +4,13 @@ import logging
 import imp
 import uuid
 
-import util
+from . import util
 
 logger = logging.getLogger("blogofile.filter")
 
-from cache import bf
-from cache import HierarchicalCache
-import exception
+from .cache import bf
+from .cache import HierarchicalCache
+from . import exception
 
 bf.filter = sys.modules['blogofile.filter']
 
@@ -25,8 +25,7 @@ def run_chain(chain, content):
     Works with either a string or a sequence of filters"""
     if chain is None: 
         return content
-    if not hasattr(chain, '__iter__'):
-        #Not a sequence, must be a string, parse it
+    if isinstance(chain, str):
         chain = parse_chain(chain)
     for fn in chain:
         f = get_filter(fn)
@@ -67,7 +66,7 @@ def init_filters(namespace=None):
     built"""
     if namespace is None:
         namespace=bf.config.filters
-    for name, filt in namespace.items():
+    for name, filt in list(namespace.items()):
         if "mod" in filt \
                 and type(filt.mod).__name__ == "module"\
                 and not filt.mod.__initialized:
@@ -84,7 +83,7 @@ def get_filter(name, namespace=None):
     #Return an already loaded filter:
     if namespace is None:
         namespace = bf.config.filters
-    if namespace.has_key(name) and namespace[name].has_key("mod"):
+    if name in namespace and "mod" in namespace[name]:
         logger.debug("Retrieving already loaded filter: " + name)
         return namespace[name]['mod']
     else:
@@ -128,12 +127,12 @@ def load_filter(name, module_path, namespace=None):
         except:
             pass
         #Load the default blogofile config for filters:
-        for k, v in default_filter_config.items():
+        for k, v in list(default_filter_config.items()):
             namespace[name][k] = v
         #Load any filter defined defaults:
         try:
             filter_config = getattr(mod, "config")
-            for k, v in filter_config.items():
+            for k, v in list(filter_config.items()):
                 if "." in k:
                     #This is a hierarchical setting
                     tail = namespace[name]

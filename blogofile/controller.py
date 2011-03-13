@@ -54,7 +54,7 @@ import os
 import operator
 import logging
 
-from cache import bf
+from .cache import bf
 bf.controller = sys.modules['blogofile.controller']
 
 logger = logging.getLogger("blogofile.controller")
@@ -79,7 +79,7 @@ def __find_controller_names(directory="_controllers"):
 def init_controllers(namespace):
     """Controllers have an optional init method that runs before the run
     method"""
-    for controller in sorted(namespace.values(),
+    for controller in sorted(list(namespace.values()),
             key=operator.attrgetter("priority")):
         if "mod" in controller \
                 and type(controller.mod).__name__ == "module"\
@@ -107,23 +107,23 @@ def load_controller(name, namespace, directory="_controllers", defaults={}, is_p
             controller = __import__(name)
             controller.__initialized = False
             logger.debug("found controller: {0} - {1}".format(name,controller))
-        except (ImportError,),e:
+        except (ImportError,) as e:
             logger.error(
                 "Cannot import controller : {0} ({1})".format(name, e))
             raise
         # Remember the actual imported module
         namespace[name].mod = controller
         # Load the blogofile defaults for controllers:
-        for k, v in default_controller_config.items():
+        for k, v in list(default_controller_config.items()):
             namespace[name][k] = v
         # Load provided defaults:
-        for k, v in defaults.items():
+        for k, v in list(defaults.items()):
             namespace[name][k] = v
         if not is_plugin:
             # Load any of the controller defined defaults:
             try:
                 controller_config = getattr(controller, "config")
-                for k, v in controller_config.items():
+                for k, v in list(controller_config.items()):
                     if "." in k:
                         #This is a hierarchical setting
                         tail = namespace[name]
@@ -183,7 +183,7 @@ def defined_controllers(namespaces, only_enabled=True):
     """
     controllers = []
     for namespace in namespaces:
-        for c in namespace.controllers.values():
+        for c in list(namespace.controllers.values()):
             #Get only the ones that are enabled:
             if "enabled" not in c or c['enabled'] == False:
                 #The controller is disabled

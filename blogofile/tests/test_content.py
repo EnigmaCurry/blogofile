@@ -174,7 +174,7 @@ This is a test post
         page = open(os.path.join(self.build_path,"_site","blog","2009",
                                  "08","16","this-is-a-test-post","index.html")).read()
         soup = BeautifulSoup.BeautifulStoneSoup(page)
-        print soup.findAll("a")
+        print(soup.findAll("a"))
         assert soup.find("a",attrs={'href':'/blog/category/category-1'})
         assert soup.find("a",attrs={'href':'/blog/category/category-2'})
 

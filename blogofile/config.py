@@ -10,14 +10,13 @@ import os
 import logging
 import sys
 
-import util
-import writer
+from . import util
 import blogofile_bf as bf
-import cache
-import controller
-import plugin
-import site_init
-import filter
+from . import cache
+from . import controller
+from . import plugin
+from . import site_init
+from . import filter
 
 bf.config = sys.modules['blogofile.config']
 
@@ -49,7 +48,7 @@ def recompile():
     global site
     site.compiled_file_ignore_patterns = []
     for p in site.file_ignore_patterns:
-        if isinstance(p, basestring):
+        if isinstance(p, str):
             site.compiled_file_ignore_patterns.append(
                 re.compile(p, re.IGNORECASE))
         else:
@@ -69,12 +68,12 @@ def __load_config(path=None):
     filter.preload_filters()
     controller.load_controllers(namespace=bf.config.controllers)
     if path:
-        execfile(path)
+        exec(compile(open(path).read(), path, 'exec'))
     #config is now in locals() but needs to be in globals()
-    for k, v in locals().items():
+    for k, v in list(locals().items()):
         globals()[k] = v
     #Override any options (from unit tests)
-    for k, v in override_options.items():
+    for k, v in list(override_options.items()):
         if "." in k:
             parts = k.split(".")
             cache_object = ".".join(parts[:-1])

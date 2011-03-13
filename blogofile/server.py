@@ -1,14 +1,14 @@
-import SimpleHTTPServer
-import BaseHTTPServer
+import http.server
+import http.server
 import logging
 import os
 import sys
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 import threading
 
 from blogofile import config, util
-from cache import bf
+from .cache import bf
 
 bf.server = sys.modules['blogofile.server']
 
@@ -27,13 +27,13 @@ class Server(threading.Thread):
         self.is_shutdown = False
         server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
-        ServerClass = BaseHTTPServer.HTTPServer
+        ServerClass = http.server.HTTPServer
         HandlerClass.protocol_version = "HTTP/1.0"
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
 
     def run(self):
-        print("Blogofile server started on {0}:{1} ...".format(self.sa[0],self.sa[1]))
+        print(("Blogofile server started on {0}:{1} ...".format(self.sa[0],self.sa[1])))
         self.httpd.serve_forever()
 
     def shutdown(self):
@@ -43,7 +43,7 @@ class Server(threading.Thread):
         self.is_shutdown = True
 
 
-class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class BlogofileRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     error_template = """
 <head>
@@ -58,7 +58,7 @@ for the root page? : <a href="{0}">{1}</a>
     def __init__(self, *args, **kwargs):
         path = urlparse(config.site.url).path
         self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
-        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(
+        http.server.SimpleHTTPRequestHandler.__init__(
                 self, *args, **kwargs)
 
     def translate_path(self, path):
@@ -68,7 +68,7 @@ for the root page? : <a href="{0}">{1}</a>
             self.error_message_format = self.BLOGOFILE_SUBDIR_ERROR
             return "" #Results in a 404
 
-        p = SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(
+        p = http.server.SimpleHTTPRequestHandler.translate_path(
             self, path)
         if len(site_path.strip("/")) > 0:
             build_path = os.path.join(

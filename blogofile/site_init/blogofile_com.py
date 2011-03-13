@@ -8,7 +8,7 @@ def do_init(args=None): #pragma: no cover
         p = subprocess.Popen("git init", shell=True)
         p.wait()
     except OSError:
-        print "Cannot find git executable on the system PATH"
+        print("Cannot find git executable on the system PATH")
         return
     
     p=subprocess.Popen(

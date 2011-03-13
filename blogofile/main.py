@@ -30,19 +30,20 @@ import os
 import sys
 import shlex
 import time
+import platform
 
-import argparse
+from . import argparse
 
-from cache import bf
-from writer import Writer
-import server
-import config
-import site_init
-import util
-import plugin
-import site_init
-from exception import *
-import command_completion
+from .cache import bf
+from .writer import Writer
+from . import server
+from . import config
+from . import site_init
+from . import util
+from . import plugin
+from . import site_init
+from .exception import *
+from . import command_completion
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -66,8 +67,9 @@ def setup_command_parser():
                                  help="Be extra verbose")
     global parser, subparsers
     parser = argparse.ArgumentParser(parents=[parser_template])
-    parser.version = "Blogofile {0} -- http://www.blogofile.com".format(
-            __version__)
+    parser.version = "Blogofile {0} -- http://www.Blogofile.com -- {1} {2}"\
+        .format( __version__,platform.python_implementation(),
+                 platform.python_version())
     subparsers = parser.add_subparsers()
 
     p_help = subparsers.add_parser("help", help="Show help for a command.",
@@ -146,15 +148,15 @@ def find_src_root(path=os.curdir):
         path = parts[0]
 
 def do_completion(cmd):
-    if os.environ.has_key("BLOGOFILE_BASH_BOOTSTRAP"):
-        print command_completion.bash_bootstrap
+    if "BLOGOFILE_BASH_BOOTSTRAP" in os.environ:
+        print(command_completion.bash_bootstrap)
         sys.exit(1)
-    if os.environ.has_key("BLOGOFILE_COMPLETION_MODE"):
+    if "BLOGOFILE_COMPLETION_MODE" in os.environ:
         #Complete the current Blogofile command rather than run it:
         command_completion.complete(parser, cmd)
         sys.exit(1)
 
-def main(cmd=None):        
+def main(cmd=None):
     do_debug()
     parser = setup_command_parser()
     do_completion(cmd)
@@ -176,7 +178,7 @@ def main(cmd=None):
             args.src_dir = os.path.abspath(os.curdir)
             #Not a valid src dir, the next block warns the user
     if not args.src_dir or not os.path.isdir(args.src_dir):
-        print("source dir does not exist : %s" % args.src_dir)
+        print(("source dir does not exist : %s" % args.src_dir))
         sys.exit(1)
     os.chdir(args.src_dir)
 
@@ -189,7 +191,7 @@ def main(cmd=None):
 def do_bash_complete(args):
     for subcommand in args.command:
         parser = subparsers.choices[subcommand]
-        print parser
+        print(parser)
     
 def do_help(args):
     global parser
@@ -214,11 +216,11 @@ def do_help(args):
 
         # Print help for each subcommand requested.
         for subcommand in args.command:
-            print >>sys.stderr, "{0} - {1}".format(
-                    subcommand, helptext[subcommand])
+            print("{0} - {1}".format(
+                    subcommand, helptext[subcommand]), file=sys.stderr)
             parser = subparsers.choices[subcommand]
             parser.print_help()
-            print >>sys.stderr, "\n"
+            print("\n", file=sys.stderr)
             #Perform any extra help tasks:
             if hasattr(parser, "extra_help"):
                 parser.extra_help()
@@ -229,8 +231,7 @@ def config_init(args):
         # We already changed to the directory specified with --src-dir
         config.init("_config.py")
     except config.ConfigNotFoundException:
-        print >>sys.stderr, \
-                "No configuration found in source dir: {0}".format(args.src_dir)
+        print("No configuration found in source dir: {0}".format(args.src_dir), file=sys.stderr)
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
  
 
@@ -283,16 +284,16 @@ def do_debug():
 
 def do_info(args):
     """Print some information about the Blogofile installation and the current site"""
-    print("This is Blogofile (version {0}) -- http://www.blogofile.com".\
-        format(__version__))
+    print(("This is Blogofile (version {0}) -- http://www.blogofile.com".\
+        format(__version__)))
     print("")
     ### Show _config.py paths
-    print("Default config file: {0}".format(config.default_config_path()))
+    print(("Default config file: {0}".format(config.default_config_path())))
     print("(Override these default settings in your own _config.py, don't edit "
           "the file above.)")
     print("")
     if os.path.isfile("_config.py"):
-        print("Found site _config.py: {0}".format(os.path.abspath("_config.py")))
+        print(("Found site _config.py: {0}".format(os.path.abspath("_config.py"))))
     else:
         print("The specified directory has no _config.py")
     

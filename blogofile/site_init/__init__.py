@@ -1,7 +1,7 @@
 import os
 import pkgutil
 import zipfile
-import StringIO
+import io
 import logging
 import shutil
 import imp
@@ -78,7 +78,7 @@ def import_site_init(feature):
         return
     path = os.path.join(os.path.split(__file__)[0], feature)
     if os.path.isdir(path):
-        logger.info(u"Initializing site from directory: " + path)
+        logger.info("Initializing site from directory: " + path)
         for root, dirs, files in os.walk(path):
             for fn in files:
                 fn = os.path.join(root, fn)
@@ -98,7 +98,7 @@ def import_site_init(feature):
             pass
         else:
             logger.info("Initializing feature from zip file: {0}".format(feature))
-            zip_file = zipfile.ZipFile(StringIO.StringIO(zip_data))
+            zip_file = zipfile.ZipFile(io.StringIO(zip_data))
             for name in zip_file.namelist():
                 if name.endswith('/'):
                     util.mkdir(name)
@@ -124,11 +124,11 @@ def do_init(args):
             do_help()
             return
         if len(os.listdir(args.src_dir)) > 0 : #pragma: no cover
-            print("This directory is not empty, will not attempt to " \
-                    "initialize here : {0}".format(args.src_dir))
+            print(("This directory is not empty, will not attempt to " \
+                    "initialize here : {0}".format(args.src_dir)))
             return
         
-        print("Initializing the {0} site template...".format(
-                args.SITE_TEMPLATE))
+        print(("Initializing the {0} site template...".format(
+                args.SITE_TEMPLATE)))
         template = site_modules[args.SITE_TEMPLATE]
         import_site_init(template)

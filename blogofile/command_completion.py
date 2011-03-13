@@ -1,7 +1,7 @@
 import sys
 import shlex
 
-import argparse
+from . import argparse
 
 bash_bootstrap = """
 _blogofile_completion() {
@@ -18,7 +18,7 @@ complete -F _blogofile_completion blogofile
 
 def get_subparsers(parser):
     if parser._subparsers:
-        subparsers = parser._subparsers._group_actions[0].choices.items()
+        subparsers = list(parser._subparsers._group_actions[0].choices.items())
     else:
         subparsers = []
     return subparsers
@@ -42,7 +42,7 @@ def print_completions(parser, command, current_word):
         for name, sub_subparser in get_subparsers(subparser):
             if name.startswith(current_word):
                 if name != current_word:
-                    print name + " "
+                    print(name + " ")
                     num_completions += 1
     finally:
         #Turn back on the default exit on error behaviour of argparse:

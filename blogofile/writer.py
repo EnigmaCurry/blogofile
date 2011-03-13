@@ -16,12 +16,12 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 from mako import exceptions as mako_exceptions
 
-import util
-import config
-import cache
-import filter
-import controller
-import plugin
+from . import util
+from . import config
+from . import cache
+from . import filter
+from . import controller
+from . import plugin
 
 logger = logging.getLogger("blogofile.writer")
 
@@ -101,14 +101,14 @@ class Writer(object):
                     #Process this template file
                     t_name = t_fn[:-5]
                     t_file = open(t_fn_path)
-                    template = Template(t_file.read().decode("utf-8"),
+                    template = Template(t_file.read(),
                                         output_encoding="utf-8",
                                         lookup=self.template_lookup)
                     #Remember the original path for later when setting context
                     template.bf_meta = {"path":t_fn_path}
                     t_file.close()
                     path = util.path_join(self.output_dir, root, t_name)
-                    html_file = open(path, "w")
+                    html_file = open(path, "bw")
                     html = self.template_render(template)
                     #Write to disk
                     html_file.write(html)
@@ -123,7 +123,7 @@ class Writer(object):
                         # Try hardlinking first, and if that fails copy
                         try:
                             os.link(f_path, out_path)
-                        except StandardError:
+                        except Exception:
                             shutil.copyfile(f_path, out_path)
                     else:
                         shutil.copyfile(f_path, out_path)
@@ -140,7 +140,7 @@ class Writer(object):
     def __run_controllers(self):
         """Run all the controllers in the _controllers directory"""
         namespaces = [self.bf.config]
-        for plugin in self.bf.config.plugins.values():
+        for plugin in list(self.bf.config.plugins.values()):
             if plugin.enabled:
                 namespaces.append(plugin)
         controller.run_all(namespaces)
@@ -159,13 +159,13 @@ class Writer(object):
             pass
         attrs['bf'] = self.bf
         #Provide the template with other user defined namespaces:
-        for name, obj in self.bf.config.site.template_vars.items():
+        for name, obj in list(self.bf.config.site.template_vars.items()):
             attrs[name] = obj
         try:
             return template.render(**attrs)
         except: #pragma: no cover
             logger.error("Error rendering template")
-            print(mako_exceptions.text_error_template().render())
+            print((mako_exceptions.text_error_template().render()))
         finally:
             del self.bf.template_context
 
@@ -181,6 +181,6 @@ class Writer(object):
         util.mkdir(os.path.split(path)[0])
         if self.config.site.overwrite_warning and os.path.exists(path):
             logger.warn("Location is used more than once: {0}".format(location))
-        f = open(path, "w")
+        f = open(path, "bw")
         f.write(rendered)
         f.close()

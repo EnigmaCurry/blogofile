@@ -1,11 +1,11 @@
 import re
 import os
 import sys
-from urlparse import urlparse
+from urllib.parse import urlparse
 import logging
 import fileinput
 
-from cache import bf
+from .cache import bf
 bf.util = sys.modules['blogofile.util']
 
 
@@ -74,7 +74,7 @@ def url_path_helper(*parts):
     """
     new_parts = []
     for p in parts:
-        if hasattr(p, "__iter__"):
+        if hasattr(p, "__iter__") and not isinstance(p, str):
             #This part is a sequence itself, recurse into it
             p = path_join(*p, **{'sep': "/"})
         p = p.strip("/")
@@ -132,7 +132,7 @@ def path_join(*parts, **kwargs):
 
     if sep is specified, use that as the seperator
     rather than the system default"""
-    if kwargs.has_key('sep'):
+    if 'sep' in kwargs:
         sep = kwargs['sep']
     else:
         sep = os.sep
@@ -142,7 +142,7 @@ def path_join(*parts, **kwargs):
         wrong_slash_type = "\\"
     new_parts = []
     for p in parts:
-        if hasattr(p, "__iter__"):
+        if hasattr(p, "__iter__") and not isinstance(p, str):
             #This part is a sequence itself, recurse into it
             p = path_join(*p)
         if p in ("", "\\", "/"):
@@ -153,7 +153,7 @@ def path_join(*parts, **kwargs):
 
 def recursive_file_list(directory, regex=None):
     "Recursively walk a directory tree and find all the files matching regex"
-    if type(regex) == basestring:
+    if type(regex) == str:
         regex = re.compile(regex)
     for root, dirs, files in os.walk(directory):
         for f in files:
@@ -212,12 +212,12 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #p
     """
     if strings_only and is_protected_type(s):
         return s
-    if not isinstance(s, basestring,):
+    if not isinstance(s, str,):
         if hasattr(s, '__unicode__'):
-            s = unicode(s)
+            s = str(s)
         else:
             try:
-                s = unicode(str(s), encoding, errors)
+                s = str(str(s), encoding, errors)
             except UnicodeEncodeError:
                 if not isinstance(s, Exception):
                     raise
@@ -229,7 +229,7 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #p
                 # output should be.
                 s = ' '.join([force_unicode(arg, encoding, strings_only,
                         errors) for arg in s])
-    elif not isinstance(s, unicode):
+    elif not isinstance(s, str):
         # Note: We use .decode() here, instead of unicode(s, encoding,
         # errors), so that if s is a SafeString, it ends up being a
         # SafeUnicode at the end.
