@@ -40,7 +40,9 @@ import config
 import site_init
 import util
 import plugin
+import site_init
 from exception import *
+import command_completion
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -48,7 +50,7 @@ logging.basicConfig()
 logger = logging.getLogger("blogofile")
 bf.logger = logger
 
-def get_args(cmd=None):
+def setup_command_parser():
     ##parser_template to base other parsers on
     parser_template = argparse.ArgumentParser(add_help=False)
     parser_template.add_argument("-s", "--src-dir", dest="src_dir",
@@ -62,7 +64,6 @@ def get_args(cmd=None):
     parser_template.add_argument("-vv", "--veryverbose", dest="veryverbose",
                                  default=False, action="store_true",
                                  help="Be extra verbose")
-
     global parser, subparsers
     parser = argparse.ArgumentParser(parents=[parser_template])
     parser.version = "Blogofile {0} -- http://www.blogofile.com".format(
@@ -70,28 +71,27 @@ def get_args(cmd=None):
     subparsers = parser.add_subparsers()
 
     p_help = subparsers.add_parser("help", help="Show help for a command.",
-                                   add_help=False, parents=[parser_template])
+                                   add_help=False)
     p_help.add_argument("command", help="a Blogofile subcommand e.g. build",
                         nargs="*", default="none")
     p_help.set_defaults(func=do_help)
 
-    p_build = subparsers.add_parser("build", help="Build the site from source.",
-                                    parents=[parser_template])
+    p_build = subparsers.add_parser("build", help="Build the site from source.")
     p_build.set_defaults(func=do_build)
 
     p_init = subparsers.add_parser("init", help="Create a new Blogofile site from "
-                                   "an existing template.",
-                                   parents=[parser_template])
-    p_init.add_argument("SITE_TEMPLATE", nargs="?",
-                        help="The site template to initialize")
+                                   "an existing template.")
     p_init.set_defaults(func=do_init)
     p_init.extra_help = site_init.do_help
-
+    init_parsers = p_init.add_subparsers()
+    for site in site_init.available_sites:
+        site_parser = init_parsers.add_parser(site[0], help=site[1])
+        site_parser.set_defaults(func=do_init,SITE_TEMPLATE=site[0])
+    
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
                                     "the builtin webserver. Useful for quickly testing "
                                     "your site. Not for production use, please use "
-                                    "Apache instead ;)",
-                                    parents=[parser_template])
+                                    "Apache instead ;)")
     p_serve.add_argument("PORT", nargs="?", default="8080",
                          help="TCP port to use")
     p_serve.add_argument("IP_ADDR", nargs="?", default="127.0.0.1",
@@ -101,15 +101,12 @@ def get_args(cmd=None):
     p_serve.set_defaults(func=do_serve)
 
     p_info = subparsers.add_parser("info", help="Show information about the "
-                                   "Blogofile installation and the current site.",
-                                   parents=[parser_template])
+                                   "Blogofile installation and the current site.")
     p_info.set_defaults(func=do_info)
 
-    p_plugin = subparsers.add_parser("plugin", help="Plugin tools",
-                                   parents=[parser_template])
+    p_plugin = subparsers.add_parser("plugin", help="Plugin tools")
     p_plugin_subparsers = p_plugin.add_subparsers()
-    p_plugin_list = p_plugin_subparsers.add_parser("list", help="List all the plugins installed",
-                                                   parents=[parser_template])
+    p_plugin_list = p_plugin_subparsers.add_parser("list", help="List all the plugins installed")
     p_plugin_list.set_defaults(func=plugin.list_plugins)
 
     for p in plugin.iter_plugins():
@@ -119,19 +116,21 @@ def get_args(cmd=None):
             continue
         #Setup the blog subcommand parser
         plugin_parser = subparsers.add_parser(
-            p.__dist__['config_name'], help="Plugin: "+p.__dist__['description'], parents=[parser_template])
+            p.__dist__['config_name'], help="Plugin: "+p.__dist__['description'])
         plugin_parser.version = "{name} plugin {version} by {author} -- {url}".format(**p.__dist__)
         plugin_parser_setup(plugin_parser, parser_template)
-    
+
+    return parser
+        
+def get_args(cmd=None):
     if not cmd:
         if len(sys.argv) <= 1:
             parser.print_help()
             parser.exit(1)
         args = parser.parse_args()
     else:
-        args = shlex.split(cmd)
-        args = parser.parse_args(args)
-    return (parser, args)
+        args = parser.parse_args(shlex.split(cmd))
+    return args
 
 def find_src_root(path=os.curdir):
     "Find the root src directory"
@@ -145,11 +144,23 @@ def find_src_root(path=os.curdir):
         if len(parts[1]) == 0:
             raise SourceDirectoryNotFound
         path = parts[0]
-    
-def main(cmd=None):
-    do_debug()
-    parser, args = get_args(cmd)
 
+def do_completion(cmd):
+    if os.environ.has_key("BLOGOFILE_BASH_BOOTSTRAP"):
+        print command_completion.bash_bootstrap
+        sys.exit(1)
+    if os.environ.has_key("BLOGOFILE_COMPLETION_MODE"):
+        #Complete the current Blogofile command rather than run it:
+        command_completion.complete(parser, cmd)
+        sys.exit(1)
+
+def main(cmd=None):        
+    do_debug()
+    parser = setup_command_parser()
+    do_completion(cmd)
+    args = get_args(cmd)
+
+    
     if args.verbose:
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
@@ -175,6 +186,11 @@ def main(cmd=None):
 
     args.func(args)
 
+def do_bash_complete(args):
+    for subcommand in args.command:
+        parser = subparsers.choices[subcommand]
+        print parser
+    
 def do_help(args):
     global parser
     if "commands" in args.command:
@@ -198,7 +214,6 @@ def do_help(args):
 
         # Print help for each subcommand requested.
         for subcommand in args.command:
-            #TODO: consider switching to new-style print syntax?
             print >>sys.stderr, "{0} - {1}".format(
                     subcommand, helptext[subcommand])
             parser = subparsers.choices[subcommand]

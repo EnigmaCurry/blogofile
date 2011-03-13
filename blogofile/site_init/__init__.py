@@ -57,12 +57,7 @@ def zip_site_init(): #pragma: no cover .. only used by setuptools
         os.chdir(curdir)
 
 def do_help(): #pragma: no cover
-    print("Available site templates:\n")
-    for meta in available_sites:
-        site, description = meta[:2]
-        print("   {0}- {1}".format(site.ljust(20), description))
-    print("")
-    print("For example, create a simple site, with a blog, and no theme:\n")
+    print("For example, create a simple site with a blog and no theme:\n")
     print("   blogofile init simple_blog\n")
 
 def import_site_init(feature):

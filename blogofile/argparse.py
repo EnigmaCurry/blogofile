@@ -1,5 +1,10 @@
 # Author: Steven J. Bethard <steven.bethard@gmail.com>.
 
+# This is argparse.py from Python 2.7.0.
+# This has been modified for Blogofile to have BASH completion support.
+# However, the approach taken here is pretty much monkey-patching,
+# so I'm hesitant to contribute this back upstream at this point.
+
 """Command-line parsing library
 
 This module is an optparse-inspired command-line parsing library that:
@@ -95,6 +100,8 @@ ZERO_OR_MORE = '*'
 ONE_OR_MORE = '+'
 PARSER = 'A...'
 REMAINDER = '...'
+
+EXIT_ON_ERROR = True
 
 # =============================
 # Utility functions and classes
@@ -1671,6 +1678,9 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         if namespace is None:
             namespace = Namespace()
 
+        # Record the parser that this namespace came from:
+        namespace._parser = self
+
         # add any action defaults that aren't present
         for action in self._actions:
             if action.dest is not SUPPRESS:
@@ -2311,4 +2321,5 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
         should either exit or raise an exception.
         """
         self.print_usage(_sys.stderr)
-        self.exit(2, _('%s: error: %s\n') % (self.prog, message))
+        if EXIT_ON_ERROR:
+            self.exit(2, _('%s: error: %s\n') % (self.prog, message))
