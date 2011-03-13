@@ -22,7 +22,6 @@ setup(name='Blogofile',
                          'pyyaml',
                          'textile',
                          'markdown>=2.0',
-                         'argparse',
                          'pygments',
                          'docutils'],
       entry_points="""
