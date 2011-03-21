@@ -60,7 +60,6 @@ def load_plugins():
             getattr(plugin,"config")
         check_plugin_config(plugin)
         namespace.mod = plugin
-        print(plugin)
         plugin_dir = os.path.dirname(sys.modules[plugin.__name__].__file__)
         #Load filters
         filter.preload_filters(

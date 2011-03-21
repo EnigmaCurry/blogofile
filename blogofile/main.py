@@ -38,7 +38,6 @@ from .cache import bf
 from .writer import Writer
 from . import server
 from . import config
-from . import site_init
 from . import util
 from . import plugin
 from . import site_init

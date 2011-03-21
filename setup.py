@@ -18,9 +18,6 @@ setup(name='Blogofile',
       install_requires =['mako',
                          'pytz',
                          'pyyaml',
-                         'textile',
-                         'markdown>=2.0',
-                         'pygments',
                          'docutils'],
       entry_points="""
       [console_scripts]

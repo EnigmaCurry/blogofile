@@ -44,9 +44,9 @@ class HierarchicalCache(Cache):
     >>> c.sub.d['one.value.stuff'] = "whatever2"
     >>> c.sub.d.one.value.stuff
     'whatever2'
-    >>> c.sub.d.one.value.items()
+    >>> list(c.sub.d.one.value.items())
     [('stuff', 'whatever2')]
-    >>> c.sub.d.has_key("doesn't have this")
+    >>> "doesn't have this" in c.sub.d
     False
     """
     def __getattr__(self, attr):
@@ -98,3 +98,4 @@ bf = HierarchicalCache()
 sys.modules['blogofile_bf'] = bf
 bf.cache = sys.modules['blogofile.cache']
 bf.__version__ = bf_version
+
