@@ -15,12 +15,12 @@ from .. import util
 available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
-    ("simple_blog", "A (very) simple blog with no theme", "simple_blog")
+    ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
+    ("blog_unit_test", "Blog unit tests (not for end users)", "blog_unit_test")
     ]
 
 #These are hidden site templates that are not shown in the list shown in help
 hidden_sites = [
-    ("blog_unit_test", "A simple site, for unit testing", "blog_unit_test")
     ]
 
 extra_features = {
