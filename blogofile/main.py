@@ -199,8 +199,8 @@ def do_help(args):
 
     if "none" in args.command:
         parser.print_help()
-        print("\nSee 'blogofile help COMMAND' for more information"
-              " on a specific command.")
+        print("\nSee 'blogofile help COMMAND' for more information"+\
+                  " on a specific command.")
     else:
         # Where did the subparser help text go? Let's get it back.
         # Certainly there is a better way to retrieve the helptext than this...
@@ -215,11 +215,10 @@ def do_help(args):
 
         # Print help for each subcommand requested.
         for subcommand in args.command:
-            print("{0} - {1}".format(
-                    subcommand, helptext[subcommand]), file=sys.stderr)
+            sys.stderr.write("{0} - {1}\n".format(subcommand, helptext[subcommand]))
             parser = subparsers.choices[subcommand]
             parser.print_help()
-            print("\n", file=sys.stderr)
+            sys.stderr.write("\n")
             #Perform any extra help tasks:
             if hasattr(parser, "extra_help"):
                 parser.extra_help()
@@ -230,7 +229,7 @@ def config_init(args):
         # We already changed to the directory specified with --src-dir
         config.init("_config.py")
     except config.ConfigNotFoundException:
-        print("No configuration found in source dir: {0}".format(args.src_dir), file=sys.stderr)
+        sys.stderr.write("No configuration found in source dir: {0}\n".format(args.src_dir))
         parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
  
 
@@ -274,8 +273,8 @@ def do_debug():
             from IPython.Shell import IPShellEmbed
             bf.ipshell = IPShellEmbed()
         elif os.environ['BLOGOFILE_DEBUG'] != "0":
-            print("Running in debug mode, waiting for debugger to connect. "
-                  "Password is set to 'blogofile'")
+            print("Running in debug mode, waiting for debugger to connect. "+\
+                      "Password is set to 'blogofile'")
             import rpdb2
             rpdb2.start_embedded_debugger("blogofile")
     except KeyError:
@@ -285,12 +284,11 @@ def do_info(args):
     """Print some information about the Blogofile installation and the current site"""
     print(("This is Blogofile (version {0}) -- http://www.blogofile.com".\
         format(__version__)))
-    print("")
+    print("You are using {0} {1} from {2}".format(
+            platform.python_implementation(),platform.python_version(),
+            sys.executable))
     ### Show _config.py paths
     print(("Default config file: {0}".format(config.default_config_path())))
-    print("(Override these default settings in your own _config.py, don't edit "
-          "the file above.)")
-    print("")
     if os.path.isfile("_config.py"):
         print(("Found site _config.py: {0}".format(os.path.abspath("_config.py"))))
     else:
