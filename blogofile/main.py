@@ -91,8 +91,7 @@ def setup_command_parser():
     
     p_serve = subparsers.add_parser("serve", help="Host the _site dir with "
                                     "the builtin webserver. Useful for quickly testing "
-                                    "your site. Not for production use, please use "
-                                    "Apache instead ;)")
+                                    "your site. Not for production use!")
     p_serve.add_argument("PORT", nargs="?", default="8080",
                          help="TCP port to use")
     p_serve.add_argument("IP_ADDR", nargs="?", default="127.0.0.1",
@@ -287,12 +286,13 @@ def do_info(args):
     print("You are using {0} {1} from {2}".format(
             platform.python_implementation(),platform.python_version(),
             sys.executable))
+    print("Blogofile is installed at: {0}".format(os.path.split(__file__)[0]))
     ### Show _config.py paths
     print(("Default config file: {0}".format(config.default_config_path())))
     if os.path.isfile("_config.py"):
         print(("Found site _config.py: {0}".format(os.path.abspath("_config.py"))))
     else:
-        print("The specified directory has no _config.py")
+        print("The specified directory has no _config.py, and cannot be built.")
     
     
 if __name__ == "__main__":

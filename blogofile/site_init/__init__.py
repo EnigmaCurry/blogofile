@@ -95,10 +95,10 @@ def import_site_init(feature):
         try:
             zip_data = pkgutil.get_data("blogofile.site_init", feature + ".zip")
         except IOError:
-            pass
+            raise
         else:
             logger.info("Initializing feature from zip file: {0}".format(feature))
-            zip_file = zipfile.ZipFile(io.StringIO(zip_data))
+            zip_file = zipfile.ZipFile(io.BytesIO(zip_data))
             for name in zip_file.namelist():
                 if name.endswith('/'):
                     util.mkdir(name)
