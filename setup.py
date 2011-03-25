@@ -4,7 +4,6 @@ import sys
 import os
 import os.path
 import glob
-from easy_install_2to3 import easy_install_2to3
 
 def setup_python2():
     #Blogofile is written for Python 3.
@@ -46,10 +45,12 @@ setup(name="Blogofile",
       package_data = {"blogofile/site_init": ["*.zip"]},
       install_requires = ["mako",
                           "markdown>=2.0.3-py3k",
+                          "textile>=2.1.4-py3k",
                           "pytz",
                           "pyyaml",
                           "docutils"],
-      dependency_links = ["http://github.com/EnigmaCurry/python-markdown-py3k/tarball/2.0.3#egg=markdown-2.0.3-py3k"],
+      dependency_links = ["http://github.com/EnigmaCurry/python-markdown-py3k/tarball/2.0.3#egg=markdown-2.0.3-py3k",
+                          "https://github.com/EnigmaCurry/textile-py3k/zipball/2.1.4#egg=textile-2.1.4-py3k"],
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main
