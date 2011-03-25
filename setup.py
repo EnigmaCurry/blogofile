@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install as SetuptoolsInstaller
 import sys
 import os
 import os.path
 import glob
+from easy_install_2to3 import easy_install_2to3
 
 def setup_python2():
     #Blogofile is written for Python 3.
@@ -31,8 +33,7 @@ import blogofile
 from blogofile.site_init import zip_site_init
             
 zip_site_init()
-
-    
+        
 setup(name="Blogofile",
       version=blogofile.__version__,
       description="A static website compiler and blog engine",
@@ -43,10 +44,12 @@ setup(name="Blogofile",
       src_root=src_root,
       packages=["blogofile", "blogofile/site_init"],
       package_data = {"blogofile/site_init": ["*.zip"]},
-      install_requires =["mako",
-                         "pytz",
-                         "pyyaml",
-                         "docutils"],
+      install_requires = ["mako",
+                          "markdown>=2.0.3-py3k",
+                          "pytz",
+                          "pyyaml",
+                          "docutils"],
+      dependency_links = ["http://github.com/EnigmaCurry/python-markdown-py3k/tarball/2.0.3#egg=markdown-2.0.3-py3k"],
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main
