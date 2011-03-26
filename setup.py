@@ -1,9 +1,10 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 from setuptools.command.install import install as SetuptoolsInstaller
 import sys
 import os
 import os.path
 import glob
+import subprocess
 
 def setup_python2():
     #Blogofile is written for Python 3.
@@ -32,7 +33,17 @@ import blogofile
 from blogofile.site_init import zip_site_init
             
 zip_site_init()
-        
+
+class Test(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import tox
+        tox.cmdline()
+
 setup(name="Blogofile",
       version=blogofile.__version__,
       description="A static website compiler and blog engine",
@@ -51,6 +62,7 @@ setup(name="Blogofile",
                           "docutils"],
       dependency_links = ["http://github.com/EnigmaCurry/python-markdown-py3k/tarball/2.0.3#egg=markdown-2.0.3-py3k",
                           "https://github.com/EnigmaCurry/textile-py3k/zipball/2.1.4#egg=textile-2.1.4-py3k"],
+      cmdclass = {"test":Test},
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main
