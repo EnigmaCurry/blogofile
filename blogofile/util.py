@@ -1,9 +1,9 @@
 import re
 import os
 import sys
-from urllib.parse import urlparse
 import logging
 import fileinput
+from urllib.parse import urlparse
 
 from .cache import bf
 bf.util = sys.modules['blogofile.util']

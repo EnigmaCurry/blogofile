@@ -1,1 +1,5 @@
 include blogofile/site_init/*.zip
+recursive-include converters *.py
+recursive-include src_py2 *.py
+recursive-exclude src_py2/blogofile/tests *.py
+include src_py2/blogofile/site_init/*.zip

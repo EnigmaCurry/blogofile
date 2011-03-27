@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """This loads the user's _config.py file and provides a standardized interface
 into it."""
 
@@ -16,7 +13,7 @@ from . import cache
 from . import controller
 from . import plugin
 from . import site_init
-from . import filter
+from . import filter as _filter
 
 bf.config = sys.modules['blogofile.config']
 
@@ -65,7 +62,7 @@ def __load_config(path=None):
     # config is missing something.
     exec(default_config)
     plugin.load_plugins()
-    filter.preload_filters()
+    _filter.preload_filters()
     controller.load_controllers(namespace=bf.config.controllers)
     if path:
         exec(compile(open(path).read(), path, 'exec'))

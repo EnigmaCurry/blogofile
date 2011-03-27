@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ######################################################################
 # This is the main Blogofile configuration file.
 # www.Blogofile.com
