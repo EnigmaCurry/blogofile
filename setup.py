@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Command
 from setuptools.command.install import install as SetuptoolsInstaller
-from distutils.command.sdist import sdist
+from distutils.command.sdist import sdist as _sdist
 import sys
 import os
 import os.path
@@ -29,6 +29,7 @@ dependencies = ["mako",
                 "textile",
                 "pytz",
                 "pyyaml",
+                "pygments",
                 "docutils"]
 dependency_links = []
 
@@ -59,13 +60,13 @@ else:
     import blogofile
     blogofile.zip_site_init()
 
-class sdist_py2(sdist):
-    "sdist for python2 which runs 3to2 over the source before packaging"
+class sdist(_sdist):
+    "Custom sdist that takes care of 3to2 details"
     def run(self):
         setup_python2()
-        sdist.run(self)
+        _sdist.run(self)
         shutil.rmtree("src_py2")
-        
+
 class Test(Command):
     user_options = []
     def initialize_options(self):
@@ -75,6 +76,8 @@ class Test(Command):
     def run(self):
         import tox
         tox.cmdline()
+
+os.chdir(os.path.split(os.path.abspath(__file__))[0])
 
 setup(name="Blogofile",
       version=blogofile.__version__,
@@ -88,7 +91,7 @@ setup(name="Blogofile",
       package_data = {"blogofile.site_init": ["*.zip"]},
       install_requires = dependencies,
       dependency_links = dependency_links,
-      cmdclass = {"test":Test,"sdist":sdist_py2},
+      cmdclass = {"test":Test,"sdist":sdist},
       entry_points="""
       [console_scripts]
       blogofile = blogofile.main:main

@@ -8,7 +8,7 @@ from mako.lookup import TemplateLookup
 
 from .cache import bf, HierarchicalCache
 from . import controller
-from . import filter
+from . import filter as _filter
 
 logger = logging.getLogger("blogofile.plugin")
 
@@ -62,7 +62,7 @@ def load_plugins():
         namespace.mod = plugin
         plugin_dir = os.path.dirname(sys.modules[plugin.__name__].__file__)
         #Load filters
-        filter.preload_filters(
+        _filter.preload_filters(
             namespace=namespace.filters,
             directory=os.path.join(plugin_dir,"site_src","_filters"))
         for name, filter_ns in list(namespace.filters.items()):

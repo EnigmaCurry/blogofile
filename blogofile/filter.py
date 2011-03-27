@@ -23,9 +23,15 @@ def run_chain(chain, content):
     """Run content through a filter chain.
 
     Works with either a string or a sequence of filters"""
-    if chain is None: 
+    if chain is None:
         return content
-    if isinstance(chain, str):
+    #lib3to2 interprets str as meaning unicode instead of basestring,
+    #hand craft the translation to python2:
+    if sys.version_info >= (3,):
+        is_str = eval("isinstance(chain, str)")
+    else:
+        is_str = eval("isinstance(chain, basestring)")
+    if is_str:
         chain = parse_chain(chain)
     for fn in chain:
         f = get_filter(fn)

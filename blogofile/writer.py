@@ -19,7 +19,7 @@ from mako import exceptions as mako_exceptions
 from . import util
 from . import config
 from . import cache
-from . import filter
+from . import filter as _filter
 from . import controller
 from . import plugin
 
@@ -134,7 +134,7 @@ class Writer(object):
         
     def __init_filters_controllers(self):
         #Run filter/controller defined init methods
-        filter.init_filters()
+        _filter.init_filters()
         controller.init_controllers(namespace=self.bf.config.controllers)
         
     def __run_controllers(self):

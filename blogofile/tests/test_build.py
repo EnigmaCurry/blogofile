@@ -3,10 +3,9 @@ import tempfile
 import shutil
 import os
 import re
-from .. import main
-from .. import util
+from blogofile import main
+from blogofile import util
 import logging
-
 
 class TestBuild(unittest.TestCase):
 

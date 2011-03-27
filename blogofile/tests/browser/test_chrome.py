@@ -139,7 +139,8 @@ class TestBrowser(unittest.TestCase):
         self.assertEqual(self.chrome.current_url,self.url+u"/blog/category/general-stuff/")
         
     def testPostWithNoDate(self):
-        self.chrome.get(self.url+"/blog/2011/03/26/post-without-a-date/")
+        self.chrome.get(self.url+"/blog")
+        self.chrome.find_element_by_link_text("Post without a date").click()
         #Make sure the post has today's date
         now = datetime.datetime.now().strftime("%B %d, %Y")
         #I guess this might fail at 23:59:59..

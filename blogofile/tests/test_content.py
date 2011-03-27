@@ -2,7 +2,7 @@ import unittest
 import tempfile
 import shutil
 import os
-from .. import main
+from blogofile import main
 
 
 class TestContent(unittest.TestCase):
