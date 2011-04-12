@@ -16,6 +16,7 @@ available_sites = [
     # (name of site, description, module)
     ("bare", "A blank site with no blog", "bare"),
     ("simple_blog", "A (very) simple blog with no theme", "simple_blog"),
+    ("simple_blog_html5", "A simple blog with HTML5 boilerplate", "simple_blog_html5"),
     ("blog_unit_test", "Blog unit tests (not for end users)", "blog_unit_test")
     ]
 

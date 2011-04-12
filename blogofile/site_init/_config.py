@@ -14,16 +14,17 @@
 # Basic Settings
 #  (almost all sites will want to configure these settings)
 ######################################################################
-## site_url -- Your site's full URL
+## site.url -- Your site's full URL
 # Your "site" is the same thing as your _site directory.
 #  If you're hosting a blogofile powered site as a subdirectory of a larger
 #  non-blogofile site, then you would set the site_url to the full URL
 #  including that subdirectory: "http://www.yoursite.com/path/to/blogofile-dir"
 site.url = "http://www.yoursite.com"
 
-######################################################################
-# Intermediate Settings
-######################################################################
+## site.author -- Your name, the author of the website.
+# This is optional. If set to anything other than None, the
+# simple_blog template creates a meta tag for the site author.
+site.author = None
 
 ######################################################################
 # Advanced Settings

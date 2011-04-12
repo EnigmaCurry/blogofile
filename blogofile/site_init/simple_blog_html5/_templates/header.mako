@@ -7,4 +7,4 @@ documentation</a>.</p>
 <p>If you're looking for a more fleshed-out site try running 'blogofile init
 blogofile.com', but you'll need <a href="http://www.git-scm.org">git</a> installed first.</p>
 <p>This is a header that goes on every page.</p>
-<hr/>
+<hr>

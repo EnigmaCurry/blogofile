@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 ######################################################################
 # This is your site's Blogofile configuration file.
 # www.Blogofile.com
@@ -44,6 +46,10 @@ blog.description = "Your Blog's short description"
 
 ## blog_timezone -- the timezone that you normally write your blog posts from
 blog.timezone = "US/Eastern"
+
+## blog_googleanaltics_id -- enable Google Analytics tracking
+## TODO: move to plugin/filter?
+blog.googleanlytics_id = "UA-XXXXX-X"
 
 ## Markdown extensions
 ## These are turned off by default, but turned on
