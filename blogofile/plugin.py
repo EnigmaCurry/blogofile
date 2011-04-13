@@ -99,7 +99,7 @@ class PluginTools(object):
         #However, this uses the blog template lookup by default.
         if lookup==None:
             lookup = self.template_lookup
-        bf.writer.materialize_template(template_name, location, attrs, lookup)
+        bf.template.materialize_template(template_name, location, attrs, lookup)
     def add_template_dir(self, path):
         self.template_lookup.directories.append(path)
     def __get_template_lookup(self):

@@ -57,6 +57,13 @@ site.file_ignore_patterns = [
     ".*/CVS$",
     ]
 
+from blogofile.template import MakoTemplate, JinjaTemplate
+templates.engines = {
+    ".mako": MakoTemplate,
+    ".jinja2": JinjaTemplate,
+    ".jinja": JinjaTemplate
+    }
+
 ### Pre/Post build hooks:
 def pre_build():
     #Do whatever you want before the _site is built

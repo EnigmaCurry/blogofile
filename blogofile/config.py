@@ -33,6 +33,7 @@ site = cache.HierarchicalCache()
 controllers = cache.HierarchicalCache()
 filters = cache.HierarchicalCache()
 plugins = cache.HierarchicalCache()
+templates = cache.HierarchicalCache()
 
 def default_config_path():
     return os.path.join(os.path.split(site_init.__file__)[0], "_config.py")

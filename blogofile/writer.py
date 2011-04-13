@@ -10,10 +10,9 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 
 import logging
 import os
+import re
 import shutil
 
-from mako.template import Template
-from mako.lookup import TemplateLookup
 from mako import exceptions as mako_exceptions
 
 from . import util
@@ -22,6 +21,7 @@ from . import cache
 from . import filter as _filter
 from . import controller
 from . import plugin
+from . import template
 
 logger = logging.getLogger("blogofile.writer")
 
@@ -33,10 +33,6 @@ class Writer(object):
         #referenced by other templates.
         self.base_template_dir = util.path_join(".", "_templates")
         self.output_dir = output_dir
-        self.template_lookup = TemplateLookup(
-                directories=[".", self.base_template_dir],
-                input_encoding='utf-8', output_encoding='utf-8',
-                encoding_errors='replace')
 
     def __load_bf_cache(self):
         #Template cache object, used to transfer state to/from each template:
@@ -47,6 +43,7 @@ class Writer(object):
     def write_site(self):
         self.__setup_output_dir()
         self.__load_bf_cache()
+        self.__calculate_template_files()
         self.__init_plugins()
         self.__init_filters_controllers()
         self.__run_controllers()
@@ -54,7 +51,7 @@ class Writer(object):
             
     def __setup_output_dir(self):
         """Setup the staging directory"""
-        if os.path.isdir(self.output_dir): #pragma: no cover
+        if os.path.isdir(self.output_dir):
             # I *would* just shutil.rmtree the whole thing and recreate it,
             # but I want the output_dir to retain its same inode on the
             # filesystem to be compatible with some HTTP servers.
@@ -70,13 +67,20 @@ class Writer(object):
                 except OSError:
                     pass
         util.mkdir(self.output_dir)
-            
+
+    def __calculate_template_files(self):
+        """Build a regex for template file paths"""
+        endings = []
+        for ending in self.config.templates.engines.keys():
+            endings.append(re.escape(ending)+"$")
+        p = "("+"|".join(endings)+")"
+        self.template_file_regex = re.compile(p)
+        
     def __write_files(self):
         """Write all files for the blog to _site
 
         Convert all templates to straight HTML
         Copy other non-template files directly"""
-        #find mako templates in template_dir
         for root, dirs, files in os.walk("."):
             if root.startswith("./"):
                 root = root[2:]
@@ -88,7 +92,7 @@ class Writer(object):
                     dirs.remove(d)
             try:
                 util.mkdir(util.path_join(self.output_dir, root))
-            except OSError: #pragma: no cover
+            except OSError:
                 pass
             for t_fn in files:
                 t_fn_path = util.path_join(root, t_fn)
@@ -96,29 +100,22 @@ class Writer(object):
                     #Ignore this file.
                     logger.debug("Ignoring file: " + t_fn_path)
                     continue
-                elif t_fn.endswith(".mako"):
-                    logger.info("Processing mako file: " + t_fn_path)
+                elif self.template_file_regex.search(t_fn):
+                    logger.info("Processing template: " + t_fn_path)
                     #Process this template file
-                    t_name = t_fn[:-5]
-                    t_file = open(t_fn_path)
-                    template = Template(t_file.read(),
-                                        output_encoding="utf-8",
-                                        lookup=self.template_lookup)
-                    #Remember the original path for later when setting context
-                    template.bf_meta = {"path":t_fn_path}
-                    t_file.close()
-                    path = util.path_join(self.output_dir, root, t_name)
-                    html_file = open(path, "bw")
-                    html = self.template_render(template)
-                    #Write to disk
-                    html_file.write(html)
+                    html_path = self.template_file_regex.sub("",t_fn)
+                    template.materialize_template(
+                        t_fn_path,
+                        util.path_join(root, html_path))
                 else:
                     #Copy this non-template file
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
                     out_path = util.path_join(self.output_dir, f_path)
-                    if self.config.site.overwrite_warning and os.path.exists(out_path):
-                        logger.warn("Location is used more than once: {0}".format(f_path))
+                    if self.config.site.overwrite_warning and \
+                            os.path.exists(out_path):
+                        logger.warn("Location is used more than once: {0}"\
+                                        .format(f_path))
                     if self.bf.config.site.use_hard_links:
                         # Try hardlinking first, and if that fails copy
                         try:
@@ -144,43 +141,4 @@ class Writer(object):
             if plugin.enabled:
                 namespaces.append(plugin)
         controller.run_all(namespaces)
-        
-    def template_render(self, template, attrs={}):
-        """Render a template"""
-        #Create a context object that is fresh for each template render
-        self.bf.template_context = cache.Cache(**attrs)
-        #Provide the name of the template we are rendering:
-        self.bf.template_context.template_name = template.uri
-        try:
-            #Static pages will have a template.uri like memory:0x1d80a90
-            #We conveniently remembered the original path to use instead.
-            self.bf.template_context.template_name = template.bf_meta['path']
-        except AttributeError:
-            pass
-        attrs['bf'] = self.bf
-        #Provide the template with other user defined namespaces:
-        for name, obj in list(self.bf.config.site.template_vars.items()):
-            attrs[name] = obj
-        try:
-            return template.render(**attrs)
-        except: #pragma: no cover
-            logger.error("Error rendering template")
-            print((mako_exceptions.text_error_template().render()))
-        finally:
-            del self.bf.template_context
 
-    def materialize_template(self, template_name, location, attrs={}, lookup=None):
-        """Render a named template with attrs to a location in the _site dir"""
-        if lookup==None:
-            lookup = self.template_lookup
-        template = lookup.get_template(template_name)
-        template.output_encoding = "utf-8"
-        rendered = self.template_render(template, attrs)
-        path = util.path_join(self.output_dir, location)
-        #Create the path if it doesn't exist:
-        util.mkdir(os.path.split(path)[0])
-        if self.config.site.overwrite_warning and os.path.exists(path):
-            logger.warn("Location is used more than once: {0}".format(location))
-        f = open(path, "bw")
-        f.write(rendered)
-        f.close()

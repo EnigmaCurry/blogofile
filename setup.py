@@ -25,6 +25,7 @@ def setup_python2():
     return tmp_src
 
 dependencies = ["mako",
+                "jinja2",
                 "markdown",
                 "textile",
                 "pytz",
