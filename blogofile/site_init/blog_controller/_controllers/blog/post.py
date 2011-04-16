@@ -18,6 +18,7 @@ import hashlib
 import codecs
 import base64
 import urllib
+from xml.sax import saxutils
 
 import pytz
 import yaml
@@ -169,7 +170,8 @@ class Post(object):
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         
         if not self.slug:
-            self.slug = re.sub("[ ?]", "-", self.title).lower()
+            self.slug = saxutils.unescape(self.title)
+            self.slug = re.sub("[^a-zA-Z0-9$\-_\.+!*'(),]", "-", self.slug).lower()
 
         if not self.date:
             self.date = datetime.datetime.now(pytz.timezone(self.__timezone))
