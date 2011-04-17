@@ -23,6 +23,7 @@ base_template_dir = util.path_join(".","_templates")
 logger = logging.getLogger("blogofile.writer")
 
 class Template(dict):
+    name = "base"
     def __init__(self, template_name):
         dict.__init__(self)
         self.template_name = template_name
@@ -54,16 +55,25 @@ class Template(dict):
             self.__class__.__name__, self.template_name, dict.__repr__(self))
 
 class MakoTemplate(Template):
+    name = "mako"
     template_lookup = mako.lookup.TemplateLookup(
         directories=[".", base_template_dir],
         input_encoding='utf-8', output_encoding='utf-8',
         encoding_errors='replace')
-    def __init__(self, template_name, lookup=None):
+    def __init__(self, template_name, lookup=None, src=None):
         Template.__init__(self, template_name)
         if not lookup:
             lookup = self.template_lookup
-        #template_name can either be a path, or a key in a lookup.
-        if os.path.isfile(template_name):
+        #Templates can be provided three ways:
+        # 1) src is a template passed via string
+        # 2) template_name can be a path to a file
+        # 3) template_name can be a name to lookup
+        if src:
+            self.mako_template = mako.template.Template(
+                src,
+                output_encoding="utf-8",
+                lookup=lookup)
+        elif os.path.isfile(template_name):
             with open(self.template_name) as t_file:
                 self.mako_template = mako.template.Template(
                     t_file.read(),
@@ -87,13 +97,19 @@ class MakoTemplate(Template):
             self.render_cleanup()
 
 class JinjaTemplate(Template):
+    name = "jinja2"
     template_lookup = jinja2.Environment(loader=jinja2.FileSystemLoader(base_template_dir))
-    def __init__(self, template_name, lookup=None):
+    def __init__(self, template_name, lookup=None, src=None):
         Template.__init__(self, template_name)
         if not lookup:
             lookup = self.template_lookup
-        #template_name can either be a path, or a key in a lookup.
-        if os.path.isfile(template_name):
+        #Templates can be provided three ways:
+        # 1) src is a template passed via string
+        # 2) template_name can be a path to a file
+        # 3) template_name can be a name to lookup
+        if src:
+            self.jinja_template = lookup.from_string(src)
+        elif os.path.isfile(template_name):
             with open(self.template_name) as t_file:
                 self.jinja_template = lookup.from_string(t_file.read())
         else:

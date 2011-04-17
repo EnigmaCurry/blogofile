@@ -1,0 +1,6 @@
+---
+categories: Category 1
+date: 2009/07/23 15:22:00
+title: Post 1
+---
+This is post #1

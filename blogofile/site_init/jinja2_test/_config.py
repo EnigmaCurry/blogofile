@@ -24,7 +24,11 @@ blog = plugins.blog
 
 ## blog_enabled -- Should the blog be enabled?
 #  (You don't _have_ to use blogofile to build blogs)
-blog.enabled = False
+blog.enabled = True
+
+## This is a jinja2 based site, so we need to set the base template
+## accordingly:
+blog.base_template = "site.jinja2"
 
 ## blog_path -- Blog path.
 #  This is the path of the blog relative to the site_url.
