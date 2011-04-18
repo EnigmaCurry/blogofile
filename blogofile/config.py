@@ -6,10 +6,12 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 import os
 import logging
 import sys
+import re
 
 from . import util
 import blogofile_bf as bf
 from . import cache
+from .cache import HierarchicalCache as HC
 from . import controller
 from . import plugin
 from . import site_init

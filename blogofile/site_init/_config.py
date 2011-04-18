@@ -58,11 +58,25 @@ site.file_ignore_patterns = [
     ]
 
 from blogofile.template import MakoTemplate, JinjaTemplate
-templates.engines = {
-    ".mako": MakoTemplate,
-    ".jinja2": JinjaTemplate,
-    ".jinja": JinjaTemplate
-    }
+#The site base template filename:
+site.base_template = "site.mako"
+#Template engines mapped to file extensions:
+templates.engines = HC(
+    mako = MakoTemplate,
+    jinja = JinjaTemplate,
+    jinja2 = JinjaTemplate
+    )
+#Template content blocks:
+templates.content_blocks = HC(
+    mako = HC(
+        pattern = re.compile("\${\W*next.body\(\)\W*}"),
+        replacement = "${next.body()}"
+        ),
+    jinja2 = HC(
+        pattern = re.compile("{%\W*block content\W*%}.*?{%\W*endblock\W*%}", re.MULTILINE|re.DOTALL),
+        replacement = "{% block content %} {% endblock %}"
+        )
+    )
 
 ### Pre/Post build hooks:
 def pre_build():

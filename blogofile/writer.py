@@ -12,7 +12,8 @@ import logging
 import os
 import re
 import shutil
-
+import tempfile
+import shutil
 from mako import exceptions as mako_exceptions
 
 from . import util
@@ -41,14 +42,29 @@ class Writer(object):
         self.bf.logger = logger
             
     def write_site(self):
-        self.__setup_output_dir()
         self.__load_bf_cache()
-        self.__calculate_template_files()
-        self.__init_plugins()
-        self.__init_filters_controllers()
-        self.__run_controllers()
-        self.__write_files()
-            
+        self.__setup_temp_dir()
+        try:
+            self.__setup_output_dir()
+            self.__calculate_template_files()
+            self.__init_plugins()
+            self.__init_filters_controllers()
+            self.__run_controllers()
+            self.__write_files()
+        finally:
+            self.__delete_temp_dir()
+
+    def __setup_temp_dir(self):
+        "Create a directory for temporary data"
+        self.temp_proc_dir = tempfile.mkdtemp(prefix="blogofile_")
+        #Make sure this temp directory is added to each template lookup:
+        for engine in self.bf.config.templates.engines.values():
+            engine.add_template_path(None, self.temp_proc_dir)
+        
+    def __delete_temp_dir(self):
+        "Cleanup and delete temporary directory"
+        shutil.rmtree(self.temp_proc_dir)
+    
     def __setup_output_dir(self):
         """Setup the staging directory"""
         if os.path.isdir(self.output_dir):
@@ -72,7 +88,7 @@ class Writer(object):
         """Build a regex for template file paths"""
         endings = []
         for ending in self.config.templates.engines.keys():
-            endings.append(re.escape(ending)+"$")
+            endings.append("." + re.escape(ending)+"$")
         p = "("+"|".join(endings)+")"
         self.template_file_regex = re.compile(p)
         
