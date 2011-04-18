@@ -5,6 +5,8 @@ import os
 import re
 from blogofile import main
 from blogofile import util
+from blogofile import template
+from blogofile import cache
 import logging
 
 class TestBuild(unittest.TestCase):
@@ -27,6 +29,10 @@ class TestBuild(unittest.TestCase):
         os.chdir(self.previous_dir)
         #Clean up the build directory
         shutil.rmtree(self.build_path)
+        #Clear Template Engine environments:
+        template.MakoTemplate.template_lookup = None
+        template.JinjaTemplate.template_lookup = None
+        main.config.reset_config()
 
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories

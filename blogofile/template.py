@@ -65,6 +65,7 @@ class MakoTemplate(Template):
     template_lookup = None
     def __init__(self, template_name, lookup=None, src=None):
         Template.__init__(self, template_name)
+        self.create_lookup()
         if lookup:
             #Make sure it's a mako environment:
             if type(lookup) != mako.lookup.TemplateLookup:
@@ -150,6 +151,7 @@ class JinjaTemplate(Template):
     template_lookup = None
     def __init__(self, template_name, lookup=None, src=None):
         Template.__init__(self, template_name)
+        self.create_lookup()
         if lookup:
             #Make sure it's a jinja2 environment:
             if type(lookup) != jinja2.Environment:

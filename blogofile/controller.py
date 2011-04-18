@@ -53,6 +53,7 @@ import sys
 import os
 import operator
 import logging
+import imp
 
 from .cache import bf
 bf.controller = sys.modules['blogofile.controller']
@@ -63,7 +64,7 @@ default_controller_config = {"priority"    : 50.0,
                              "enabled"     : False}
 
 def __find_controller_names(directory="_controllers"):
-    if(not os.path.isdir(directory)): #pragma: no cover
+    if(not os.path.isdir(directory)):
         return
     #Find all the standalone .py files and modules in the _controllers dir
     for fn in os.listdir(directory):
@@ -95,16 +96,16 @@ def init_controllers(namespace):
 def load_controller(name, namespace, directory="_controllers", defaults={}, is_plugin=False):
     """Load a single controller by name"""
     #Don't generate pyc files in the _controllers directory
-    #Reset the original sys.dont_write_bytecode setting where we're done
+    #Reset the original sys.dont_write_bytecode setting when we're done
+    logger.debug("loading controller: {0}".format(bf.util.path_join(directory,name)))
     try:
         initial_dont_write_bytecode = sys.dont_write_bytecode
     except KeyError:
         initial_dont_write_bytecode = False
     try:
-        sys.path.insert(0, directory)
         try:
             sys.dont_write_bytecode = True
-            controller = __import__(name)
+            controller = imp.load_module(name,*imp.find_module(name,[directory]))
             controller.__initialized = False
             logger.debug("found controller: {0} - {1}".format(name,controller))
         except (ImportError,) as e:
@@ -147,7 +148,6 @@ def load_controller(name, namespace, directory="_controllers", defaults={}, is_p
         namespace[name]["logger"] = c_logger
         return namespace[name].mod
     finally:
-        sys.path.remove(directory)
         sys.dont_write_bytecode = initial_dont_write_bytecode
     
         

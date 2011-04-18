@@ -156,5 +156,6 @@ class Writer(object):
         for plugin in list(self.bf.config.plugins.values()):
             if plugin.enabled:
                 namespaces.append(plugin)
+        logger.info("Running controllers from namespaces: {0}".format(namespaces))
         controller.run_all(namespaces)
 

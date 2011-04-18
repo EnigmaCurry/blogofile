@@ -21,8 +21,6 @@ bf.config = sys.modules['blogofile.config']
 
 logger = logging.getLogger("blogofile.writer")
 
-__loaded = False
-
 class UnknownConfigSectionException(Exception):
     pass
 class ConfigNotFoundException(Exception):
@@ -31,11 +29,14 @@ class ConfigNotFoundException(Exception):
 override_options = {} #override config options (mostly from unit tests)
 
 #Default config sections
-site = cache.HierarchicalCache()
-controllers = cache.HierarchicalCache()
-filters = cache.HierarchicalCache()
-plugins = cache.HierarchicalCache()
-templates = cache.HierarchicalCache()
+def reset_config():
+    global site, controllers, filters, plugins, templates
+    site = cache.HierarchicalCache()
+    controllers = cache.HierarchicalCache()
+    filters = cache.HierarchicalCache()
+    plugins = cache.HierarchicalCache()
+    templates = cache.HierarchicalCache()
+reset_config()
 
 def default_config_path():
     return os.path.join(os.path.split(site_init.__file__)[0], "_config.py")
@@ -83,7 +84,6 @@ def __load_config(path=None):
         else:
             globals()[k] = v
     recompile()
-    __loaded = True
     
 def init(config_file_path=None):
     #Initialize the config, if config_file_path is None,
