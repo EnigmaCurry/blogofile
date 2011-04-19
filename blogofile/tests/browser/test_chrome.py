@@ -147,6 +147,6 @@ class TestBrowser(unittest.TestCase):
         self.assertTrue(self.chrome.find_element_by_class_name("blog_post_date").text.startswith(now))
 
     def testPostUnicode(self):
-        self.chrome.get(self.url+"/blog/2009/08/22/Unicode/")
+        self.chrome.get(self.url+"/blog/2009/08/22/unicode-test-")
         self.assertIn("私はガラスを食べられます。それは私を傷つけません".decode("utf-8"), self.chrome.get_page_source())
         self.assertIn("日本語テスト".decode("utf-8"), self.chrome.find_element_by_css_selector(".blog_post_title a").text)
