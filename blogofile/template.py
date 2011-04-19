@@ -99,13 +99,14 @@ class MakoTemplate(Template):
                 directories=[".", base_template_dir],
                 input_encoding='utf-8', output_encoding='utf-8',
                 encoding_errors='replace')
+    @classmethod
+    def add_default_template_path(cls, path):
+        "Add a path to the default template_lookup"
+        cls.create_lookup()
+        if path not in cls.template_lookup.directories:
+            cls.template_lookup.directories.append(path)
     def add_template_path(self, path, lookup=None):
-        if lookup:
-            pass
-        elif self == None:
-            MakoTemplate.create_lookup()
-            lookup = MakoTemplate.template_lookup
-        else:
+        if lookup is None:
             lookup = self.template_lookup
         if path not in lookup.directories:
             lookup.directories.append(path)
@@ -175,13 +176,13 @@ class JinjaTemplate(Template):
             cls.template_lookup = jinja2.Environment(
                 loader=JinjaTemplateLoader([base_template_dir,
                                             bf.writer.temp_proc_dir]))
+    @classmethod
+    def add_default_template_path(cls, path):
+        cls.create_lookup()
+        if path not in cls.template_lookup.loader.searchpath:
+            cls.template_lookup.loader.searchpath.append(path)
     def add_template_path(self, path, lookup=None):
-        if lookup:
-            pass
-        if self == None:
-            JinjaTemplate.create_lookup()
-            lookup = JinjaTemplate.template_lookup
-        else:
+        if lookup is None:
             lookup = self.template_lookup
         if path not in lookup.loader.searchpath:
             lookup.loader.searchpath.append(path)
@@ -250,7 +251,7 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
     if not lookup:
         lookup = base_engine.template_lookup
     else:
-        base_engine.add_template_path(None, bf.writer.temp_proc_dir,lookup)
+        base_engine.add_default_template_path(bf.writer.temp_proc_dir)
     #Replace the content block with our own marker:
     prev_content_block = bf.config.templates.content_blocks[base_engine.name]
     new_content_block =  bf.config.templates.content_blocks[template_engine.name]

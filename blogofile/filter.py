@@ -38,7 +38,7 @@ def run_chain(chain, content):
         logger.debug("Applying filter: " + fn)
         content = f.run(content)
     logger.debug("Content: " + content)
-    return util.force_unicode(content)
+    return content
 
 def parse_chain(chain):
     """Parse a filter chain into a sequence of filters"""

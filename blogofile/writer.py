@@ -59,7 +59,7 @@ class Writer(object):
         self.temp_proc_dir = tempfile.mkdtemp(prefix="blogofile_")
         #Make sure this temp directory is added to each template lookup:
         for engine in self.bf.config.templates.engines.values():
-            engine.add_template_path(None, self.temp_proc_dir)
+            engine.add_default_template_path(self.temp_proc_dir)
         
     def __delete_temp_dir(self):
         "Cleanup and delete temporary directory"

@@ -49,12 +49,12 @@ def recompile():
     global site
     site.compiled_file_ignore_patterns = []
     for p in site.file_ignore_patterns:
-        if isinstance(p, str):
+        if "findall" in p:
+            #probably already a compiled regex.
+            site.compiled_file_ignore_patterns.append(p)
+        else:
             site.compiled_file_ignore_patterns.append(
                 re.compile(p, re.IGNORECASE))
-        else:
-            #p could just be a pre-compiled regex
-            site.compiled_file_ignore_patterns.append(p)
         
 def __load_config(path=None):
     #Strategy:
