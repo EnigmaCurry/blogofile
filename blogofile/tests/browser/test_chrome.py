@@ -150,3 +150,7 @@ class TestBrowser(unittest.TestCase):
         self.chrome.get(self.url+"/blog/2009/08/22/unicode-test-")
         self.assertIn("私はガラスを食べられます。それは私を傷つけません".decode("utf-8"), self.chrome.get_page_source())
         self.assertIn("日本語テスト".decode("utf-8"), self.chrome.find_element_by_css_selector(".blog_post_title a").text)
+
+    def testMarkdownTemplate(self):
+        self.chrome.get(self.url+"/markdown_test.html")
+        self.assertIn("<a href=\"http://www.blogofile.com\">This is a link</a>", self.chrome.get_page_source())
