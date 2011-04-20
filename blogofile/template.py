@@ -17,12 +17,13 @@ import mako.lookup
 import jinja2
 
 from . import util
+from . import filter
 from .cache import Cache, bf
 
 bf.template = sys.modules['blogofile.template']
 
 base_template_dir = util.path_join(".","_templates")
-logger = logging.getLogger("blogofile.writer")
+logger = logging.getLogger("blogofile.template")
 template_content_place_holder = re.compile("~~!`TEMPLATE_CONTENT_HERE`!~~")
 
 class TemplateEngineError(Exception):
@@ -134,7 +135,7 @@ class MakoTemplate(Template):
             raise
         finally:
             self.render_cleanup()
-
+            
 class JinjaTemplateLoader(jinja2.FileSystemLoader):
     def __init__(self, searchpath):
         jinja2.FileSystemLoader.__init__(self, searchpath)
@@ -211,6 +212,42 @@ class JinjaTemplate(Template):
         finally:
             self.render_cleanup()
 
+class FilterTemplate(Template):
+    name = "filter"
+    chain = None
+    def __init__(self, template_name, lookup=None, src=None):
+        Template.__init__(self, template_name)
+        self.src = src
+        self.marker = bf.config.templates.content_blocks.filter.replacement
+    def render(self, path=None):
+        self.render_prep()
+        try:
+            if self.src is None:
+                with open(self.template_name) as f:
+                    src = f.read()
+            else:
+                src = self.src
+            #Run the filter chain:
+            html = filter.run_chain(self.chain,src)
+            #Place the html into the base template:
+            with open(self["bf_base_template"]) as f:
+                html = f.read().replace(self.marker, html)
+            html = bytes(html,"utf-8")
+            if path:
+                self.write(path, html)
+            return html
+        finally:
+            self.render_cleanup()
+
+class MarkdownTemplate(FilterTemplate):
+    chain = "markdown"
+
+class RestructuredTextTemplate(FilterTemplate):
+    chain = "rst"
+
+class TextileTemplate(FilterTemplate):
+    chain = "textile"
+    
 def get_engine_for_template_name(template_name):
     #Find which template type it is:
     for extension, engine in bf.config.templates.engines.items():
@@ -236,14 +273,13 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
     # 1) Load the base template source, and mark the content block
     # for later replacement.
     #
-    # 2) Materialize the jinja template in a temporary location with
+    # 2) Materialize the base template in a temporary location with
     # attrs.
     #
-    # 3) Convert the HTML to Mako with ${next.body()} where the old
-    # content block was.
+    # 3) Convert the HTML to new template type by replacing the marker.
     #
-    # 4) Materialize the blog template setting blog_base_template to
-    # the new template
+    # 4) Materialize the template setting bf_base_template to
+    # the new base template we created.
     if not base_engine:
         base_engine = get_engine_for_template_name(bf.config.site.base_template)
     template_engine = get_engine_for_template_name(template_name)
@@ -264,6 +300,7 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
                                 dir=bf.writer.temp_proc_dir)
     new_base_template_name = os.path.split(new_base_template)[1]
     with open(new_base_template,"w") as f:
+        logger.debug("Writing intermediate base template: {0}".format(new_base_template))
         f.write(html)
     attrs["bf_base_template"] = new_base_template
     materialize_template(template_name,location,attrs,base_engine=template_engine)
@@ -284,3 +321,4 @@ def materialize_template(template_name, location, attrs={}, lookup=None, base_en
         materialize_alternate_base_engine(
             template_name, location, attrs=attrs, lookup=lookup,
             base_engine=base_engine)
+

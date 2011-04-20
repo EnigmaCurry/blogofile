@@ -59,7 +59,10 @@ class Writer(object):
         self.temp_proc_dir = tempfile.mkdtemp(prefix="blogofile_")
         #Make sure this temp directory is added to each template lookup:
         for engine in self.bf.config.templates.engines.values():
-            engine.add_default_template_path(self.temp_proc_dir)
+            try:
+                engine.add_default_template_path(self.temp_proc_dir)
+            except AttributeError:
+                pass
         
     def __delete_temp_dir(self):
         "Cleanup and delete temporary directory"
@@ -132,7 +135,7 @@ class Writer(object):
                             os.path.exists(out_path):
                         logger.warn("Location is used more than once: {0}"\
                                         .format(f_path))
-                    if self.bf.config.site.use_hard_links:
+                    if self.bfconfig.site.use_hard_links:
                         # Try hardlinking first, and if that fails copy
                         try:
                             os.link(f_path, out_path)
@@ -156,6 +159,5 @@ class Writer(object):
         for plugin in list(self.bf.config.plugins.values()):
             if plugin.enabled:
                 namespaces.append(plugin)
-        logger.info("Running controllers from namespaces: {0}".format(namespaces))
         controller.run_all(namespaces)
 

@@ -57,15 +57,20 @@ site.file_ignore_patterns = [
     ".*/CVS$",
     ]
 
-from blogofile.template import MakoTemplate, JinjaTemplate
+from blogofile.template import MakoTemplate, JinjaTemplate, \
+    MarkdownTemplate, RestructuredTextTemplate, TextileTemplate
 #The site base template filename:
 site.base_template = "site.mako"
 #Template engines mapped to file extensions:
 templates.engines = HC(
     mako = MakoTemplate,
     jinja = JinjaTemplate,
-    jinja2 = JinjaTemplate
+    jinja2 = JinjaTemplate,
+    markdown = MarkdownTemplate,
+    rst = RestructuredTextTemplate,
+    textile = TextileTemplate
     )
+
 #Template content blocks:
 templates.content_blocks = HC(
     mako = HC(
@@ -75,6 +80,14 @@ templates.content_blocks = HC(
     jinja2 = HC(
         pattern = re.compile("{%\W*block content\W*%}.*?{%\W*endblock\W*%}", re.MULTILINE|re.DOTALL),
         replacement = "{% block content %} {% endblock %}"
+        ),
+    filter = HC(
+        pattern = re.compile("_^"), #Regex that matches nothing
+        replacement = "~~!`FILTER_CONTENT_HERE`!~~",
+        default_chains = HC(
+            markdown = "syntax_highlight, markdown",
+            rst = "syntax_highlight, rst"
+            )
         )
     )
 
