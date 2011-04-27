@@ -135,7 +135,7 @@ class Writer(object):
                             os.path.exists(out_path):
                         logger.warn("Location is used more than once: {0}"\
                                         .format(f_path))
-                    if self.bfconfig.site.use_hard_links:
+                    if self.config.site.use_hard_links:
                         # Try hardlinking first, and if that fails copy
                         try:
                             os.link(f_path, out_path)
