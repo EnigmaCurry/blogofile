@@ -33,6 +33,7 @@ class TestBuild(unittest.TestCase):
         template.MakoTemplate.template_lookup = None
         template.JinjaTemplate.template_lookup = None
         main.config.reset_config()
+        cache.reset_bf()
 
     def testBlogSubDir(self):
         """Test to make sure blogs hosted in subdirectories

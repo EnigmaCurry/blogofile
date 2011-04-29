@@ -49,7 +49,7 @@ def recompile():
     global site
     site.compiled_file_ignore_patterns = []
     for p in site.file_ignore_patterns:
-        if "findall" in p:
+        if hasattr(p,"findall"):
             #probably already a compiled regex.
             site.compiled_file_ignore_patterns.append(p)
         else:

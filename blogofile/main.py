@@ -34,7 +34,7 @@ import platform
 
 from . import argparse
 
-from .cache import bf
+from .cache import bf, reset_bf
 from .writer import Writer
 from . import server
 from . import config
@@ -223,6 +223,7 @@ def do_help(args):
                 parser.extra_help()
 
 def config_init(args):
+    reset_bf()
     try:
         # Always load the _config.py from the current directory.
         # We already changed to the directory specified with --src-dir

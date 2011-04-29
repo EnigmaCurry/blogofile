@@ -95,7 +95,26 @@ class HierarchicalCache(Cache):
 
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
-sys.modules['blogofile_bf'] = bf
-bf.cache = sys.modules['blogofile.cache']
-bf.__version__ = bf_version
 
+def setup_bf():
+    global bf
+    sys.modules['blogofile_bf'] = bf
+    bf.__version__ = bf_version
+    bf.cache = sys.modules['blogofile.cache']    
+
+def reset_bf(assign_modules=True):
+    global bf
+    bf.clear()
+    setup_bf()
+    
+    if assign_modules:
+        from . import config, util, server, filter, controller, template
+        bf.config = config
+        bf.util = util
+        bf.server = server
+        bf.filter = filter
+        bf.controller = controller
+        bf.template = template
+    return bf
+
+setup_bf()

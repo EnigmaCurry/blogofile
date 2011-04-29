@@ -9,6 +9,7 @@ import re
 import os.path
 import logging
 import tempfile
+import copy
 
 import mako
 import mako.template
@@ -280,6 +281,10 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
     #
     # 4) Materialize the template setting bf_base_template to
     # the new base template we created.
+
+    #Since we're mucking with the template attrs, make sure we copy
+    #them and don't modify the original ones:
+    attrs = copy.copy(attrs)
     if not base_engine:
         base_engine = get_engine_for_template_name(bf.config.site.base_template)
     template_engine = get_engine_for_template_name(template_name)
