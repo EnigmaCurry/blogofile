@@ -18,7 +18,7 @@ import mako.lookup
 import jinja2
 
 from . import util
-from . import filter
+from . import filter as _filter
 from .cache import Cache, bf
 
 bf.template = sys.modules['blogofile.template']
@@ -229,7 +229,7 @@ class FilterTemplate(Template):
             else:
                 src = self.src
             #Run the filter chain:
-            html = filter.run_chain(self.chain,src)
+            html = _filter.run_chain(self.chain,src)
             #Place the html into the base template:
             with open(self["bf_base_template"]) as f:
                 html = f.read().replace(self.marker, html)
