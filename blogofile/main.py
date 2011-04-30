@@ -129,6 +129,10 @@ def get_args(cmd=None):
             parser.exit(1)
         args = parser.parse_args()
     else:
+        if sys.version_info < (3,):
+            #Python2 argparse really really wants a str not unicode :(
+            #exec needed to fool 3to2:
+            exec("cmd = str(cmd)")
         args = parser.parse_args(shlex.split(cmd))
     return args
 

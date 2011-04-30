@@ -4,7 +4,6 @@ import shutil
 import os
 from blogofile import main
 
-
 class TestContent(unittest.TestCase):
 
     def setUp(self):
