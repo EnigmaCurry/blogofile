@@ -80,11 +80,21 @@ def __find_controller_names(directory="_controllers"):
 def init_controllers(namespace):
     """Controllers have an optional init method that runs before the run
     method"""
-    for controller in sorted(list(namespace.values()),
-            key=operator.attrgetter("priority")):
-        if "mod" in controller \
-                and type(controller.mod).__name__ == "module"\
-                and not controller.mod.__initialized:
+    #Prune the configured controllers to only those that have a
+    #discoverable implementation:
+    actual_controllers = {}
+    for name, controller in namespace.items():
+        if "mod" in controller and type(controller.mod).__name__ == "module":
+            actual_controllers[name] = controller
+        elif "enabled" in controller and controller.enabled:
+            #Throw a fatal error if an enabled controller is unimplemented
+            print("Cannot find requested controller: {0}".format(name))
+            print("Build aborted.")
+            sys.exit(1)
+    #Initialize all the actual controllers:
+    for name, controller in sorted(actual_controllers.items(),
+            key=lambda c: c[1].priority):
+        if not controller.mod.__initialized:
             try:
                 init_method = controller.mod.init
             except AttributeError:
@@ -202,7 +212,7 @@ def run_all(namespaces):
     #Temporarily add _controllers directory onto sys.path
     for c in controllers:
         if "run" in dir(c.mod):
-            logger.info("running controller: {0}".format(c.mod.__file__))
+            logger.info("running controller (priority {0}): {1}".format(c.priority, c.mod.__file__))
             c.mod.run()
         else:
             logger.debug(

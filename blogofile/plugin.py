@@ -75,7 +75,8 @@ def init_plugins():
     for name, plugin in list(bf.config.plugins.items()):
         if plugin.enabled:
             if "mod" not in plugin:
-                print("Plugin requested to enable is not installed: {0}".format(name))
+                print("Cannot find requested plugin: {0}".format(name))
+                print("Build aborted.")
                 sys.exit(1)
             logger.info("Initializing plugin: {0}".format(
                     plugin.mod.__dist__['config_name']))

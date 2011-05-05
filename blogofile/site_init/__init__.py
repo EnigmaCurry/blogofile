@@ -33,7 +33,7 @@ all_sites.extend(hidden_sites)
 
 site_modules = dict((x[0], x[2]) for x in all_sites)
 
-def zip_site_init(): #pragma: no cover .. only used by setuptools
+def zip_site_init():
     """Zip up all of the subdirectories of site_init
 
     This function should only be called by setuptools
@@ -119,13 +119,13 @@ def import_site_init(feature):
             import_site_init(child_feature)
 
 def do_init(args):
-    if not args.SITE_TEMPLATE: #pragma: no cover
+    if not args.SITE_TEMPLATE:
         do_help()
     else:
-        if args.SITE_TEMPLATE not in [x[0] for x in all_sites]: #pragma: no cover
+        if args.SITE_TEMPLATE not in [x[0] for x in all_sites]:
             do_help()
             return
-        if len(os.listdir(args.src_dir)) > 0 : #pragma: no cover
+        if len(os.listdir(args.src_dir)) > 0 :
             print(("This directory is not empty, will not attempt to " \
                     "initialize here : {0}".format(args.src_dir)))
             return
