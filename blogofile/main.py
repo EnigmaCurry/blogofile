@@ -34,11 +34,12 @@ import platform
 
 from . import argparse
 
-from .cache import bf, reset_bf
+from .cache import bf
 from .writer import Writer
 from . import server
 from . import config
 from . import util
+from . import filter as _filter
 from . import plugin
 from . import site_init
 from .exception import *
@@ -114,14 +115,20 @@ def setup_command_parser():
             plugin_parser_setup = p.__dist__['command_parser_setup']
         except KeyError:
             continue
-        #Setup the blog subcommand parser
+        #Setup the plugin subcommand parser
         plugin_parser = subparsers.add_parser(
             p.__dist__['config_name'], help="Plugin: "+p.__dist__['description'])
         plugin_parser.version = "{name} plugin {version} by {author} -- {url}".format(**p.__dist__)
         plugin_parser_setup(plugin_parser, parser_template)
 
+
+    p_filter = subparsers.add_parser("filter", help="Filter tools")
+    p_filter_subparsers = p_filter.add_subparsers()
+    p_filter_list = p_filter_subparsers.add_parser("list", help="List all the filters installed")
+    p_filter_list.set_defaults(func=_filter.list_filters)
+    
     return parser
-        
+
 def get_args(cmd=None):
     if not cmd:
         if len(sys.argv) <= 1:
@@ -226,19 +233,8 @@ def do_help(args):
             if hasattr(parser, "extra_help"):
                 parser.extra_help()
 
-def config_init(args):
-    reset_bf()
-    try:
-        # Always load the _config.py from the current directory.
-        # We already changed to the directory specified with --src-dir
-        config.init("_config.py")
-    except config.ConfigNotFoundException:
-        sys.stderr.write("No configuration found in source dir: {0}\n".format(args.src_dir))
-        parser.exit(1, "Want to make a new site? Try `blogofile init`\n")
- 
-
 def do_serve(args):
-    config_init(args)
+    config.init_interactive(args)
     bfserver = server.Server(args.PORT, args.IP_ADDR)
     bfserver.start()
     while not bfserver.is_shutdown:
@@ -249,7 +245,7 @@ def do_serve(args):
 
 def do_build(args, load_config=True):
     if load_config:
-        config_init(args)
+        config.init_interactive(args)
     output_dir = util.path_join("_site", util.fs_site_path_helper())
     writer = Writer(output_dir=output_dir)
     logger.debug("Running user's pre_build() function...")

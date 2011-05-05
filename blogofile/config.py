@@ -96,3 +96,17 @@ def init(config_file_path=None):
     else:
         __load_config()
     return globals()['__name__']
+
+def init_interactive(args=None):
+    if args is None:
+        args = cache.Cache()
+        args.src_dir = os.curdir
+    cache.reset_bf()
+    try:
+        # Always load the _config.py from the current directory.
+        # We already changed to the directory specified with --src-dir
+        init("_config.py")
+    except ConfigNotFoundException:
+        sys.stderr.write("No configuration found in source dir: {0}\n".format(args.src_dir))
+        sys.stderr.write("Want to make a new site? Try `blogofile init`\n")
+        sys.exit(1)

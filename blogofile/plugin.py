@@ -65,15 +65,6 @@ def load_plugins():
         _filter.preload_filters(
             namespace=namespace.filters,
             directory=os.path.join(plugin_dir,"site_src","_filters"))
-        for name, filter_ns in list(namespace.filters.items()):
-            #Filters from plugins load in their own namespace, but
-            #they also load in the regular filter namespace as long as
-            #there isn't already a filter with that name. User filters
-            #from the _filters directory are loaded after plugins, so
-            #they are overlaid on top of these values and take
-            #precedence.
-            if name not in bf.config.filters:
-                bf.config.filters[name] = filter_ns
         #Load controllers
         controller.load_controllers(
             namespace=namespace.controllers,
@@ -86,6 +77,16 @@ def init_plugins():
             logger.info("Initializing plugin: {0}".format(
                     plugin.mod.__dist__['config_name']))
             plugin.mod.init()
+            for name, filter_ns in list(plugin.filters.items()):
+                #Filters from plugins load in their own namespace, but
+                #they also load in the regular filter namespace as long as
+                #there isn't already a filter with that name. User filters
+                #from the _filters directory are loaded after plugins, so
+                #they are overlaid on top of these values and take
+                #precedence.
+                if name not in bf.config.filters or "mod" not in bf.config.filters[name]:
+                    bf.config.filters[name] = filter_ns
+
         
 class PluginTools(object):
     """Tools for a plugin to get information about it's runtime environment"""

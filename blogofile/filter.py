@@ -156,3 +156,11 @@ def load_filter(name, module_path, namespace=None):
         raise
     finally:
         sys.dont_write_bytecode = initial_dont_write_bytecode
+
+def list_filters(args):
+    from . import config, plugin
+    config.init_interactive()
+    plugin.init_plugins()
+    for name, filt in bf.config.filters.items():
+        if "mod" in filt:
+            print("{0} - {1}".format(name, filt.mod.__file__))
