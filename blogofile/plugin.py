@@ -74,6 +74,9 @@ def load_plugins():
 def init_plugins():
     for name, plugin in list(bf.config.plugins.items()):
         if plugin.enabled:
+            if "mod" not in plugin:
+                print("Plugin requested to enable is not installed: {0}".format(name))
+                sys.exit(1)
             logger.info("Initializing plugin: {0}".format(
                     plugin.mod.__dist__['config_name']))
             plugin.mod.init()
