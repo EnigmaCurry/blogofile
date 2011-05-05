@@ -14,3 +14,5 @@ _documentation/themes/blogofile/layout.html
 /.tox/*
 /MANIFEST
 /.coverage
+/blogofile/tests/plugin/plugin_test/blogofile_plugin_test.egg-info/*
+/blogofile/tests/plugin/plugin_test/build/*

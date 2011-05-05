@@ -88,7 +88,13 @@ def init_filters(namespace=None):
 def get_filter(name, namespace=None):
     #Return an already loaded filter:
     if namespace is None:
-        namespace = bf.config.filters
+        if name.startswith("bf") and "." in name:
+            #name is an absolute reference to a filter in a given namespace
+            #extract the namespace
+            namespace, name = name.rsplit(".",1)
+            namespace = eval(namespace)
+        else:
+            namespace = bf.config.filters
     if name in namespace and "mod" in namespace[name]:
         logger.debug("Retrieving already loaded filter: " + name)
         return namespace[name]['mod']

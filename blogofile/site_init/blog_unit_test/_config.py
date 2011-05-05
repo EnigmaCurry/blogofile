@@ -47,6 +47,7 @@ blog.description = "Your Blog's short description"
 ## blog_timezone -- the timezone that you normally write your blog posts from
 blog.timezone = "US/Eastern"
 
+plugins.plugin_test.enabled = True
 
 ### Pre/Post build hooks:
 def pre_build():

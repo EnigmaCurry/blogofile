@@ -154,3 +154,10 @@ class TestBrowser(unittest.TestCase):
     def testMarkdownTemplate(self):
         self.chrome.get(self.url+"/markdown_test.html")
         self.assertIn("<a href=\"http://www.blogofile.com\">This is a link</a>", self.chrome.get_page_source())
+
+    def testPluginFilters(self):
+        self.chrome.get(self.url+"/filter_test.html")
+        self.assertIn(u"This is text from the plugin version of the filter.",
+                      self.chrome.find_element_by_id("original_plugin_filter").text)
+        self.assertIn(u"This is text from the overriden userspace filter.",
+                      self.chrome.find_element_by_id("overriden_plugin_filter").text)

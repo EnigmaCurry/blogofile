@@ -32,6 +32,7 @@ dependencies = ["mako",
                 "pyyaml",
                 "pygments",
                 "docutils"]
+
 dependency_links = []
 
 if sys.version_info < (3,):
@@ -50,6 +51,8 @@ if sys.version_info < (3,):
               "that can be\ninstalled in either Python 2 or 3.")
         print("-"*80)
         sys.exit(1)
+    if sys.version_info < (2,7):
+        dependencies.append("ordereddict")
 else:
     dependencies.remove("markdown")
     dependencies.append("markdown>=2.0.3-py3k")
@@ -60,7 +63,7 @@ else:
     src_root = "blogofile"
     import blogofile
     blogofile.zip_site_init()
-
+    
 class sdist(_sdist):
     "Custom sdist that takes care of 3to2 details"
     def run(self):
