@@ -43,7 +43,7 @@ class Template(dict):
         #Create the parent directories if they don't exist:
         util.mkdir(os.path.split(path)[0])
         if bf.config.site.overwrite_warning and os.path.exists(path):
-            logger.warn("Location is used more than once: {0}".format(location))
+            logger.warn("Location is used more than once: {0}".format(path))
         with open(path, "bw") as f:
             f.write(rendered)
     def render_prep(self):
