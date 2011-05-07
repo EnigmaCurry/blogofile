@@ -167,6 +167,11 @@ def list_filters(args):
     from . import config, plugin
     config.init_interactive()
     plugin.init_plugins()
+    filters = {} # module path -> list of aliases
     for name, filt in bf.config.filters.items():
         if "mod" in filt:
-            print("{0} - {1}".format(name, filt.mod.__file__))
+            aliases = filters.get(filt.mod.__file__, [])
+            aliases.append(name)
+            filters[filt.mod.__file__] = aliases
+    for mod_path, aliases in filters.items():
+        print("{0} - {1}\n".format(", ".join(aliases), mod_path))
