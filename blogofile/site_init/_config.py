@@ -19,7 +19,7 @@
 #  If you're hosting a blogofile powered site as a subdirectory of a larger
 #  non-blogofile site, then you would set the site_url to the full URL
 #  including that subdirectory: "http://www.yoursite.com/path/to/blogofile-dir"
-site.url = "http://www.yoursite.com"
+site.url = "http://www.example.com"
 
 ## site.author -- Your name, the author of the website.
 # This is optional. If set to anything other than None, the
@@ -43,9 +43,9 @@ site.overwrite_warning = True
 site.file_ignore_patterns = [
     # All files that start with an underscore
     ".*/_.*",
-    # Emacs temporary files
+    # Emacs autosave files
     ".*/#.*",
-    # Emacs/Vim temporary files
+    # Emacs/Vim backup files
     ".*~$",
     # Vim swap files
     ".*/\..*\.swp$",
@@ -93,11 +93,15 @@ templates.content_blocks = HC(
 
 ### Pre/Post build hooks:
 def pre_build():
-    #Do whatever you want before the _site is built
+    #Do whatever you want before the _site is built.
     pass
 
 def post_build():
     #Do whatever you want after the _site is built successfully.
+    pass
+
+def build_exception():
+    #Do whatever you want if there is an unrecoverable error in building the site.
     pass
 
 def build_finally():

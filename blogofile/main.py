@@ -254,6 +254,10 @@ def do_build(args, load_config=True):
         writer.write_site()
         logger.debug("Running user's post_build() function...")
         config.post_build()
+    except:
+        logger.error("Fatal build error occured, calling bf.config.build_exception()")
+        config.build_exception()
+        raise
     finally:
         logger.debug("Running user's build_finally() function...")
         config.build_finally()
