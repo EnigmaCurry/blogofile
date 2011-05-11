@@ -83,6 +83,8 @@ def import_site_init(feature):
         logger.info("Initializing site from directory: " + path)
         for root, dirs, files in os.walk(path):
             for fn in files:
+                if fn.startswith("."):
+                    continue
                 fn = os.path.join(root, fn)
                 dst_fn = fn.replace(path + os.path.sep,"")
                 dst_dir = os.path.split(dst_fn)[0]

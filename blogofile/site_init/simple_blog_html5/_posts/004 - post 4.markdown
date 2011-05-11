@@ -1,6 +1,0 @@
----
-categories: General Stuff
-date: 2009/08/29 15:22:00
-title: Post 4
----
-This is post #4

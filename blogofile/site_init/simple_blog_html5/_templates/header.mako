@@ -1,10 +1,23 @@
-<h1><a href="${bf.util.site_path_helper()}">${bf.config.blog.name}</a></h1>
-<p>This is a simple blog built with Blogofile.</p>
-<p>It's completely unthemed and is written as minimally as possible, while still
-retaining most of the blog features.</p>
-<p>Make sure you read the <a href="http://www.blogofile.com/documentation">online
-documentation</a>.</p>
-<p>If you're looking for a more fleshed-out site try running 'blogofile init
-blogofile.com', but you'll need <a href="http://www.git-scm.org">git</a> installed first.</p>
-<p>This is a header that goes on every page.</p>
-<hr>
+<header>
+  <div id="header" class="header_gradient theme_font">
+    <h1><a href="${bf.util.site_path_helper()}">${bf.config.blog.name}</a></h1>
+    <h2>${bf.config.blog.description}</h2>
+  </div>
+  <div id="navigation" class="grid_12">
+<%
+def nav_class(path):
+   render_path = bf.template_context.render_path.rsplit("/index.html")[0]
+   if render_path == path or (path == "/" and render_path == "."):
+       return "selected"
+   return ""
+%>
+    <ul class="theme_font">
+      <li><a href="${bf.util.site_path_helper()}"
+             class="${nav_class(bf.util.site_path_helper())}">Home</a></li>
+      <li><a href="${bf.util.site_path_helper(bf.config.blog.path)}"
+             class="${nav_class(bf.util.site_path_helper(bf.config.blog.path))}">Blog</a></li>
+      <li><a href="${bf.util.site_path_helper(bf.config.blog.path,'archive')}"
+             class="${nav_class(bf.util.site_path_helper(bf.config.blog.path,'archive'))}">Archives</a></li>
+    </ul>
+  </div>
+</header>

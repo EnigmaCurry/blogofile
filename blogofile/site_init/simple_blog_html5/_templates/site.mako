@@ -11,26 +11,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${self.head()}
 </head>
-<body>
-  <div id="container">
-    <header>
-${self.header()}
-    </header>
-    <div id="main" role="main">
-      <div id="main_block">
-        <div id="prose_block">
-          ${next.body()}
+  <body>
+    <div id="container" class="container container_12">
+      <div id="main" role="main">
+        <div id="main_block">
+          ${self.header()}
+          <div id="prose_block" class="grid_8">
+            ${next.body()}
+          </div>
+          <div id="sidebar" class="grid_4">
+            ${self.sidebar()}
+          </div>
+          <div class="clear"></div>
         </div>
       </div>
+      ${self.footer()}
     </div>
-    <footer>
-${self.footer()}
-    </footer>
-  </div>
-${self.body_scripts()}
-</body>
+    ${self.body_scripts()}
+  </body>
 </html>
 <%def name="head()"><%include file="head.mako" /></%def>
 <%def name="header()"><%include file="header.mako" /></%def>
+<%def name="sidebar()"><%include file="sidebar.mako" /></%def>
 <%def name="footer()"><%include file="footer.mako" /></%def>
 <%def name="body_scripts()"><%include file="body_scripts.mako" /></%def>

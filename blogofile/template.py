@@ -32,9 +32,10 @@ class TemplateEngineError(Exception):
 
 class Template(dict):
     name = "base"
-    def __init__(self, template_name):
+    def __init__(self, template_name, caller=None):
         dict.__init__(self)
         self.template_name = template_name
+        self.caller = caller
     def render(self, path=None):
         """Render the template to the specified path on disk, or return a string if None."""
         raise NotImplementedError("Template base class cannot be used directly")
@@ -46,7 +47,7 @@ class Template(dict):
             logger.warn("Location is used more than once: {0}".format(path))
         with open(path, "bw") as f:
             f.write(rendered)
-    def render_prep(self):
+    def render_prep(self, path):
         """Gather all the information we want to provide to the template before rendering"""
         for name, obj in list(bf.config.site.template_vars.items()):
             if name not in self:
@@ -54,6 +55,8 @@ class Template(dict):
         #Create a context object that is fresh for each template render:
         bf.template_context = Cache(**self)
         bf.template_context.template_name = self.template_name
+        bf.template_context.render_path = path
+        bf.template_context.caller = self.caller
         self["bf"] = bf
     def render_cleanup(self):
         """Clean up stuff after we've rendered a template."""
@@ -65,8 +68,8 @@ class Template(dict):
 class MakoTemplate(Template):
     name = "mako"
     template_lookup = None
-    def __init__(self, template_name, lookup=None, src=None):
-        Template.__init__(self, template_name)
+    def __init__(self, template_name, caller=None, lookup=None, src=None):
+        Template.__init__(self, template_name, caller)
         self.create_lookup()
         if lookup:
             #Make sure it's a mako environment:
@@ -113,7 +116,7 @@ class MakoTemplate(Template):
         if path not in lookup.directories:
             lookup.directories.append(path)
     def render(self, path=None):
-        self.render_prep()
+        self.render_prep(path)
         #Make sure bf_base_template is defined
         if "bf_base_template" in self:
             bf_base_template = os.path.split(self["bf_base_template"])[1]
@@ -152,8 +155,8 @@ class JinjaTemplateLoader(jinja2.FileSystemLoader):
 class JinjaTemplate(Template):
     name = "jinja2"
     template_lookup = None
-    def __init__(self, template_name, lookup=None, src=None):
-        Template.__init__(self, template_name)
+    def __init__(self, template_name, caller=None, lookup=None, src=None):
+        Template.__init__(self, template_name, caller)
         self.create_lookup()
         if lookup:
             #Make sure it's a jinja2 environment:
@@ -201,7 +204,7 @@ class JinjaTemplate(Template):
                 self.jinja_template = self.template_lookup.from_string(t_file.read())
         else:
             self.jinja_template = self.template_lookup.get_template(self.template_name)
-        self.render_prep()
+        self.render_prep(path)
         try:
             rendered = bytes(self.jinja_template.render(self), "utf-8")
             if path:
@@ -216,12 +219,12 @@ class JinjaTemplate(Template):
 class FilterTemplate(Template):
     name = "filter"
     chain = None
-    def __init__(self, template_name, lookup=None, src=None):
-        Template.__init__(self, template_name)
+    def __init__(self, template_name, caller=None, lookup=None, src=None):
+        Template.__init__(self, template_name, caller)
         self.src = src
         self.marker = bf.config.templates.content_blocks.filter.replacement
     def render(self, path=None):
-        self.render_prep()
+        self.render_prep(path)
         try:
             if self.src is None:
                 with open(self.template_name) as f:
@@ -267,7 +270,7 @@ def get_base_template_src():
         return f.read()
     
 def materialize_alternate_base_engine(template_name, location, attrs={},
-                                      lookup=None, base_engine=None):
+                                      lookup=None, base_engine=None, caller=None):
     # We can materialize a templates within a foreign template engine
     # with the following procedure:
     
@@ -311,7 +314,7 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
     materialize_template(template_name,location,attrs,base_engine=template_engine)
     os.remove(new_base_template)
     
-def materialize_template(template_name, location, attrs={}, lookup=None, base_engine=None):
+def materialize_template(template_name, location, attrs={}, lookup=None, base_engine=None, caller=None):
     """Render a named template with attrs to a location in the _site dir"""
     #Find the appropriate template engine based on the file ending:
     template_engine = get_engine_for_template_name(template_name)
@@ -319,11 +322,11 @@ def materialize_template(template_name, location, attrs={}, lookup=None, base_en
         base_engine = get_engine_for_template_name(bf.config.site.base_template)
     #Is the base engine the same as the template engine?
     if base_engine == template_engine or base_engine == template_engine.name:
-        template = template_engine(template_name, lookup=lookup)
+        template = template_engine(template_name, caller=caller, lookup=lookup)
         template.update(attrs)
         template.render(location)
     else:
         materialize_alternate_base_engine(
-            template_name, location, attrs=attrs, lookup=lookup,
+            template_name, location, attrs=attrs, caller=caller, lookup=lookup,
             base_engine=base_engine)
 

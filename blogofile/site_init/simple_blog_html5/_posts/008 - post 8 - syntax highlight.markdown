@@ -1,6 +1,6 @@
 ---
 categories: General Stuff
-date: 2009/08/29 15:25:00
+date: 2011/05/11 15:25:00
 title: Syntax highlight test
 ---
 This post contains some highlighted python code:

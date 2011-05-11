@@ -88,9 +88,11 @@ def init_plugins():
                 #from the _filters directory are loaded after plugins, so
                 #they are overlaid on top of these values and take
                 #precedence.
-                if name not in bf.config.filters or "mod" not in bf.config.filters[name]:
+                if name not in bf.config.filters:
                     bf.config.filters[name] = filter_ns
-
+                elif "mod" not in bf.config.filters[name]:
+                    filter_ns.update(bf.config.filters[name])                    
+                    bf.config.filters[name] = filter_ns
         
 class PluginTools(object):
     """Tools for a plugin to get information about it's runtime environment"""
@@ -104,7 +106,8 @@ class PluginTools(object):
         #However, this uses the blog template lookup by default.
         if lookup==None:
             lookup = self.template_lookup
-        bf.template.materialize_template(template_name, location, attrs, lookup)
+        bf.template.materialize_template(template_name, location, attrs=attrs,
+                                         lookup=lookup, caller=self.module)
     def add_template_dir(self, path):
         self.template_lookup.directories.append(path)
     def __get_template_lookup(self):
