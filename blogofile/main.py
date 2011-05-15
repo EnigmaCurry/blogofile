@@ -170,7 +170,6 @@ def main(cmd=None):
     parser = setup_command_parser()
     do_completion(cmd)
     args = get_args(cmd)
-
     
     if args.verbose:
         logger.setLevel(logging.INFO)
@@ -180,7 +179,10 @@ def main(cmd=None):
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
-    if not args.src_dir:
+    #Find the right source directory location:
+    if args.func == do_init and not args.src_dir:
+        args.src_dir = os.curdir
+    elif not args.src_dir:
         try:
             args.src_dir = find_src_root()
         except SourceDirectoryNotFound:
