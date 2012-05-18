@@ -41,7 +41,8 @@ reset_config()
 def default_config_path():
     return os.path.join(os.path.split(site_init.__file__)[0], "_config.py")
 
-default_config = open(default_config_path()).read()
+with open(default_config_path()) as dc:
+    default_config = dc.read()
 
 def recompile():
     #Compile file_ignore_patterns
@@ -69,7 +70,8 @@ def __load_config(path=None):
     _filter.preload_filters()
     controller.load_controllers(namespace=bf.config.controllers)
     if path:
-        exec(compile(open(path).read(), path, 'exec'))
+        with open(path) as pf:
+            exec(compile(pf.read(), path, 'exec'))
     #config is now in locals() but needs to be in globals()
     for k, v in list(locals().items()):
         globals()[k] = v
