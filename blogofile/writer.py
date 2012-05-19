@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-"""
-writer.py writes out the static blog to ./_site based on templates found in the
-current working directory.
+"""Write out the static blog to ./_site based on templates found in
+the current working directory.
 """
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
@@ -13,8 +11,6 @@ import os
 import re
 import shutil
 import tempfile
-import shutil
-from mako import exceptions as mako_exceptions
 
 from . import util
 from . import config
@@ -24,23 +20,25 @@ from . import controller
 from . import plugin
 from . import template
 
+
 logger = logging.getLogger("blogofile.writer")
+
 
 class Writer(object):
 
     def __init__(self, output_dir):
         self.config = config
-        #Base templates are templates (usually in ./_templates) that are only
-        #referenced by other templates.
+        # Base templates are templates (usually in ./_templates) that are only
+        # referenced by other templates.
         self.base_template_dir = util.path_join(".", "_templates")
         self.output_dir = output_dir
 
     def __load_bf_cache(self):
-        #Template cache object, used to transfer state to/from each template:
+        # Template cache object, used to transfer state to/from each template:
         self.bf = cache.bf
         self.bf.writer = self
         self.bf.logger = logger
-            
+
     def write_site(self):
         self.__load_bf_cache()
         self.__setup_temp_dir()
@@ -55,19 +53,20 @@ class Writer(object):
             self.__delete_temp_dir()
 
     def __setup_temp_dir(self):
-        "Create a directory for temporary data"
+        """Create a directory for temporary data.
+        """
         self.temp_proc_dir = tempfile.mkdtemp(prefix="blogofile_")
-        #Make sure this temp directory is added to each template lookup:
+        # Make sure this temp directory is added to each template lookup:
         for engine in self.bf.config.templates.engines.values():
             try:
                 engine.add_default_template_path(self.temp_proc_dir)
             except AttributeError:
                 pass
-        
+
     def __delete_temp_dir(self):
         "Cleanup and delete temporary directory"
         shutil.rmtree(self.temp_proc_dir)
-    
+
     def __setup_output_dir(self):
         """Setup the staging directory"""
         if os.path.isdir(self.output_dir):
@@ -91,21 +90,22 @@ class Writer(object):
         """Build a regex for template file paths"""
         endings = []
         for ending in self.config.templates.engines.keys():
-            endings.append("." + re.escape(ending)+"$")
-        p = "("+"|".join(endings)+")"
+            endings.append("." + re.escape(ending) + "$")
+        p = "(" + "|".join(endings) + ")"
         self.template_file_regex = re.compile(p)
-        
-    def __write_files(self):
-        """Write all files for the blog to _site
 
-        Convert all templates to straight HTML
-        Copy other non-template files directly"""
+    def __write_files(self):
+        """Write all files for the blog to _site.
+
+        Convert all templates to straight HTML.  Copy other
+        non-template files directly.
+        """
         for root, dirs, files in os.walk("."):
             if root.startswith("./"):
                 root = root[2:]
             for d in list(dirs):
-                #Exclude some dirs
-                d_path = util.path_join(root,d)
+                # Exclude some dirs
+                d_path = util.path_join(root, d)
                 if util.should_ignore_path(d_path):
                     logger.debug("Ignoring directory: " + d_path)
                     dirs.remove(d)
@@ -116,18 +116,18 @@ class Writer(object):
             for t_fn in files:
                 t_fn_path = util.path_join(root, t_fn)
                 if util.should_ignore_path(t_fn_path):
-                    #Ignore this file.
+                    # Ignore this file.
                     logger.debug("Ignoring file: " + t_fn_path)
                     continue
                 elif self.template_file_regex.search(t_fn):
                     logger.info("Processing template: " + t_fn_path)
-                    #Process this template file
-                    html_path = self.template_file_regex.sub("",t_fn)
+                    # Process this template file
+                    html_path = self.template_file_regex.sub("", t_fn)
                     template.materialize_template(
                         t_fn_path,
                         util.path_join(root, html_path))
                 else:
-                    #Copy this non-template file
+                    # Copy this non-template file
                     f_path = util.path_join(root, t_fn)
                     logger.debug("Copying file: " + f_path)
                     out_path = util.path_join(self.output_dir, f_path)
@@ -145,19 +145,19 @@ class Writer(object):
                         shutil.copyfile(f_path, out_path)
 
     def __init_plugins(self):
-        #Run plugin defined init methods
+        # Run plugin defined init methods
         plugin.init_plugins()
-        
+
     def __init_filters_controllers(self):
-        #Run filter/controller defined init methods
+        # Run filter/controller defined init methods
         _filter.init_filters()
         controller.init_controllers(namespace=self.bf.config.controllers)
-        
+
     def __run_controllers(self):
-        """Run all the controllers in the _controllers directory"""
+        """Run all the controllers in the _controllers directory.
+        """
         namespaces = [self.bf.config]
         for plugin in list(self.bf.config.plugins.values()):
             if plugin.enabled:
                 namespaces.append(plugin)
         controller.run_all(namespaces)
-

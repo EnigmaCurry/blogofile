@@ -9,6 +9,7 @@ from blogofile import template
 from blogofile import cache
 import logging
 
+
 class TestBuild(unittest.TestCase):
 
     def setUp(self):
@@ -41,7 +42,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.yoursite.com/~username",
-            "blog.path": "/path/to/blog" }
+            "blog.path": "/path/to/blog"}
         main.main("build")
         lsdir = os.listdir(os.path.join(self.build_path, "_site",
                                         "path", "to", "blog"))
@@ -53,7 +54,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com/",
-            "blog.path": "/blog" }
+            "blog.path": "/blog"}
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path, "_site", "blog",
@@ -67,7 +68,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site_url": "http://www.test.com/",
-            "blog_path": "/blog" }
+            "blog_path": "/blog"}
         shutil.rmtree("_posts")
         util.mkdir("_posts")
         main.main("build")
@@ -75,17 +76,17 @@ class TestBuild(unittest.TestCase):
     def testPostInSubdir(self):
         "Test a post in a subdirectory of _posts"
         pass
-    
+
     def testNoPostsDir(self):
         """Test when there is no _posts dir, site still builds cleanly"""
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com/",
-            "blog.path": "/blog" }
+            "blog.path": "/blog"}
         shutil.rmtree("_posts")
         logger = logging.getLogger("blogofile")
         #We don't need to see the error that this test checks for:
-        logger.setLevel(logging.CRITICAL) 
+        logger.setLevel(logging.CRITICAL)
         main.main("build")
         logger.setLevel(logging.ERROR)
 
@@ -94,7 +95,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com",
-            "blog.path": "/path/to/blog" }
+            "blog.path": "/path/to/blog"}
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path, "_site", "path",
@@ -114,7 +115,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com",
-            "blog.path": "/path/to/blog" }
+            "blog.path": "/path/to/blog"}
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path, "_site", "path",
@@ -125,7 +126,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com",
-            "blog.path": "/path/to/blog" }
+            "blog.path": "/path/to/blog"}
         main.main("build")
         #Whole blog feeds
         assert "index.xml" in os.listdir(
@@ -141,7 +142,7 @@ class TestBuild(unittest.TestCase):
         assert "index.xml" in os.listdir(
             os.path.join(self.build_path, "_site", "path", "to",
                          "blog", "category", "category-1", "feed", "atom"))
-    
+
     def testFileIgnorePatterns(self):
         main.main("init blog_unit_test")
         #Initialize the config manually
@@ -175,7 +176,7 @@ class TestBuild(unittest.TestCase):
         main.main("init blog_unit_test")
         main.config.override_options = {
             "site.url": "http://www.test.com",
-            "blog.path": "some-crazy-blog" }
+            "blog.path": "some-crazy-blog"}
         main.main("build")
         assert "index.html" in os.listdir(
             os.path.join(self.build_path, "_site", "some-crazy-blog",
@@ -191,7 +192,7 @@ class TestBuild(unittest.TestCase):
 
     def testBareBlog(self):
         """Just do a quick check to make sure bare template builds"""
-        #TODO: Figure out why this doesn't work in a test context, it works fine in prod.
+        #TODO: Figure out why this doesn't work in a test context,
+        #      it works fine in prod.
         #main.main("init bare")
         #main.main("build")
-

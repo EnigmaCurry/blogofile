@@ -1,12 +1,13 @@
 import sys
 from . import __version__ as bf_version
 
+
 class Cache(dict):
     """A cache object used for attatching things we want to remember
 
     This works like a normal object, attributes that are undefined
     raise an AttributeError
-    
+
     >>> c = Cache()
     >>> c.whatever = "whatever"
     >>> c.whatever
@@ -20,13 +21,14 @@ class Cache(dict):
         dict.__init__(self, kw)
         self.__dict__ = self
 
+
 class HierarchicalCache(Cache):
     """A cache object used for attatching things we want to remember
-    
+
     This works differently than a normal object, attributes that
     are undefined do *not* raise an AttributeError but are silently
     created as an additional HierarchicalCache object.
-    
+
     >>> c = HierarchicalCache()
     >>> c.whatever = "whatever"
     >>> c.whatever
@@ -53,7 +55,7 @@ class HierarchicalCache(Cache):
         if not attr.startswith("_") and \
                 "(" not in attr and \
                 "[" not in attr and \
-                attr != "trait_names": 
+                attr != "trait_names":
             c = HierarchicalCache()
             Cache.__setitem__(self, attr, c)
             return c
@@ -61,7 +63,7 @@ class HierarchicalCache(Cache):
             raise AttributeError
 
     def __getitem__(self, item):
-        if(type(item) == slice or not hasattr(item,"split")):
+        if(type(item) == slice or not hasattr(item, "split")):
             raise TypeError("HierarchicalCache objects are not indexable nor "
                             "sliceable. If you were expecting another object "
                             "here, a parent cache object may be inproperly "
@@ -72,14 +74,14 @@ class HierarchicalCache(Cache):
         except AttributeError:
             c = self.__getattr__(item)
         for dotted_part in dotted_parts[1:]:
-            c = getattr(c,dotted_part)
+            c = getattr(c, dotted_part)
         return c
 
     def __call__(self):
         raise TypeError("HierarchicalCache objects are not callable. If "
                         "you were expecting this to be a method, a "
                         "parent cache object may be inproperly configured.")
-    
+
     def __setitem__(self, key, item):
         c = self
         try:
@@ -96,17 +98,19 @@ class HierarchicalCache(Cache):
 #The main blogofile cache object, transfers state between templates
 bf = HierarchicalCache()
 
+
 def setup_bf():
     global bf
     sys.modules['blogofile_bf'] = bf
     bf.__version__ = bf_version
-    bf.cache = sys.modules['blogofile.cache']    
+    bf.cache = sys.modules['blogofile.cache']
+
 
 def reset_bf(assign_modules=True):
     global bf
     bf.clear()
     setup_bf()
-    
+
     if assign_modules:
         from . import config, util, server, filter, controller, template
         bf.config = config

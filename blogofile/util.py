@@ -19,17 +19,20 @@ html_escape_table = {
     ">": "&gt;",
     "<": "&lt;",
     }
-    
-def html_escape(text): #pragma: no cover
-    """Produce entities within text."""
+
+
+def html_escape(text):  # pragma: no cover
+    """Produce entities within text.
+    """
     L = []
     for c in text:
         L.append(html_escape_table.get(c, c))
     return "".join(L)
-    
+
 
 def should_ignore_path(path):
-    """See if a given path matches the ignore patterns"""
+    """See if a given path matches the ignore patterns.
+    """
     if os.path.sep == '\\':
         path = path.replace('\\', '/')
     for p in bf.config.site.compiled_file_ignore_patterns:
@@ -47,15 +50,16 @@ def mkdir(newdir):
     if os.path.isdir(newdir):
         pass
     elif os.path.isfile(newdir):
-        raise OSError("a file with the same name as the desired " \
-                          "dir, '{0}', already exists.".format(newdir))
+        raise OSError("a file with the same name as the desired "
+                      "dir, '{0}', already exists.".format(newdir))
     else:
         head, tail = os.path.split(newdir)
         if head and not os.path.isdir(head):
             mkdir(head)
-        #print "mkdir {0}.format(repr(newdir))
+        # print "mkdir {0}.format(repr(newdir))
         if tail:
             os.mkdir(newdir)
+
 
 def url_path_helper(*parts):
     """
@@ -75,7 +79,7 @@ def url_path_helper(*parts):
     new_parts = []
     for p in parts:
         if hasattr(p, "__iter__") and not isinstance(p, str):
-            #This part is a sequence itself, recurse into it
+            # This part is a sequence itself, recurse into it
             p = path_join(*p, **{'sep': "/"})
         p = p.strip("/")
         if p in ("", "\\", "/"):
@@ -87,10 +91,10 @@ def url_path_helper(*parts):
     else:
         return "/"
 
-            
+
 def site_path_helper(*parts):
     """Make an absolute path on the site, appending a sequence of path parts to
-    the site path
+    the site path.
 
     >>> bf.config.site.url = "http://www.blogofile.com"
     >>> site_path_helper("blog")
@@ -111,7 +115,7 @@ def site_path_helper(*parts):
 
 
 def fs_site_path_helper(*parts):
-    """Build a path relative to the built site inside the _site dir
+    """Build a path relative to the built site inside the _site dir.
 
     >>> bf.config.site.url = "http://www.blogofile.com/ryan/site1"
     >>> fs_site_path_helper()
@@ -124,14 +128,15 @@ def fs_site_path_helper(*parts):
 
 #TODO: seems to have a lot in common with url_path_helper; commonize
 def path_join(*parts, **kwargs):
-    """A better os.path.join
+    """A better os.path.join.
 
     Converts (back)slashes from other platforms automatically
     Normally, os.path.join is great, as long as you pass each dir/file
     independantly, but not if you (accidentally/intentionally) put a slash in
 
-    if sep is specified, use that as the seperator
-    rather than the system default"""
+    If sep is specified, use that as the seperator rather than the
+    system default.
+    """
     if 'sep' in kwargs:
         sep = kwargs['sep']
     else:
@@ -152,7 +157,8 @@ def path_join(*parts, **kwargs):
 
 
 def recursive_file_list(directory, regex=None):
-    "Recursively walk a directory tree and find all the files matching regex"
+    """Recursively walk a directory tree and find all the files matching regex.
+    """
     if type(regex) == str:
         regex = re.compile(regex)
     for root, dirs, files in os.walk(directory):
@@ -163,13 +169,15 @@ def recursive_file_list(directory, regex=None):
             else:
                 yield os.path.join(root, f)
 
+
 def rewrite_strings_in_files(existing_string, replacement_string, paths):
     """Replace existing_string with replacement_string
     in all the files listed in paths"""
-    for line in fileinput.input(paths,inplace=True):
-        line=line.replace(existing_string,replacement_string)
+    for line in fileinput.input(paths, inplace=True):
         #inplace=True redirects sys.stdout back to the file
+        line = line.replace(existing_string, replacement_string)
         sys.stdout.write(line)
+
 
 def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #pragma: no cover
     """
@@ -188,10 +196,10 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #p
         Redistribution and use in source and binary forms, with or without modification,
         are permitted provided that the following conditions are met:
 
-            1. Redistributions of source code must retain the above copyright notice, 
+            1. Redistributions of source code must retain the above copyright notice,
                this list of conditions and the following disclaimer.
 
-            2. Redistributions in binary form must reproduce the above copyright 
+            2. Redistributions in binary form must reproduce the above copyright
                notice, this list of conditions and the following disclaimer in the
                documentation and/or other materials provided with the distribution.
 

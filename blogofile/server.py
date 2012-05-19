@@ -1,13 +1,12 @@
 import http.server
-import http.server
 import logging
 import os
 import sys
-import re
 from urllib.parse import urlparse
 import threading
 
-from blogofile import config, util
+from blogofile import config
+from blogofile import util
 from .cache import bf
 
 bf.server = sys.modules['blogofile.server']
@@ -16,12 +15,11 @@ logger = logging.getLogger("blogofile.server")
 
 
 class Server(threading.Thread):
-
     def __init__(self, port, address="127.0.0.1"):
         self.port = int(port)
         self.address = address
         if self.address == "0.0.0.0":
-            #Bind to all addresses available
+            # Bind to all addresses available
             address = ""
         threading.Thread.__init__(self)
         self.is_shutdown = False
@@ -33,7 +31,8 @@ class Server(threading.Thread):
         self.sa = self.httpd.socket.getsockname()
 
     def run(self):
-        print(("Blogofile server started on {0}:{1} ...".format(self.sa[0],self.sa[1])))
+        print("Blogofile server started on {0}:{1} ..."
+              .format(self.sa[0], self.sa[1]))
         self.httpd.serve_forever()
 
     def shutdown(self):
@@ -58,15 +57,15 @@ for the root page? : <a href="{0}">{1}</a>
     def __init__(self, *args, **kwargs):
         path = urlparse(config.site.url).path
         self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
-        http.server.SimpleHTTPRequestHandler.__init__(
-                self, *args, **kwargs)
+        http.server.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def translate_path(self, path):
         site_path = urlparse(config.site.url).path
         if(len(site_path.strip("/")) > 0 and
                 not path.startswith(site_path)):
             self.error_message_format = self.BLOGOFILE_SUBDIR_ERROR
-            return "" #Results in a 404
+            # Results in a 404
+            return ""
 
         p = http.server.SimpleHTTPRequestHandler.translate_path(
             self, path)
@@ -76,8 +75,8 @@ for the root page? : <a href="{0}">{1}</a>
                 util.path_join(site_path.strip("/")))
         else:
             build_path = os.getcwd()
-        build_path = p.replace(build_path, os.path.join(os.getcwd(),"_site"))
+        build_path = p.replace(build_path, os.path.join(os.getcwd(), "_site"))
         return build_path
-    
+
     def log_message(self, format, *args):
         pass
