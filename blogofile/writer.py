@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Write out the static blog to ./_site based on templates found in
 the current working directory.
