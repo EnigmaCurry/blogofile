@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ## Mechanize isn't supported on Python 3.x
 ## How can I force nose to run these tests as Python 2.x?
 

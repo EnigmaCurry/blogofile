@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This loads the user's _config.py file and provides a standardized interface
 into it.
 """

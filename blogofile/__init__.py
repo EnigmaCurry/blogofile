@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-
-"""
-This is Blogofile -- http://www.Blogofile.com
+"""This is Blogofile -- http://www.Blogofile.com
 
 A static website compiler and blog engine, written and extensible in Python.
 

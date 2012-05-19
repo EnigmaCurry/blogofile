@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Controllers
 
 Blogofile controllers reside in the user's _controllers directory

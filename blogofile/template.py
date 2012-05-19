@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Template abstraction for Blogofile to support multiple engines.
 
