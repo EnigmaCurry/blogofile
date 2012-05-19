@@ -196,10 +196,8 @@ def main(cmd=None):
             args.src_dir = find_src_root()
         except SourceDirectoryNotFound:
             args.src_dir = os.path.abspath(os.curdir)
-            #Not a valid src dir, the next block warns the user
     if not args.src_dir or not os.path.isdir(args.src_dir):
-        print(("source dir does not exist : %s" % args.src_dir))
-        sys.exit(1)
+        parser.exit(2, "source dir does not exit: {0.src_dir}\n".format(args))
     os.chdir(args.src_dir)
 
     # The src_dir, which is now the current working directory, should
