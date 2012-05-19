@@ -52,6 +52,7 @@ if sys.version_info < (3,):
         print("-"*80)
         sys.exit(1)
     if sys.version_info < (2,7):
+        dependencies.append("argparse")
         dependencies.append("ordereddict")
 else:
     dependencies.remove("markdown")

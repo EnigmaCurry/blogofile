@@ -8,6 +8,7 @@ __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 
 from blogofile import __version__
 
+import argparse
 import locale
 import logging
 import os
@@ -16,15 +17,12 @@ import shlex
 import time
 import platform
 
-from . import argparse
-
 from . import server
 from . import config
 from . import util
 from . import filter as _filter
 from . import plugin
 from . import site_init
-from . import command_completion
 from .cache import bf
 from .exception import SourceDirectoryNotFound
 from .writer import Writer
@@ -164,20 +162,9 @@ def find_src_root(path=os.curdir):
         path = parts[0]
 
 
-def do_completion(cmd):
-    if "BLOGOFILE_BASH_BOOTSTRAP" in os.environ:
-        print(command_completion.bash_bootstrap)
-        sys.exit(1)
-    if "BLOGOFILE_COMPLETION_MODE" in os.environ:
-        # Complete the current Blogofile command rather than run it:
-        command_completion.complete(parser, cmd)
-        sys.exit(1)
-
-
 def main(cmd=None):
     do_debug()
     parser = setup_command_parser()
-    do_completion(cmd)
     args = get_args(cmd)
 
     if args.verbose:
