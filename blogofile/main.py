@@ -194,12 +194,6 @@ def main(cmd=None):
     args.func(args)
 
 
-def do_bash_complete(args):
-    for subcommand in args.command:
-        parser = subparsers.choices[subcommand]
-        print(parser)
-
-
 def do_help(args):
     global parser
     if "commands" in args.command:
