@@ -5,6 +5,7 @@ Template abstraction for Blogofile to support multiple engines.
 Templates are dictionaries. Any key/value pairs stored are supplied to
 the underlying template as name/values.
 """
+from __future__ import print_function
 import copy
 import logging
 import os.path

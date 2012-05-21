@@ -3,6 +3,7 @@
 
 Please take a moment to read LICENSE.txt. It's short.
 """
+from __future__ import print_function
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 

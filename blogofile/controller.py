@@ -48,6 +48,7 @@ Users can configure a controller in _config.py:
 Settings set in _config.py always override any default configuration
 for the controller.
 """
+from __future__ import print_function
 import sys
 import os
 import operator
