@@ -57,7 +57,7 @@ class Template(dict):
         util.mkdir(os.path.split(path)[0])
         if bf.config.site.overwrite_warning and os.path.exists(path):
             logger.warn("Location is used more than once: {0}".format(path))
-        with open(path, "bw") as f:
+        with open(path, "wb") as f:
             f.write(rendered)
 
     def render_prep(self, path):
