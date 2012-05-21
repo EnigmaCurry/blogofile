@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-import http.server
+try:
+    import http.server as http_server
+except ImportError:
+    import SimpleHTTPServer as http_server
 import logging
 import os
 import sys
-from urllib.parse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 import threading
 
 from blogofile import config
@@ -27,7 +33,7 @@ class Server(threading.Thread):
         self.is_shutdown = False
         server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
-        ServerClass = http.server.HTTPServer
+        ServerClass = http_server.HTTPServer
         HandlerClass.protocol_version = "HTTP/1.0"
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
@@ -44,7 +50,7 @@ class Server(threading.Thread):
         self.is_shutdown = True
 
 
-class BlogofileRequestHandler(http.server.SimpleHTTPRequestHandler):
+class BlogofileRequestHandler(http_server.SimpleHTTPRequestHandler):
 
     error_template = """
 <head>
@@ -59,7 +65,7 @@ for the root page? : <a href="{0}">{1}</a>
     def __init__(self, *args, **kwargs):
         path = urlparse(config.site.url).path
         self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
-        http.server.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
+        http_server.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def translate_path(self, path):
         site_path = urlparse(config.site.url).path
@@ -69,7 +75,7 @@ for the root page? : <a href="{0}">{1}</a>
             # Results in a 404
             return ""
 
-        p = http.server.SimpleHTTPRequestHandler.translate_path(
+        p = http_server.SimpleHTTPRequestHandler.translate_path(
             self, path)
         if len(site_path.strip("/")) > 0:
             build_path = os.path.join(
