@@ -1,0 +1,5 @@
+# Packaged required to hack on blogofile
+
+-r production.txt
+tox==1.3
+virtualenv==1.7.2

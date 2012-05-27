@@ -1,104 +1,63 @@
-from setuptools import setup, find_packages, Command
-from setuptools.command.install import install as SetuptoolsInstaller
-from distutils.command.sdist import sdist as _sdist
+# -*- coding: utf-8 -*-
 import sys
-import os
-import os.path
-import glob
-import subprocess
-import shutil
+from setuptools import setup
+import blogofile
 
-def setup_python2():
-    #Blogofile is written for Python 3.
-    #But we can also experimentally support Python 2 with lib3to2.
-    from lib3to2 import main as three2two
-    from distutils import dir_util
-    import shutil
-    import shlex
-    tmp_src = "src_py2"
-    try:
-        shutil.rmtree(tmp_src)
-    except OSError:
-        pass #ignore if the directory doesn't exist.
-    shutil.copytree("blogofile",os.path.join(tmp_src,"blogofile"))
-    three2two.main("lib3to2.fixes",shlex.split("-w {0}".format(tmp_src)))
-    return tmp_src
 
-dependencies = ["mako",
-                "jinja2",
-                "markdown",
-                "textile",
-                "pytz",
-                "pyyaml",
-                "pygments",
-                "docutils"]
-
-dependency_links = []
-
-if sys.version_info < (3,):
-    sys.path.insert(0,"src_py2")
-    src_root = os.path.join("src_py2","blogofile")
-    try:
-        import blogofile
-    except ImportError:
-        print("-"*80)
-        print("Python 3.x is required to develop and build Blogofile.")
-        print("Python 2.x versions of Blogofile can be installed with "
-              "a stable tarball\nfrom PyPI. e.g. 'easy_install blogofile'\n")
-        print("Alternatively, you can build your own tarball with "
-              "'python3 setup.py sdist'.")
-        print("This will require Python 3 and 3to2, and will produce a tarball "
-              "that can be\ninstalled in either Python 2 or 3.")
-        print("-"*80)
-        sys.exit(1)
-    if sys.version_info < (2,7):
-        dependencies.append("argparse")
-        dependencies.append("ordereddict")
+py_version = sys.version_info[:2]
+PY3 = py_version[0] == 3
+if PY3:
+    if py_version < (3, 2):
+        raise RuntimeError(
+            'On Python 3, Blogofile requires Python 3.2 or better')
 else:
-    dependencies.remove("markdown")
-    dependencies.append("markdown>=2.0.3-py3k")
-    dependencies.remove("textile")
-    dependencies.append("textile>=2.1.4-py3k")
-    dependency_links.append("http://github.com/EnigmaCurry/python-markdown-py3k/tarball/2.0.3#egg=markdown-2.0.3-py3k")
-    dependency_links.append("http://github.com/EnigmaCurry/textile-py3k/tarball/2.1.4#egg=textile-2.1.4-py3k")
-    src_root = "blogofile"
-    import blogofile
-    blogofile.zip_site_init()
-    
-class sdist(_sdist):
-    "Custom sdist that takes care of 3to2 details"
-    def run(self):
-        setup_python2()
-        _sdist.run(self)
-        shutil.rmtree("src_py2")
+    if py_version < (2, 7):
+        raise RuntimeError(
+            'On Python 2, Blogofile requires Python 2.7 or better')
 
-class Test(Command):
-    user_options = []
-    def initialize_options(self):
-        pass
-    def finalize_options(self):
-        pass
-    def run(self):
-        import tox
-        tox.cmdline()
+with open('README.markdown', 'rt') as readme:
+    long_description = readme.read()
+with open('CHANGES.txt', 'rt') as changes:
+    long_description += '\n\n' + changes.read()
+with open('requirements/production.txt', 'rt') as reqs:
+    requirements = reqs.read()
+install_requires = [line for line in requirements.split('\n')
+                    if line and not line.startswith('#')]
+# TODO: There has to be a better way...
+dependency_links = []
+if PY3:
+    textile_index = [i for i, item in enumerate(install_requires)
+                     if item.startswith('textile')][0]
+    install_requires[textile_index] += '-py3k'
+    dependency_links = [
+        'http://github.com/EnigmaCurry/textile-py3k/tarball/2.1.4'
+        '#egg=textile-2.1.4-py3k']
 
-os.chdir(os.path.split(os.path.abspath(__file__))[0])
+classifiers = [
+    'Programming Language :: Python :: {0}'.format(py_version)
+    for py_version in ['2', '2.7', '3', '3.2']]
+classifiers.extend([
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Environment :: Console',
+    'Natural Language ::  English',
+])
 
-setup(name="Blogofile",
-      version=blogofile.__version__,
-      description="A static website compiler and blog engine",
-      author="Ryan McGuire",
-      author_email="ryan@enigmacurry.com",
-      url="http://www.blogofile.com",
-      license="MIT",
-      packages=["blogofile", "blogofile.site_init"],
-      package_dir = {"blogofile": src_root},
-      package_data = {"blogofile.site_init": ["*.zip"]},
-      install_requires = dependencies,
-      dependency_links = dependency_links,
-      cmdclass = {"test":Test,"sdist":sdist},
-      entry_points="""
-      [console_scripts]
-      blogofile = blogofile.main:main
-      """
-      )
+setup(
+    name="Blogofile",
+    version=blogofile.__version__,
+    description="A static website compiler and blog engine",
+    long_description=long_description,
+    author="Ryan McGuire",
+    author_email="blogofile-discuss@googlegroups.com",
+    url="http://www.blogofile.com",
+    license="MIT",
+    classifiers=classifiers,
+    packages=["blogofile", "blogofile.site_init"],
+    package_data={"blogofile.site_init": ["*.zip"]},
+    install_requires=install_requires,
+    dependency_links=dependency_links,
+    entry_points={
+        'console_scripts': ['blogofile = blogofile.main:main']},
+)

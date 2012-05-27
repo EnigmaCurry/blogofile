@@ -1,13 +1,11 @@
 Next release
 ============
 
-Bug Fixes
----------
-
-
-
 Features
 --------
+
+- The codebase has been unified for Python 2.7 and 3.2 (no 2to3 or
+  3to2 conversion required).
 
 - The command line completion feature has been removed so as to avoid
   maintaining a bundled version of the argparse library. argparse is included

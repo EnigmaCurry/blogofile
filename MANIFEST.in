@@ -1,3 +1,7 @@
+include README.markdown
+include CHANGES.txt
+include LICENSE.txt
+include requirements/*.txt
 include blogofile/site_init/*.zip
 recursive-include converters *.py
 recursive-include src_py2 *.py
