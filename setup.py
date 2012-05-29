@@ -6,18 +6,19 @@ import blogofile
 
 py_version = sys.version_info[:2]
 PY3 = py_version[0] == 3
+PY26 = py_version == (2, 6)
 if PY3:
     if py_version < (3, 2):
         raise RuntimeError(
             'On Python 3, Blogofile requires Python 3.2 or better')
 else:
-    if py_version < (2, 7):
+    if py_version < (2, 6):
         raise RuntimeError(
-            'On Python 2, Blogofile requires Python 2.7 or better')
+            'On Python 2, Blogofile requires Python 2.6 or better')
 
 blogofile.zip_site_init()
 
-with open('README.markdown', 'rt') as readme:
+with open('README.rst', 'rt') as readme:
     long_description = readme.read()
 with open('CHANGES.txt', 'rt') as changes:
     long_description += '\n\n' + changes.read()
@@ -34,10 +35,12 @@ if PY3:
     dependency_links = [
         'http://github.com/EnigmaCurry/textile-py3k/tarball/2.1.4'
         '#egg=textile-2.1.4-py3k']
+if PY26:
+    install_requires.append('argparse')
 
 classifiers = [
     'Programming Language :: Python :: {0}'.format(py_version)
-    for py_version in ['2', '2.7', '3', '3.2']]
+    for py_version in ['2', '2.6', '2.7', '3', '3.2']]
 classifiers.extend([
     'Development Status :: 4 - Beta',
     'License :: OSI Approved :: MIT License',

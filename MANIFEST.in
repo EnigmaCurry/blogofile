@@ -1,4 +1,4 @@
-include README.markdown
+include README.rst
 include CHANGES.txt
 include LICENSE.txt
 include requirements/*.txt
