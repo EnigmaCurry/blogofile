@@ -42,6 +42,8 @@ def zip_site_init():
         curdir = os.getcwd()
         root = os.path.join(curdir, "blogofile", "site_init")
         for d in os.listdir(root):
+            if d == '__pycache__':
+                continue
             d = os.path.join(root, d)
             if os.path.isdir(d):
                 os.chdir(root)

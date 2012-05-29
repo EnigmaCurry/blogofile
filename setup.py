@@ -15,6 +15,8 @@ else:
         raise RuntimeError(
             'On Python 2, Blogofile requires Python 2.7 or better')
 
+blogofile.zip_site_init()
+
 with open('README.markdown', 'rt') as readme:
     long_description = readme.read()
 with open('CHANGES.txt', 'rt') as changes:
