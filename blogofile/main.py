@@ -14,7 +14,6 @@ import locale
 import logging
 import os
 import sys
-import shlex
 import time
 import platform
 
@@ -42,7 +41,7 @@ def setup_command_parser():
     parser_template.add_argument("-s", "--src-dir", dest="src_dir",
                                  help="Your site's source directory "
                                  "(default is current directory)",
-                        metavar="DIR", default=None)
+                                 metavar="DIR", default=None)
     parser_template.add_argument("--version", action="version")
     parser_template.add_argument("-v", "--verbose", dest="verbose",
                                  default=False, action="store_true",
@@ -131,21 +130,6 @@ def setup_command_parser():
     return parser
 
 
-def get_args(cmd=None):
-    if not cmd:
-        if len(sys.argv) <= 1:
-            parser.print_help()
-            parser.exit(1)
-        args = parser.parse_args()
-    else:
-        if sys.version_info < (3,):
-            # Python2 argparse really really wants a str not unicode :(
-            # exec needed to fool 3to2:
-            exec("cmd = str(cmd)")
-        args = parser.parse_args(shlex.split(cmd))
-    return args
-
-
 def find_src_root(path=os.curdir):
     """Find the root src directory.
 
@@ -163,19 +147,35 @@ def find_src_root(path=os.curdir):
         path = parts[0]
 
 
-def main(cmd=None):
+def main():
+    """Blogofile entry point.
+
+    Set up command line parser, parse args, and dispatch to
+    appropriate function. Print help and exit if there are too few args.
+    """
     do_debug()
     parser = setup_command_parser()
-    args = get_args(cmd)
+    if len(sys.argv) == 1:
+        parser.print_help()
+        parser.exit(2)
+    else:
+        args = parser.parse_args()
+        set_verbosity(args)
+        args.func(args)
 
+
+def set_verbosity(args):
+    """Set verbosity level for logging as requested on command line.
+    """
     if args.verbose:
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
-
     if args.veryverbose:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
+
+def set_src_dir(args, parser):
     # Find the right source directory location:
     if args.func == do_init and not args.src_dir:
         args.src_dir = os.curdir
@@ -187,12 +187,9 @@ def main(cmd=None):
     if not args.src_dir or not os.path.isdir(args.src_dir):
         parser.exit(2, "source dir does not exit: {0.src_dir}\n".format(args))
     os.chdir(args.src_dir)
-
     # The src_dir, which is now the current working directory, should
-    # already be on the sys.path, but let's make this explicit:
+    # already be on the sys.path, but let's make this explicit.
     sys.path.insert(0, os.curdir)
-
-    args.func(args)
 
 
 def do_help(args):
@@ -302,7 +299,3 @@ def do_info(args):
     else:
         print(
             "The specified directory has no _config.py, and cannot be built.")
-
-
-if __name__ == "__main__":
-    main()
