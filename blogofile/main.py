@@ -7,8 +7,6 @@ from __future__ import print_function
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 
-from blogofile import __version__
-
 import argparse
 import locale
 import logging
@@ -17,6 +15,7 @@ import sys
 import time
 import platform
 
+from . import __version__
 from . import server
 from . import config
 from . import util
@@ -35,24 +34,36 @@ logger = logging.getLogger("blogofile")
 bf.logger = logger
 
 
-def setup_command_parser():
-    # Parser template to base other parsers on
+def _build_parser_template():
+    """Return the parser template that other parser are based on.
+    """
     parser_template = argparse.ArgumentParser(add_help=False)
-    parser_template.add_argument("-s", "--src-dir", dest="src_dir",
-                                 help="Your site's source directory "
-                                 "(default is current directory)",
-                                 metavar="DIR", default=None)
-    parser_template.add_argument("--version", action="version")
-    parser_template.add_argument("-v", "--verbose", dest="verbose",
-                                 default=False, action="store_true",
-                                 help="Be verbose")
-    parser_template.add_argument("-vv", "--veryverbose", dest="veryverbose",
-                                 default=False, action="store_true",
-                                 help="Be extra verbose")
-    parser = argparse.ArgumentParser(parents=[parser_template])
-    parser.version = "Blogofile {0} -- http://www.Blogofile.com -- {1} {2}"\
+    parser_template.add_argument(
+        "--version", action="version",
+        version="Blogofile {0} -- http://www.blogofile.com -- {1} {2}"
         .format(__version__, platform.python_implementation(),
-                platform.python_version())
+                platform.python_version()))
+    parser_template.add_argument(
+        "-s", "--src-dir", dest="src_dir", metavar="DIR",
+        help="Your site's source directory (default is current directory)")
+    parser_template.add_argument(
+        "-v", "--verbose", dest="verbose", action="store_true",
+        help="Be verbose")
+    parser_template.add_argument(
+        "-vv", "--veryverbose", dest="veryverbose", action="store_true",
+        help="Be extra verbose")
+    defaults = {
+        "src_dir": os.curdir,
+        "verbose": False,
+        "veryverbose": False,
+    }
+    parser_template.set_defaults(**defaults)
+    return parser_template
+
+
+def setup_command_parser():
+    parser_template = _build_parser_template()
+    parser = argparse.ArgumentParser(parents=[parser_template])
     subparsers = parser.add_subparsers()
 
     p_help = subparsers.add_parser("help", help="Show help for a command.",

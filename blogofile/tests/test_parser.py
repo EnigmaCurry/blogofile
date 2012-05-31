@@ -2,6 +2,7 @@
 """Unit tests for blogofile command line parser.
 """
 import logging
+import platform
 import sys
 try:
     import unittest2 as unittest        # For Python 2.6
@@ -9,6 +10,7 @@ except ImportError:
     import unittest                     # NOQA
 from mock import Mock
 from mock import patch
+from six.moves import cStringIO as StringIO
 from .. import main
 
 
@@ -103,3 +105,68 @@ class TestLoggingVerbosity(unittest.TestCase):
         mock_args = Mock(verbose=False, veryverbose=True)
         self._call_fut(mock_args)
         mock_logger.setLevel.assert_called_once_with(logging.DEBUG)
+
+
+class TestParserTemplate(unittest.TestCase):
+    """Unit tests for command line parser template.
+    """
+    def _call_fut(self):
+        """Call function under test.
+        """
+        return main._build_parser_template()
+
+    def test_parser_template_src_dir_default(self):
+        """parser template sets src_dir default to relative cwd
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args([])
+        self.assertEqual(args.src_dir, '.')
+
+    def test_parser_template_src_dir_value(self):
+        """parser template sets src_dir to arg value
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args('-s foo'.split())
+        self.assertEqual(args.src_dir, 'foo')
+
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_parser_template_version(self, mock_stderr):
+        """parser template version arg returns expected string and exits
+        """
+        from .. import __version__
+        parser_template = self._call_fut()
+        self.assertRaises(
+            SystemExit, parser_template.parse_args, ['--version'])
+        self.assertEqual(
+            mock_stderr.getvalue(),
+            'Blogofile {0} -- http://www.blogofile.com -- {1} {2}\n'
+            .format(__version__, platform.python_implementation(),
+                    platform.python_version()))
+
+    def test_parser_template_verbose_default(self):
+        """parser template sets verbose default to False
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args([])
+        self.assertFalse(args.verbose)
+
+    def test_parser_template_verbose_true(self):
+        """parser template sets verbose to True when -v in args
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args(['-v'])
+        self.assertTrue(args.verbose)
+
+    def test_parser_template_veryverbose_default(self):
+        """parser template sets veryverbose default to False
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args([])
+        self.assertFalse(args.veryverbose)
+
+    def test_parser_template_veryverbose_true(self):
+        """parser template sets veryverbose to True when -vv in args
+        """
+        parser_template = self._call_fut()
+        args = parser_template.parse_args(['-vv'])
+        self.assertTrue(args.veryverbose)

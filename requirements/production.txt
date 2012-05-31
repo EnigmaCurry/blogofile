@@ -8,4 +8,5 @@ PyYAML==3.10
 Pygments==1.5
 docutils==0.9
 pytz==2012c
+six==1.1.0
 textile==2.1.4
