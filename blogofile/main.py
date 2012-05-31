@@ -49,7 +49,6 @@ def setup_command_parser():
     parser_template.add_argument("-vv", "--veryverbose", dest="veryverbose",
                                  default=False, action="store_true",
                                  help="Be extra verbose")
-    global parser, subparsers
     parser = argparse.ArgumentParser(parents=[parser_template])
     parser.version = "Blogofile {0} -- http://www.Blogofile.com -- {1} {2}"\
         .format(__version__, platform.python_implementation(),
@@ -127,7 +126,7 @@ def setup_command_parser():
         "list", help="List all the filters installed")
     p_filter_list.set_defaults(func=_filter.list_filters)
 
-    return parser
+    return parser, subparsers
 
 
 def find_src_root(path=os.curdir):
@@ -154,14 +153,17 @@ def main():
     appropriate function. Print help and exit if there are too few args.
     """
     do_debug()
-    parser = setup_command_parser()
+    parser, subparsers = setup_command_parser()
     if len(sys.argv) == 1:
         parser.print_help()
         parser.exit(2)
     else:
         args = parser.parse_args()
         set_verbosity(args)
-        args.func(args)
+        if args.func == do_help:
+            do_help(args, parser, subparsers)
+        else:
+            args.func(args)
 
 
 def set_verbosity(args):
@@ -192,8 +194,7 @@ def set_src_dir(args, parser):
     sys.path.insert(0, os.curdir)
 
 
-def do_help(args):
-    global parser
+def do_help(args, parser, subparsers):
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
 
