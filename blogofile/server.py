@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+# deal with python 3 and 2 differences in setting up server and handler
 try:
-    import http.server as http_server
+    import http.server.HTTPServer as http_server
+    import http.server.SimpleHTTPRequestHandler as http_handler
 except ImportError:
-    import SimpleHTTPServer as http_server
+    from SocketServer import TCPServer as http_server
+    from SimpleHTTPServer import SimpleHTTPRequestHandler as http_handler
 import logging
 import os
 import sys
@@ -33,8 +36,8 @@ class Server(threading.Thread):
         self.is_shutdown = False
         server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
-        ServerClass = http_server.HTTPServer
         HandlerClass.protocol_version = "HTTP/1.0"
+        ServerClass = http_server
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
 
@@ -50,7 +53,7 @@ class Server(threading.Thread):
         self.is_shutdown = True
 
 
-class BlogofileRequestHandler(http_server.SimpleHTTPRequestHandler):
+class BlogofileRequestHandler(http_handler):
 
     error_template = """
 <head>
@@ -65,7 +68,7 @@ for the root page? : <a href="{0}">{1}</a>
     def __init__(self, *args, **kwargs):
         path = urlparse(config.site.url).path
         self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
-        http_server.SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
+        http_handler.__init__(self, *args, **kwargs)
 
     def translate_path(self, path):
         site_path = urlparse(config.site.url).path
@@ -75,7 +78,7 @@ for the root page? : <a href="{0}">{1}</a>
             # Results in a 404
             return ""
 
-        p = http_server.SimpleHTTPRequestHandler.translate_path(
+        p = http_handler.translate_path(
             self, path)
         if len(site_path.strip("/")) > 0:
             build_path = os.path.join(
