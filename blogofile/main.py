@@ -61,16 +61,29 @@ def _build_parser_template():
     return parser_template
 
 
+def _build_help_parser(subparsers):
+    """Return the parser for the help sub-command.
+    """
+    parser = subparsers.add_parser(
+        "help", add_help=False,
+        help="Show help for a command.")
+    parser.add_argument(
+        "command", nargs="*",
+        help="a Blogofile subcommand e.g. build")
+    parser.set_defaults(func=do_help)
+    defaults = {
+        'command': None,
+        'func': do_help,
+    }
+    parser.set_defaults(**defaults)
+    return parser
+
+
 def setup_command_parser():
     parser_template = _build_parser_template()
     parser = argparse.ArgumentParser(parents=[parser_template])
-    subparsers = parser.add_subparsers()
-
-    p_help = subparsers.add_parser("help", help="Show help for a command.",
-                                   add_help=False)
-    p_help.add_argument("command", help="a Blogofile subcommand e.g. build",
-                        nargs="*", default="none")
-    p_help.set_defaults(func=do_help)
+    subparsers = parser.add_subparsers(title='subcommands')
+    _build_help_parser(subparsers)
 
     p_build = subparsers.add_parser(
         "build", help="Build the site from source.")
@@ -209,7 +222,7 @@ def do_help(args, parser, subparsers):
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
 
-    if "none" in args.command:
+    if not args.command:
         parser.print_help()
         print("\nSee 'blogofile help COMMAND' for more information"
               " on a specific command.")

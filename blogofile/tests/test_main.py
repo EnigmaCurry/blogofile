@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for blogofile command line parser.
+"""Unit tests for blogofile main module.
+
+Tests entry point function, and command line parser.
 """
+import argparse
 import logging
 import platform
 import sys
@@ -170,3 +173,33 @@ class TestParserTemplate(unittest.TestCase):
         parser_template = self._call_fut()
         args = parser_template.parse_args(['-vv'])
         self.assertTrue(args.veryverbose)
+
+
+class TestHelpParser(unittest.TestCase):
+    """Unit tests for help sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._build_help_parser(subparsers)
+        return parser.parse_args(*args)
+
+    def test_help_parser_commands_default(self):
+        """help w/ no command sets command arg to empty list
+        """
+        args = self._parse_args(['help'])
+        self.assertEqual(args.command, [])
+
+    def test_help_parser_commands(self):
+        """help w/ commands sets command arg to list of commands
+        """
+        args = self._parse_args('help foo bar'.split())
+        self.assertEqual(args.command, 'foo bar'.split())
+
+    def test_help_parser_func_do_help(self):
+        """help action function is do_help
+        """
+        args = self._parse_args(['help'])
+        self.assertEqual(args.func, main.do_help)
