@@ -62,7 +62,7 @@ def _setup_parser_template():
 
 
 def _setup_help_parser(subparsers):
-    """Return the parser for the help sub-command.
+    """Set up the parser for the help sub-command.
     """
     parser = subparsers.add_parser(
         "help", add_help=False,
@@ -79,21 +79,35 @@ def _setup_help_parser(subparsers):
 
 
 def _setup_init_parser(subparsers):
-    """Return the parser for the init sub-command.
+    """Set up the parser for the init sub-command.
     """
     parser = subparsers.add_parser(
         "init",
-        help="Create a new Blogofile site from an existing template.")
-    parser.extra_help = site_init.do_help
-    init_parsers = parser.add_subparsers()
-    for site in site_init.available_sites:
-        site_parser = init_parsers.add_parser(site[0], help=site[1])
-        site_parser.set_defaults(func=do_init, SITE_TEMPLATE=site[0])
-    parser.set_defaults(func=do_init)
+        help="Create a new blogofile site.")
+    parser.add_argument(
+        "src_dir",
+        help="""
+            Your site's source directory.
+            It will be created if it doesn't exist, as will any necessary
+            parent directories.
+            """)
+    parser.add_argument(
+        "plugin", nargs="?",
+        help="""
+            Plugin to initialize site from.
+            The plugin must already be installed;
+            use `blogofile plugins list` to get the list of installed plugins.
+            If omitted, a bare site directory will be created.
+            """)
+    defaults = {
+        "plugin": None,
+        "func": do_init,
+    }
+    parser.set_defaults(**defaults)
 
 
 def _setup_build_parser(subparsers):
-    """Return the parser for the build sub-command.
+    """Set up the parser for the build sub-command.
     """
     parser = subparsers.add_parser(
         "build", add_help=False,
@@ -102,7 +116,7 @@ def _setup_build_parser(subparsers):
 
 
 def _setup_serve_parser(subparsers):
-    """Return the parser for the serve sub-command.
+    """Set up the parser for the serve sub-command.
     """
     parser = subparsers.add_parser(
         "serve",
@@ -130,7 +144,7 @@ def _setup_serve_parser(subparsers):
 
 
 def _setup_info_parser(subparsers):
-    """Return the parser for the info sub-command.
+    """Set up the parser for the info sub-command.
     """
     parser = subparsers.add_parser(
         "info",
@@ -142,7 +156,7 @@ def _setup_info_parser(subparsers):
 
 
 def _setup_plugins_parser(subparsers, parser_template):
-    """Return the parser for the plugins sub-command.
+    """Set up the parser for the plugins sub-command.
     """
     parser = subparsers.add_parser(
         "plugins",
@@ -169,7 +183,7 @@ def _setup_plugins_parser(subparsers, parser_template):
 
 
 def _setup_filters_parser(subparsers):
-    """Return the parser for the filters sub-command.
+    """Set up the parser for the filters sub-command.
     """
     parser = subparsers.add_parser(
         "filters",

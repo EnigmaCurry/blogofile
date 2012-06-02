@@ -216,6 +216,30 @@ class TestInitParser(unittest.TestCase):
         main._setup_init_parser(subparsers)
         return parser.parse_args(*args)
 
+    def test_init_parser_src_dir_arg(self):
+        """init parser sets src_dir arg to given arg
+        """
+        args = self._parse_args('init foo'.split())
+        self.assertEqual(args.src_dir, 'foo')
+
+    def test_init_parser_plugin_default(self):
+        """init parser sets default plugin arg to None
+        """
+        args = self._parse_args('init foo'.split())
+        self.assertEqual(args.plugin, None)
+
+    def test_init_parser_plugin_arg(self):
+        """init parser sets plugin arg to given arg
+        """
+        args = self._parse_args('init foo bar'.split())
+        self.assertEqual(args.plugin, 'bar')
+
+    def test_init_parser_func_do_build(self):
+        """init action function is do_init
+        """
+        args = self._parse_args('init foo'.split())
+        self.assertEqual(args.func, main.do_init)
+
 
 class TestBuildParser(unittest.TestCase):
     """Unit tests for build sub-command parser.
