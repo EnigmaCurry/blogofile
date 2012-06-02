@@ -116,7 +116,7 @@ class TestParserTemplate(unittest.TestCase):
     def _call_fut(self):
         """Call function under test.
         """
-        return main._build_parser_template()
+        return main._setup_parser_template()
 
     def test_parser_template_src_dir_default(self):
         """parser template sets src_dir default to relative cwd
@@ -183,7 +183,7 @@ class TestHelpParser(unittest.TestCase):
         """
         parser = argparse.ArgumentParser()
         subparsers = parser.add_subparsers()
-        main._build_help_parser(subparsers)
+        main._setup_help_parser(subparsers)
         return parser.parse_args(*args)
 
     def test_help_parser_commands_default(self):
@@ -203,3 +203,130 @@ class TestHelpParser(unittest.TestCase):
         """
         args = self._parse_args(['help'])
         self.assertEqual(args.func, main.do_help)
+
+
+class TestInitParser(unittest.TestCase):
+    """Unit tests for init sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._setup_init_parser(subparsers)
+        return parser.parse_args(*args)
+
+
+class TestBuildParser(unittest.TestCase):
+    """Unit tests for build sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._setup_build_parser(subparsers)
+        return parser.parse_args(*args)
+
+    def test_build_parser_func_do_build(self):
+        """build action function is do_build
+        """
+        args = self._parse_args(['build'])
+        self.assertEqual(args.func, main.do_build)
+
+
+class TestServeParser(unittest.TestCase):
+    """Unit tests for serve sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._setup_serve_parser(subparsers)
+        return parser.parse_args(*args)
+
+    def test_serve_parser_ip_addr_default(self):
+        """serve parser sets ip address default to 127.0.0.1
+        """
+        args = self._parse_args(['serve'])
+        self.assertEqual(args.IP_ADDR, '127.0.0.1')
+
+    def test_serve_parser_ip_addr_arg(self):
+        """serve parser sets ip address to given arg
+        """
+        args = self._parse_args('serve 8888 192.168.1.5'.split())
+        self.assertEqual(args.IP_ADDR, '192.168.1.5')
+
+    def test_serve_parser_port_default(self):
+        """serve parser sets ip address default to 127.0.0.1
+        """
+        args = self._parse_args(['serve'])
+        self.assertEqual(args.PORT, '8080')
+
+    def test_serve_parser_port_arg(self):
+        """serve parser sets port to given arg
+        """
+        args = self._parse_args('serve 8888'.split())
+        self.assertEqual(args.PORT, '8888')
+
+    def test_serve_parser_func_do_serve(self):
+        """serve action function is do_serve
+        """
+        args = self._parse_args(['serve'])
+        self.assertEqual(args.func, main.do_serve)
+
+
+class TestInfoParser(unittest.TestCase):
+    """Unit tests for info sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._setup_info_parser(subparsers)
+        return parser.parse_args(*args)
+
+    def test_info_parser_func_do_info(self):
+        """info action function is do_info
+        """
+        args = self._parse_args(['info'])
+        self.assertEqual(args.func, main.do_info)
+
+
+class TestPluginsParser(unittest.TestCase):
+    """Unit tests for plugins sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser_template = argparse.ArgumentParser(add_help=False)
+        parser = argparse.ArgumentParser(parents=[parser_template])
+        subparsers = parser.add_subparsers()
+        main._setup_plugins_parser(subparsers, parser_template)
+        return parser.parse_args(*args)
+
+    def test_plugins_parser_func_list_plugins(self):
+        """plugins list action function is plugin.list_plugins
+        """
+        args = self._parse_args('plugins list'.split())
+        self.assertEqual(args.func, main.plugin.list_plugins)
+
+
+class TestFiltersParser(unittest.TestCase):
+    """Unit tests for filters sub-command parser.
+    """
+    def _parse_args(self, *args):
+        """Set up sub-command parser, parse args, and return result.
+        """
+        parser = argparse.ArgumentParser()
+        subparsers = parser.add_subparsers()
+        main._setup_filters_parser(subparsers)
+        return parser.parse_args(*args)
+
+    def test_filters_parser_func_list_filters(self):
+        """filters list action function is _filter.list_filters
+        """
+        args = self._parse_args('filters list'.split())
+        self.assertEqual(args.func, main._filter.list_filters)

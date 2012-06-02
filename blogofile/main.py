@@ -34,7 +34,7 @@ logger = logging.getLogger("blogofile")
 bf.logger = logger
 
 
-def _build_parser_template():
+def _setup_parser_template():
     """Return the parser template that other parser are based on.
     """
     parser_template = argparse.ArgumentParser(add_help=False)
@@ -61,7 +61,7 @@ def _build_parser_template():
     return parser_template
 
 
-def _build_help_parser(subparsers):
+def _setup_help_parser(subparsers):
     """Return the parser for the help sub-command.
     """
     parser = subparsers.add_parser(
@@ -76,80 +76,124 @@ def _build_help_parser(subparsers):
         'func': do_help,
     }
     parser.set_defaults(**defaults)
-    return parser
 
 
-def setup_command_parser():
-    parser_template = _build_parser_template()
-    parser = argparse.ArgumentParser(parents=[parser_template])
-    subparsers = parser.add_subparsers(title='subcommands')
-    _build_help_parser(subparsers)
-
-    p_build = subparsers.add_parser(
-        "build", help="Build the site from source.")
-    p_build.set_defaults(func=do_build)
-
-    p_init = subparsers.add_parser(
-        "init", help="Create a new Blogofile site from an existing template.")
-    p_init.set_defaults(func=do_init)
-    p_init.extra_help = site_init.do_help
-    init_parsers = p_init.add_subparsers()
+def _setup_init_parser(subparsers):
+    """Return the parser for the init sub-command.
+    """
+    parser = subparsers.add_parser(
+        "init",
+        help="Create a new Blogofile site from an existing template.")
+    parser.extra_help = site_init.do_help
+    init_parsers = parser.add_subparsers()
     for site in site_init.available_sites:
         site_parser = init_parsers.add_parser(site[0], help=site[1])
         site_parser.set_defaults(func=do_init, SITE_TEMPLATE=site[0])
+    parser.set_defaults(func=do_init)
 
-    p_serve = subparsers.add_parser(
+
+def _setup_build_parser(subparsers):
+    """Return the parser for the build sub-command.
+    """
+    parser = subparsers.add_parser(
+        "build", add_help=False,
+        help="Build the site from source.")
+    parser.set_defaults(func=do_build)
+
+
+def _setup_serve_parser(subparsers):
+    """Return the parser for the serve sub-command.
+    """
+    parser = subparsers.add_parser(
         "serve",
         help="""
             Host the _site dir with the builtin webserver.
             Useful for quickly testing your site.
             Not for production use!
             """)
-    p_serve.add_argument(
-        "PORT", nargs="?", default="8080", help="TCP port to use")
-    p_serve.add_argument(
-        "IP_ADDR", nargs="?", default="127.0.0.1",
+    parser.add_argument(
+        "PORT", nargs="?",
+        help="TCP port to use; defaults to %(default)s")
+    parser.add_argument(
+        "IP_ADDR", nargs="?",
         help="""
             IP address to bind to. Defaults to loopback only
-            (127.0.0.1). 0.0.0.0 binds to all network interfaces,
+            (%(default)s). 0.0.0.0 binds to all network interfaces,
             please be careful!.
             """)
-    p_serve.set_defaults(func=do_serve)
+    defaults = {
+        "PORT": "8080",
+        "IP_ADDR": "127.0.0.1",
+        "func": do_serve,
+    }
+    parser.set_defaults(**defaults)
 
-    p_info = subparsers.add_parser(
+
+def _setup_info_parser(subparsers):
+    """Return the parser for the info sub-command.
+    """
+    parser = subparsers.add_parser(
         "info",
         help="""
             Show information about the
             Blogofile installation and the current site.
             """)
-    p_info.set_defaults(func=do_info)
+    parser.set_defaults(func=do_info)
 
-    p_plugin = subparsers.add_parser("plugin", help="Plugin tools")
-    p_plugin_subparsers = p_plugin.add_subparsers()
-    p_plugin_list = p_plugin_subparsers.add_parser(
-        "list", help="List all the plugins installed")
-    p_plugin_list.set_defaults(func=plugin.list_plugins)
 
+def _setup_plugins_parser(subparsers, parser_template):
+    """Return the parser for the plugins sub-command.
+    """
+    parser = subparsers.add_parser(
+        "plugins",
+        help="Plugin tools")
+    plugin_subparsers = parser.add_subparsers()
+    plugins_list = plugin_subparsers.add_parser(
+        "list",
+        help="List all of the plugins installed")
+    plugins_list.set_defaults(func=plugin.list_plugins)
     for p in plugin.iter_plugins():
+        # Setup the plugin command parser, if it has one
         try:
             plugin_parser_setup = p.__dist__['command_parser_setup']
         except KeyError:
             continue
-        # Setup the plugin subcommand parser
         plugin_parser = subparsers.add_parser(
             p.__dist__['config_name'],
             help="Plugin: " + p.__dist__['description'])
-        plugin_parser.version = (
-            "{name} plugin {version} by {author} -- {url}"
+        plugin_parser.add_argument(
+            "--version", action="version",
+            version="{name} plugin {version} by {author} -- {url}"
             .format(**p.__dist__))
         plugin_parser_setup(plugin_parser, parser_template)
 
-    p_filter = subparsers.add_parser("filter", help="Filter tools")
-    p_filter_subparsers = p_filter.add_subparsers()
-    p_filter_list = p_filter_subparsers.add_parser(
-        "list", help="List all the filters installed")
-    p_filter_list.set_defaults(func=_filter.list_filters)
 
+def _setup_filters_parser(subparsers):
+    """Return the parser for the filters sub-command.
+    """
+    parser = subparsers.add_parser(
+        "filters",
+        help="Filter tools")
+    filter_subparsers = parser.add_subparsers()
+    filters_list = filter_subparsers.add_parser(
+        "list",
+        help="List all the filters installed")
+    filters_list.set_defaults(func=_filter.list_filters)
+
+
+def setup_command_parser():
+    """Set up the command line parser, and the parsers for the sub-commands.
+    """
+    parser_template = _setup_parser_template()
+    parser = argparse.ArgumentParser(parents=[parser_template])
+    subparsers = parser.add_subparsers(title='sub-commands')
+    _setup_help_parser(subparsers)
+    _setup_init_parser(subparsers)
+    _setup_build_parser(subparsers)
+    _setup_serve_parser(subparsers)
+    _setup_info_parser(subparsers)
+    _setup_plugins_parser(subparsers, parser_template)
+    _setup_filters_parser(subparsers)
     return parser, subparsers
 
 
