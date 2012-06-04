@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 # deal with python 3 and 2 differences in setting up server and handler
+# TODO: Clean this up using the six library
 try:
-    import http.server.HTTPServer as http_server
-    import http.server.SimpleHTTPRequestHandler as http_handler
+    from http.server import HTTPServer as http_server
 except ImportError:
     from SocketServer import TCPServer as http_server
+try:
+    from http.server import SimpleHTTPRequestHandler as http_handler
+except ImportError:
     from SimpleHTTPServer import SimpleHTTPRequestHandler as http_handler
 import logging
 import os
