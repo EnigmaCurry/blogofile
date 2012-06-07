@@ -7,23 +7,21 @@ from __future__ import print_function
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
 
-from blogofile import __version__
-
 import argparse
 import locale
 import logging
 import os
+import shutil
 import sys
-import shlex
 import time
 import platform
 
+from . import __version__
 from . import server
 from . import config
 from . import util
 from . import filter as _filter
 from . import plugin
-from . import site_init
 from .cache import bf
 from .exception import SourceDirectoryNotFound
 from .writer import Writer
@@ -36,114 +34,181 @@ logger = logging.getLogger("blogofile")
 bf.logger = logger
 
 
-def setup_command_parser():
-    # Parser template to base other parsers on
+def _setup_parser_template():
+    """Return the parser template that other parser are based on.
+    """
     parser_template = argparse.ArgumentParser(add_help=False)
-    parser_template.add_argument("-s", "--src-dir", dest="src_dir",
-                                 help="Your site's source directory "
-                                 "(default is current directory)",
-                        metavar="DIR", default=None)
-    parser_template.add_argument("--version", action="version")
-    parser_template.add_argument("-v", "--verbose", dest="verbose",
-                                 default=False, action="store_true",
-                                 help="Be verbose")
-    parser_template.add_argument("-vv", "--veryverbose", dest="veryverbose",
-                                 default=False, action="store_true",
-                                 help="Be extra verbose")
-    global parser, subparsers
-    parser = argparse.ArgumentParser(parents=[parser_template])
-    parser.version = "Blogofile {0} -- http://www.Blogofile.com -- {1} {2}"\
+    parser_template.add_argument(
+        "--version", action="version",
+        version="Blogofile {0} -- http://www.blogofile.com -- {1} {2}"
         .format(__version__, platform.python_implementation(),
-                platform.python_version())
-    subparsers = parser.add_subparsers()
+                platform.python_version()))
+    parser_template.add_argument(
+        "-s", "--src-dir", dest="src_dir", metavar="DIR",
+        help="Your site's source directory (default is current directory)")
+    parser_template.add_argument(
+        "-v", "--verbose", dest="verbose", action="store_true",
+        help="Be verbose")
+    parser_template.add_argument(
+        "-vv", "--veryverbose", dest="veryverbose", action="store_true",
+        help="Be extra verbose")
+    defaults = {
+        "src_dir": os.curdir,
+        "verbose": False,
+        "veryverbose": False,
+    }
+    parser_template.set_defaults(**defaults)
+    return parser_template
 
-    p_help = subparsers.add_parser("help", help="Show help for a command.",
-                                   add_help=False)
-    p_help.add_argument("command", help="a Blogofile subcommand e.g. build",
-                        nargs="*", default="none")
-    p_help.set_defaults(func=do_help)
 
-    p_build = subparsers.add_parser(
-        "build", help="Build the site from source.")
-    p_build.set_defaults(func=do_build)
+def _setup_help_parser(subparsers):
+    """Set up the parser for the help sub-command.
+    """
+    parser = subparsers.add_parser(
+        "help", add_help=False,
+        help="Show help for a command.")
+    parser.add_argument(
+        "command", nargs="*",
+        help="a Blogofile subcommand e.g. build")
+    parser.set_defaults(func=do_help)
+    defaults = {
+        'command': None,
+        'func': do_help,
+    }
+    parser.set_defaults(**defaults)
 
-    p_init = subparsers.add_parser(
-        "init", help="Create a new Blogofile site from an existing template.")
-    p_init.set_defaults(func=do_init)
-    p_init.extra_help = site_init.do_help
-    init_parsers = p_init.add_subparsers()
-    for site in site_init.available_sites:
-        site_parser = init_parsers.add_parser(site[0], help=site[1])
-        site_parser.set_defaults(func=do_init, SITE_TEMPLATE=site[0])
 
-    p_serve = subparsers.add_parser(
+def _setup_init_parser(subparsers):
+    """Set up the parser for the init sub-command.
+    """
+    parser = subparsers.add_parser(
+        "init",
+        help="Create a new blogofile site.")
+    parser.add_argument(
+        "src_dir",
+        help="""
+            Your site's source directory.
+            It will be created if it doesn't exist, as will any necessary
+            parent directories.
+            """)
+    parser.add_argument(
+        "plugin", nargs="?",
+        help="""
+            Plugin to initialize site from.
+            The plugin must already be installed;
+            use `blogofile plugins list` to get the list of installed plugins.
+            If omitted, a bare site directory will be created.
+            """)
+    defaults = {
+        "plugin": None,
+        "func": do_init,
+    }
+    parser.set_defaults(**defaults)
+
+
+def _setup_build_parser(subparsers):
+    """Set up the parser for the build sub-command.
+    """
+    parser = subparsers.add_parser(
+        "build", add_help=False,
+        help="Build the site from source.")
+    parser.set_defaults(func=do_build)
+
+
+def _setup_serve_parser(subparsers):
+    """Set up the parser for the serve sub-command.
+    """
+    parser = subparsers.add_parser(
         "serve",
         help="""
             Host the _site dir with the builtin webserver.
             Useful for quickly testing your site.
             Not for production use!
             """)
-    p_serve.add_argument(
-        "PORT", nargs="?", default="8080", help="TCP port to use")
-    p_serve.add_argument(
-        "IP_ADDR", nargs="?", default="127.0.0.1",
+    parser.add_argument(
+        "PORT", nargs="?",
+        help="TCP port to use; defaults to %(default)s")
+    parser.add_argument(
+        "IP_ADDR", nargs="?",
         help="""
             IP address to bind to. Defaults to loopback only
-            (127.0.0.1). 0.0.0.0 binds to all network interfaces,
+            (%(default)s). 0.0.0.0 binds to all network interfaces,
             please be careful!.
             """)
-    p_serve.set_defaults(func=do_serve)
+    defaults = {
+        "PORT": "8080",
+        "IP_ADDR": "127.0.0.1",
+        "func": do_serve,
+    }
+    parser.set_defaults(**defaults)
 
-    p_info = subparsers.add_parser(
+
+def _setup_info_parser(subparsers):
+    """Set up the parser for the info sub-command.
+    """
+    parser = subparsers.add_parser(
         "info",
         help="""
             Show information about the
             Blogofile installation and the current site.
             """)
-    p_info.set_defaults(func=do_info)
+    parser.set_defaults(func=do_info)
 
-    p_plugin = subparsers.add_parser("plugin", help="Plugin tools")
-    p_plugin_subparsers = p_plugin.add_subparsers()
-    p_plugin_list = p_plugin_subparsers.add_parser(
-        "list", help="List all the plugins installed")
-    p_plugin_list.set_defaults(func=plugin.list_plugins)
 
+def _setup_plugins_parser(subparsers, parser_template):
+    """Set up the parser for the plugins sub-command.
+    """
+    parser = subparsers.add_parser(
+        "plugins",
+        help="Plugin tools")
+    plugin_subparsers = parser.add_subparsers()
+    plugins_list = plugin_subparsers.add_parser(
+        "list",
+        help="List all of the plugins installed")
+    plugins_list.set_defaults(func=plugin.list_plugins)
     for p in plugin.iter_plugins():
+        # Setup the plugin command parser, if it has one
         try:
             plugin_parser_setup = p.__dist__['command_parser_setup']
         except KeyError:
             continue
-        # Setup the plugin subcommand parser
         plugin_parser = subparsers.add_parser(
             p.__dist__['config_name'],
             help="Plugin: " + p.__dist__['description'])
-        plugin_parser.version = (
-            "{name} plugin {version} by {author} -- {url}"
+        plugin_parser.add_argument(
+            "--version", action="version",
+            version="{name} plugin {version} by {author} -- {url}"
             .format(**p.__dist__))
         plugin_parser_setup(plugin_parser, parser_template)
 
-    p_filter = subparsers.add_parser("filter", help="Filter tools")
-    p_filter_subparsers = p_filter.add_subparsers()
-    p_filter_list = p_filter_subparsers.add_parser(
-        "list", help="List all the filters installed")
-    p_filter_list.set_defaults(func=_filter.list_filters)
 
-    return parser
+def _setup_filters_parser(subparsers):
+    """Set up the parser for the filters sub-command.
+    """
+    parser = subparsers.add_parser(
+        "filters",
+        help="Filter tools")
+    filter_subparsers = parser.add_subparsers()
+    filters_list = filter_subparsers.add_parser(
+        "list",
+        help="List all the filters installed")
+    filters_list.set_defaults(func=_filter.list_filters)
 
 
-def get_args(cmd=None):
-    if not cmd:
-        if len(sys.argv) <= 1:
-            parser.print_help()
-            parser.exit(1)
-        args = parser.parse_args()
-    else:
-        if sys.version_info < (3,):
-            # Python2 argparse really really wants a str not unicode :(
-            # exec needed to fool 3to2:
-            exec("cmd = str(cmd)")
-        args = parser.parse_args(shlex.split(cmd))
-    return args
+def setup_command_parser():
+    """Set up the command line parser, and the parsers for the sub-commands.
+    """
+    parser_template = _setup_parser_template()
+    parser = argparse.ArgumentParser(parents=[parser_template])
+    subparsers = parser.add_subparsers(title='sub-commands')
+    _setup_help_parser(subparsers)
+    _setup_init_parser(subparsers)
+    _setup_build_parser(subparsers)
+    _setup_serve_parser(subparsers)
+    _setup_info_parser(subparsers)
+    _setup_plugins_parser(subparsers, parser_template)
+    _setup_filters_parser(subparsers)
+    return parser, subparsers
 
 
 def find_src_root(path=os.curdir):
@@ -163,19 +228,38 @@ def find_src_root(path=os.curdir):
         path = parts[0]
 
 
-def main(cmd=None):
-    do_debug()
-    parser = setup_command_parser()
-    args = get_args(cmd)
+def main():
+    """Blogofile entry point.
 
+    Set up command line parser, parse args, and dispatch to
+    appropriate function. Print help and exit if there are too few args.
+    """
+    do_debug()
+    parser, subparsers = setup_command_parser()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        parser.exit(2)
+    else:
+        args = parser.parse_args()
+        set_verbosity(args)
+        if args.func == do_help:
+            do_help(args, parser, subparsers)
+        else:
+            args.func(args)
+
+
+def set_verbosity(args):
+    """Set verbosity level for logging as requested on command line.
+    """
     if args.verbose:
         logger.setLevel(logging.INFO)
         logger.info("Setting verbose mode")
-
     if args.veryverbose:
         logger.setLevel(logging.DEBUG)
         logger.info("Setting very verbose mode")
 
+
+def set_src_dir(args, parser):
     # Find the right source directory location:
     if args.func == do_init and not args.src_dir:
         args.src_dir = os.curdir
@@ -187,20 +271,16 @@ def main(cmd=None):
     if not args.src_dir or not os.path.isdir(args.src_dir):
         parser.exit(2, "source dir does not exit: {0.src_dir}\n".format(args))
     os.chdir(args.src_dir)
-
     # The src_dir, which is now the current working directory, should
-    # already be on the sys.path, but let's make this explicit:
+    # already be on the sys.path, but let's make this explicit.
     sys.path.insert(0, os.curdir)
 
-    args.func(args)
 
-
-def do_help(args):
-    global parser
+def do_help(args, parser, subparsers):
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
 
-    if "none" in args.command:
+    if not args.command:
         parser.print_help()
         print("\nSee 'blogofile help COMMAND' for more information"
               " on a specific command.")
@@ -261,7 +341,66 @@ def do_build(args, load_config=True):
 
 
 def do_init(args):
-    site_init.do_init(args)
+    """Initialize a new blogofile site.
+    """
+    # Look before we leap because _init_plugin_site uses
+    # shutil.copytree() which requires that the src_dir not already
+    # exist
+    if os.path.exists(args.src_dir):
+        print(
+            "{0.src_dir} already exists; initialization aborted"
+            .format(args),
+            file=sys.stderr)
+        sys.exit(1)
+    if args.plugin is None:
+        _init_bare_site(args.src_dir)
+    else:
+        _init_plugin_site(args)
+
+
+def _init_bare_site(src_dir):
+    """Initialize the site directory as a bare (do-it-yourself) site.
+
+    Write a minimal _config.py file and a message to the user.
+    """
+    bare_site_config = [
+        "# -*- coding: utf-8 -*-\n",
+        "# This is a minimal blogofile config file.\n",
+        "# See the docs for config options\n",
+        "# or run `blogofile help init` to learn how to initialize\n",
+        "# a site from a plugin.\n",
+    ]
+    os.makedirs(src_dir)
+    new_config_path = os.path.join(src_dir, '_config.py')
+    with open(new_config_path, 'wt', encoding='utf-8') as new_config:
+        new_config.writelines(bare_site_config)
+    print("_config.py for a bare (do-it-yourself) site "
+          "written to {0}\n"
+          "If you were expecting more, please see `blogofile init -h`"
+          .format(src_dir))
+
+
+def _init_plugin_site(args):
+    """Initialize the site directory with the approprate files from an
+    installed blogofile plugin.
+
+    Copy everything except the _controllers, _filters, and _templates
+    directories from the plugin's site_src directory.
+    """
+    p = plugin.get_by_name(args.plugin)
+    if p is None:
+        print("{0.plugin} plugin not installed; initialization aborted\n\n"
+              "installed plugins:".format(args),
+              file=sys.stderr)
+        plugin.list_plugins(args)
+        return
+    plugin_path = os.path.dirname(os.path.realpath(p.__file__))
+    site_src = os.path.join(plugin_path, 'site_src')
+    ignore_dirs = shutil.ignore_patterns(
+        '_controllers', '_filters', '_templates')
+    shutil.copytree(site_src, args.src_dir, ignore=ignore_dirs)
+    print("{0.plugin} plugin site_src files written to {0.src_dir}"
+          .format(args))
 
 
 def do_debug():
@@ -302,7 +441,3 @@ def do_info(args):
     else:
         print(
             "The specified directory has no _config.py, and cannot be built.")
-
-
-if __name__ == "__main__":
-    main()

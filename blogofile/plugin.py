@@ -29,12 +29,18 @@ def iter_plugins():
         yield plugin.load()
 
 
+def get_by_name(name):
+    for plugin in iter_plugins():
+        if plugin.__dist__['config_name'] == name:
+            return plugin
+
+
 def list_plugins(args):
     for plugin in iter_plugins():
         print("{0} ({1}) - {2} - {3}".format(plugin.__dist__['config_name'],
-                                           plugin.__dist__['version'],
-                                           plugin.__dist__['description'],
-                                           plugin.__dist__['author']))
+                                             plugin.__dist__['version'],
+                                             plugin.__dist__['description'],
+                                             plugin.__dist__['author']))
 
 
 def check_plugin_config(module):
