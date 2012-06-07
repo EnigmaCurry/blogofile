@@ -11,6 +11,7 @@ import argparse
 import locale
 import logging
 import os
+import shutil
 import sys
 import time
 import platform
@@ -21,7 +22,6 @@ from . import config
 from . import util
 from . import filter as _filter
 from . import plugin
-from . import site_init
 from .cache import bf
 from .exception import SourceDirectoryNotFound
 from .writer import Writer
@@ -341,7 +341,66 @@ def do_build(args, load_config=True):
 
 
 def do_init(args):
-    site_init.do_init(args)
+    """Initialize a new blogofile site.
+    """
+    # Look before we leap because _init_plugin_site uses
+    # shutil.copytree() which requires that the src_dir not already
+    # exist
+    if os.path.exists(args.src_dir):
+        print(
+            "{0.src_dir} already exists; initialization aborted"
+            .format(args),
+            file=sys.stderr)
+        sys.exit(1)
+    if args.plugin is None:
+        _init_bare_site(args.src_dir)
+    else:
+        _init_plugin_site(args)
+
+
+def _init_bare_site(src_dir):
+    """Initialize the site directory as a bare (do-it-yourself) site.
+
+    Write a minimal _config.py file and a message to the user.
+    """
+    bare_site_config = [
+        "# -*- coding: utf-8 -*-\n",
+        "# This is a minimal blogofile config file.\n",
+        "# See the docs for config options\n",
+        "# or run `blogofile help init` to learn how to initialize\n",
+        "# a site from a plugin.\n",
+    ]
+    os.makedirs(src_dir)
+    new_config_path = os.path.join(src_dir, '_config.py')
+    with open(new_config_path, 'wt', encoding='utf-8') as new_config:
+        new_config.writelines(bare_site_config)
+    print("_config.py for a bare (do-it-yourself) site "
+          "written to {0}\n"
+          "If you were expecting more, please see `blogofile init -h`"
+          .format(src_dir))
+
+
+def _init_plugin_site(args):
+    """Initialize the site directory with the approprate files from an
+    installed blogofile plugin.
+
+    Copy everything except the _controllers, _filters, and _templates
+    directories from the plugin's site_src directory.
+    """
+    p = plugin.get_by_name(args.plugin)
+    if p is None:
+        print("{0.plugin} plugin not installed; initialization aborted\n\n"
+              "installed plugins:".format(args),
+              file=sys.stderr)
+        plugin.list_plugins(args)
+        return
+    plugin_path = os.path.dirname(os.path.realpath(p.__file__))
+    site_src = os.path.join(plugin_path, 'site_src')
+    ignore_dirs = shutil.ignore_patterns(
+        '_controllers', '_filters', '_templates')
+    shutil.copytree(site_src, args.src_dir, ignore=ignore_dirs)
+    print("{0.plugin} plugin site_src files written to {0.src_dir}"
+          .format(args))
 
 
 def do_debug():

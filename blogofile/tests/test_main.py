@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 """Unit tests for blogofile main module.
 
-Tests entry point function, and command line parser.
+Tests entry point function, command line parser, and sub-command
+action functions.
 """
 import argparse
 import logging
+import os
 import platform
 import sys
 try:
     import unittest2 as unittest        # For Python 2.6
 except ImportError:
-    import unittest                     # NOQA
+    import unittest                     # flake8 ignore # NOQA
+from mock import MagicMock
 from mock import Mock
 from mock import patch
-from six.moves import cStringIO as StringIO
+import six
 from .. import main
 
 
@@ -132,7 +135,7 @@ class TestParserTemplate(unittest.TestCase):
         args = parser_template.parse_args('-s foo'.split())
         self.assertEqual(args.src_dir, 'foo')
 
-    @patch('sys.stderr', new_callable=StringIO)
+    @patch('sys.stderr', new_callable=six.StringIO)
     def test_parser_template_version(self, mock_stderr):
         """parser template version arg returns expected string and exits
         """
@@ -239,6 +242,218 @@ class TestInitParser(unittest.TestCase):
         """
         args = self._parse_args('init foo'.split())
         self.assertEqual(args.func, main.do_init)
+
+
+class TestDoInit(unittest.TestCase):
+    """Unit tests for init sub-command action function.
+    """
+    def _call_fut(self, args):
+        """Call the fuction under test.
+        """
+        main.do_init(args)
+
+    @patch.object(main.os.path, 'exists', return_value=True)
+    @patch('sys.stderr', new_callable=six.StringIO)
+    def test_do_init_not_overwrite_existing_src_dir(self, mock_stderr,
+                                                    mock_path_exists):
+        """do_init won't overwrite existing src_dir and exits w/ msg
+        """
+        args = Mock(src_dir='foo/bar', plugin=None)
+        self.assertRaises(SystemExit, self._call_fut, args)
+        self.assertEqual(
+            mock_stderr.getvalue(),
+            '{0.src_dir} already exists; initialization aborted\n'
+            .format(args))
+
+    @patch.object(main.os.path, 'exists', return_value=False)
+    @patch.object(main, '_init_bare_site', autospec=True)
+    def test_do_init_wo_plugin_calls_init_bare_site(self, mock_init_bare_site,
+                                                    mock_path_exists):
+        """do_init w/o plugin calls _init_bare_site w/ src_dir arg
+        """
+        args = Mock(src_dir='foo/bar', plugin=None)
+        self._call_fut(args)
+        mock_init_bare_site.assert_called_once_with(args.src_dir)
+
+    @patch.object(main.os.path, 'exists', return_value=False)
+    @patch.object(main, '_init_plugin_site', autospec=True)
+    def test_do_init_w_plugin_init_plugin_site(self, mock_init_plugin_site,
+                                               mock_path_exists):
+        """do_init w plugin calls _init_plugin_site w/ args
+        """
+        args = Mock(src_dir='foo/bar', plugin='blog')
+        self._call_fut(args)
+        mock_init_plugin_site.assert_called_once_with(args)
+
+
+class TestInitBareSite(unittest.TestCase):
+    """Unit tests _init_bare_site function.
+    """
+    def _call_fut(self, args):
+        """Call the fuction under test.
+        """
+        main._init_bare_site(args)
+
+    @patch.object(main.os, 'makedirs', autospec=True)
+    def test_init_bare_site_creates_src_dir(self, mock_mkdirs):
+        """_init_bare_site calls os.makedirs to create src_dir c/w parents
+        """
+        src_dir = 'foo/bar'
+        with patch.object(main, 'open', create=True) as mock_open:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            self._call_fut(src_dir)
+        mock_mkdirs.assert_called_once_with(src_dir)
+
+    @patch.object(main.os, 'makedirs')
+    def test_init_bare_site_writes_to_config_file(self, mock_mkdirs):
+        """_init_bare_site writes new _config.py file
+        """
+        with patch.object(main, 'open', create=True) as mock_open:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            new_config_handle = mock_open.return_value.__enter__.return_value
+            self._call_fut('foo/bar')
+            self.assertTrue(new_config_handle.writelines.called)
+
+    @patch.object(main.os, 'makedirs')
+    def test_init_bare_site_writes_config(self, mock_mkdirs):
+        """_init_bare_site writes expected lines to new _config.py file
+        """
+        with patch.object(main, 'open', create=True) as mock_open:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            new_config_handle = mock_open.return_value.__enter__.return_value
+            self._call_fut('foo/bar')
+            new_config_handle.writelines.called_with('# -*- coding: utf-8 -*-')
+
+    @patch.object(main.os, 'makedirs')
+    @patch('sys.stdout', new_callable=six.StringIO)
+    def test_init_bare_site_prints_config_written_msg(self, mock_stdout,
+                                                      mock_mkdirs):
+        """_init_bare_site prints msg re: creation of _config.py file
+        """
+        src_dir = 'foo/bar'
+        with patch.object(main, 'open', create=True) as mock_open:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            self._call_fut(src_dir)
+        self.assertEqual(
+            mock_stdout.getvalue(),
+            '_config.py for a bare (do-it-yourself) site written to {0}\n'
+            'If you were expecting more, please see `blogofile init -h`\n'
+            .format(src_dir))
+
+
+class TestInitPluginSite(unittest.TestCase):
+    """Unit tests _init_plugin_site function.
+    """
+    def _call_fut(self, *args):
+        """Call the fuction under test.
+        """
+        main._init_plugin_site(*args)
+
+    @patch.object(main.shutil, 'copytree')
+    def test_init_plugin_site_gets_plugin_by_name(self, mock_copytree):
+        """_init_plugin_site calls plugin.get_by_name w/ plugin arg
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        mock_plugin = Mock(__file__='baz_plugin/__init__.py')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=mock_plugin)
+        with patch_get_by_name as mock_get_by_name:
+            self._call_fut(args)
+        mock_get_by_name.assert_called_once_with(args.plugin)
+
+    @patch('sys.stderr', new_callable=six.StringIO)
+    def test_init_plugin_site_msg_re_unknown_plugin(self, mock_stderr):
+        """_init_plugin_site shows msg if plugin arg not found
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=None)
+        patch_open = patch.object(main, 'open', create=True)
+        with patch_open as mock_open, patch_get_by_name:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            self._call_fut(args)
+        self.assertTrue(
+            mock_stderr.getvalue().startswith(
+                '{0.plugin} plugin not installed; initialization aborted\n\n'
+                'installed plugins:\n'.format(args)))
+
+    @patch('sys.stderr', new_callable=six.StringIO)
+    def test_init_plugin_site_plugin_list_if_unknown_plugin(self, mock_stderr):
+        """
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=None)
+        patch_list_plugins = patch.object(plugin_module, 'list_plugins')
+        patch_open = patch.object(main, 'open', create=True)
+        with patch_list_plugins as mock_list_plugins, patch_get_by_name, \
+            patch_open:
+            self._call_fut(args)
+        assert mock_list_plugins.called
+
+    @patch.object(main.shutil, 'copytree')
+    @patch.object(main.shutil, 'ignore_patterns')
+    def test_init_plugin_site_ignore_dirs(self, mock_ignore_patterns,
+                                          mock_copytree):
+        """_init_plugin_site calls shutil.ignore_patterns w/ expected dirs
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        mock_plugin = Mock(__file__='baz_plugin/__init__.py')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=mock_plugin)
+        with patch_get_by_name:
+            self._call_fut(args)
+        mock_ignore_patterns.assert_called_once_with(
+            '_controllers', '_filters', '_templates')
+
+    @patch.object(main.shutil, 'ignore_patterns')
+    @patch.object(main.shutil, 'copytree')
+    def test_init_plugin_site_copies_site_src_tree(self, mock_copytree,
+                                                   mock_ignore_patterns):
+        """_init_plugin_site calls shutil.copytree w/ expected args
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        mock_plugin = Mock(__file__='baz_plugin/__init__.py')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=mock_plugin)
+        with patch_get_by_name:
+            self._call_fut(args)
+            mock_plugin_path = os.path.dirname(
+                os.path.realpath(mock_plugin.__file__))
+            mock_site_src = os.path.join(mock_plugin_path, 'site_src')
+        mock_copytree.assert_called_once_with(
+            mock_site_src, args.src_dir, ignore=mock_ignore_patterns())
+
+    @patch.object(main.shutil, 'copytree')
+    @patch('sys.stdout', new_callable=six.StringIO)
+    def test_init_plugin_site_prints_config_written_msg(self, mock_stdout,
+                                                        mock_copytree):
+        """_init_plugin_site prints msg re: creation of _config.py file
+        """
+        from .. import plugin as plugin_module
+        args = Mock(src_dir='foo/bar', plugin='baz')
+        mock_plugin = Mock(__file__='baz_plugin/__init__.py')
+        patch_get_by_name = patch.object(
+            plugin_module, 'get_by_name', return_value=mock_plugin)
+        patch_open = patch.object(main, 'open', create=True)
+        with patch_open as mock_open, patch_get_by_name:
+            spec = six.StringIO if six.PY3 else file
+            mock_open.return_value = MagicMock(spec=spec)
+            self._call_fut(args)
+        self.assertEqual(
+            mock_stdout.getvalue(),
+            '{0.plugin} plugin site_src files written to {0.src_dir}\n'
+            .format(args))
 
 
 class TestBuildParser(unittest.TestCase):
