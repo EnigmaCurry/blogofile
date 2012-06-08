@@ -4,6 +4,9 @@ Next release
 Features
 --------
 
+- The init sub-command syntax and functionality has changed; see
+  blogofile help init.
+
 - The codebase has been unified for Python 2.6, 2.7 and 3.2 (no 2to3 or
   3to2 conversion required).
 
