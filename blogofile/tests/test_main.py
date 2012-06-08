@@ -413,7 +413,7 @@ class TestInitPluginSite(unittest.TestCase):
         with patch_get_by_name:
             self._call_fut(args)
         mock_ignore_patterns.assert_called_once_with(
-            '_controllers', '_filters', '_templates')
+            '_controllers', '_filters')
 
     @patch.object(main.shutil, 'ignore_patterns')
     @patch.object(main.shutil, 'copytree')

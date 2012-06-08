@@ -397,7 +397,7 @@ def _init_plugin_site(args):
     plugin_path = os.path.dirname(os.path.realpath(p.__file__))
     site_src = os.path.join(plugin_path, 'site_src')
     ignore_dirs = shutil.ignore_patterns(
-        '_controllers', '_filters', '_templates')
+        '_controllers', '_filters')
     shutil.copytree(site_src, args.src_dir, ignore=ignore_dirs)
     print("{0.plugin} plugin site_src files written to {0.src_dir}"
           .format(args))
