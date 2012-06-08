@@ -375,10 +375,12 @@ class TestInitPluginSite(unittest.TestCase):
         patch_get_by_name = patch.object(
             plugin_module, 'get_by_name', return_value=None)
         patch_open = patch.object(main, 'open', create=True)
-        with patch_open as mock_open, patch_get_by_name:
+        # nested contexts for Python 2.6 compatibility
+        with patch_open as mock_open:
             spec = six.StringIO if six.PY3 else file
             mock_open.return_value = MagicMock(spec=spec)
-            self._call_fut(args)
+            with patch_get_by_name:
+                self._call_fut(args)
         self.assertTrue(
             mock_stderr.getvalue().startswith(
                 '{0.plugin} plugin not installed; initialization aborted\n\n'
@@ -394,9 +396,11 @@ class TestInitPluginSite(unittest.TestCase):
             plugin_module, 'get_by_name', return_value=None)
         patch_list_plugins = patch.object(plugin_module, 'list_plugins')
         patch_open = patch.object(main, 'open', create=True)
-        with patch_list_plugins as mock_list_plugins, patch_get_by_name, \
-            patch_open:
-            self._call_fut(args)
+        # nested contexts for Python 2.6 compatibility
+        with patch_list_plugins as mock_list_plugins:
+            with patch_get_by_name:
+                with patch_open:
+                    self._call_fut(args)
         assert mock_list_plugins.called
 
     @patch.object(main.shutil, 'copytree')
@@ -446,10 +450,12 @@ class TestInitPluginSite(unittest.TestCase):
         patch_get_by_name = patch.object(
             plugin_module, 'get_by_name', return_value=mock_plugin)
         patch_open = patch.object(main, 'open', create=True)
-        with patch_open as mock_open, patch_get_by_name:
+        # nested contexts for Python 2.6 compatibility
+        with patch_open as mock_open:
             spec = six.StringIO if six.PY3 else file
             mock_open.return_value = MagicMock(spec=spec)
-            self._call_fut(args)
+            with patch_get_by_name:
+                self._call_fut(args)
         self.assertEqual(
             mock_stdout.getvalue(),
             '{0.plugin} plugin site_src files written to {0.src_dir}\n'
