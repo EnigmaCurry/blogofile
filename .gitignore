@@ -10,7 +10,7 @@
 /blogofile/site_init/*.zip
 /blogofile/test_py2/*
 _site/*
-_documentation/themes/blogofile/layout.html
+docs/_build
 /.tox/*
 /MANIFEST
 /.coverage
