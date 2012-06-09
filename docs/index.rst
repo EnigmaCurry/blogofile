@@ -11,7 +11,7 @@ Blogofile Documentation
    Development of an improved 0.8 version is underway at
    http://github.com/EnigmaCurry/blogofile, however backward compatibilty is not
    guaranteed.
-   The `latest version of the docs`_ describes 0.8.
+   The `plugins version of the docs`_ describes 0.8.
 
 .. toctree::
    :maxdepth: 2
@@ -29,4 +29,4 @@ Blogofile Documentation
 
 .. _0.7.1 stable release: http://pypi.python.org/pypi/Blogofile/0.7.1/
 .. _Blogofile: http://blogofile.com/
-.. _latest version of the docs: http://blogofile.readthedocs.org/
+.. _plugins version of the docs: http://readthedocs.org/docs/blogofile/en/plugins/
