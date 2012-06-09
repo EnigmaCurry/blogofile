@@ -1,0 +1,46 @@
+   digraph {
+     start [shape=circle, label="Blogofile build starts"];
+     default_config [shape=box, label="Default configuration is loaded"]
+     filters_read [shape=box, label="Filters are discovered in the _filters directory,\nimported, and placed on bf.config.filters cache"]
+     controllers_read [shape=box, label="Controllers are discovered in the _controllers\ndirectory, imported, and placed on\nbf.config.controllers cache"]
+     user_config [shape=box, label="User's _config.py is loaded"]
+     user_pre_build [shape=box, label="User's pre_build function is run\n(if present in _config.py)"]
+     site_dir_created [shape=box, label="The _site directory is created.\n(contents cleared out first if necessary)"]
+     fatal_error [shape=box, label="A fatal error occurs, and the\n_site directory is incomplete"]
+     filter_init [shape=box, label="Filter's init methods run\n(optional; sets up context before running)"]
+     controller_init [shape=box, label="Controller's init methods run\n(optional; sets up context before running)"]
+     controllers_run [shape=box, label="Controllers run in order of configured priority."]
+     files_processed [shape=diamond, label="Rest of files in source\ndirectory are processed:"]
+     files_are_ignored [shape=box, label="The file or directory name matches one of the\nsite.file_ignore_patterns and is not copied"]
+     files_end_in_mako [shape=box, label="The filename ends in .mako; it's rendered as a\nMako template into the _site directory"]
+     files_are_other [shape=box, label="All other files and directories are\ncopied into the _site directory"]
+     user_post_build [shape=box, label="User's post_build function is run\n(if present in _config.py)"]
+     site_dir_success [shape=circle, label="User's _site directory\nbuilt successfully"];
+     user_build_finally [shape=box, label="User's build_finally function is run\n(if present in _config.py)"]
+   
+   
+   
+     start -> default_config;
+     default_config -> filters_read;
+     filters_read -> controllers_read;
+     controllers_read -> user_config;
+     user_config -> user_pre_build;
+     user_pre_build -> site_dir_created;
+     site_dir_created -> filter_init;
+     filter_init -> controller_init;
+     controller_init -> controllers_run;
+     controllers_run -> files_processed;
+     files_processed -> fatal_error;
+     files_processed -> files_are_ignored;
+     files_processed -> files_end_in_mako;
+     files_processed -> files_are_other;
+     files_end_in_mako -> site_dir_success;
+     files_are_other -> site_dir_success;
+     site_dir_success -> user_post_build;
+     user_post_build -> user_build_finally;
+     site_dir_created -> fatal_error;
+     filter_init -> fatal_error;
+     controller_init -> fatal_error;
+     controllers_run -> fatal_error;
+     fatal_error -> user_build_finally;
+   }

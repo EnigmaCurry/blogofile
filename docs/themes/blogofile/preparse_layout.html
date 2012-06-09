@@ -1,0 +1,29 @@
+{% extends "basic/layout.html" %}
+
+{% set script_files = script_files + [pathto("/js/documentation.js", 1)] %}
+
+{% block metatags %}
+<script> x=5; </script>
+{% endblock %}
+
+{% block extrahead %}
+blogofile_head_goes_here
+
+<style>
+  body { padding: 0px; }
+</style>
+{% endblock %}
+
+{% block header %}
+  <div id="content">
+  blogofile_header_goes_here
+{% endblock %}
+{% block footer %}
+  blogofile_footer_goes_here
+  </div>
+{% endblock %}
+
+{% block sidebarsearch %}
+ {{ super() }}
+ {# <a href="/documentation/Blogofile.pdf"><img src="/site_img/pdficon_large.gif"/> PDF Version</a> #}
+{% endblock %}
