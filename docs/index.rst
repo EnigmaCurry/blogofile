@@ -6,7 +6,12 @@
 Blogofile Documentation
 #######################
 
-NOTE: This documents the `1.0.0-DEV version <http://github.com/EnigmaCurry/blogofile>`_ of Blogofile. It can sometimes be out of sync with the latest stable release.
+.. note::
+   This documents the 0.8 development version of Blogofile_.
+   Development of 0.8 is underway at http://github.com/EnigmaCurry/blogofile.
+   There are also `docs for 0.7.1`_, the current stable release.
+
+   0.8 is not guaranteed to be backward compatible with 0.7.1.
 
 .. toctree::
    :maxdepth: 2
@@ -22,4 +27,5 @@ NOTE: This documents the `1.0.0-DEV version <http://github.com/EnigmaCurry/blogo
    vcs_integration
    migrating_blogs
 
-.. _development version: 
+.. _Blogofile: http://blogofile.com/
+.. _docs for 0.7.1: http://blogofile.readthedocs.org/en/0.7.1docs/
