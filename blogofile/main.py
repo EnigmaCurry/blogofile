@@ -228,19 +228,24 @@ def find_src_root(path=os.curdir):
         path = parts[0]
 
 
-def main():
+def main(argv=[]):
     """Blogofile entry point.
 
     Set up command line parser, parse args, and dispatch to
     appropriate function. Print help and exit if there are too few args.
+
+    :arg argv: List of command line arguments. Non-empty list facilitates
+               integration tests.
+    :type argv: list
     """
     do_debug()
+    argv = argv or sys.argv
     parser, subparsers = setup_command_parser()
-    if len(sys.argv) == 1:
+    if len(argv) == 1:
         parser.print_help()
         parser.exit(2)
     else:
-        args = parser.parse_args()
+        args = parser.parse_args(argv[1:])
         set_verbosity(args)
         if args.func == do_help:
             do_help(args, parser, subparsers)
