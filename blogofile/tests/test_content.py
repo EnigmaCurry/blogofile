@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-import unittest
+try:
+    import unittest2 as unittest        # For Python 2.6
+except ImportError:
+    import unittest                     # flake8 ignore # NOQA
 import tempfile
 import shutil
 import os
 from blogofile import main
 
 
+@unittest.skip('outdated integration test')
 class TestContent(unittest.TestCase):
 
     def setUp(self):
