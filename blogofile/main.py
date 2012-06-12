@@ -377,7 +377,7 @@ def _init_bare_site(src_dir):
     ]
     os.makedirs(src_dir)
     new_config_path = os.path.join(src_dir, '_config.py')
-    with open(new_config_path, 'wt', encoding='utf-8') as new_config:
+    with open(new_config_path, 'wt') as new_config:
         new_config.writelines(bare_site_config)
     print("_config.py for a bare (do-it-yourself) site "
           "written to {0}\n"
