@@ -276,7 +276,7 @@ def create_slug_old(title):
 
 if bf.config.site.slugify:
     # user has defined their own function, use it instead
-    create_slug = config.slugify
+    create_slug = bf.config.site.slugify
 elif bf.config.blog.slugify:
     # for backwards compatibility
     create_slug = bf.config.blog.slugify
