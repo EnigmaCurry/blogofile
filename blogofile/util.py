@@ -273,13 +273,14 @@ def create_slug_old(title):
     # (reference RFC 1738 section 2.2)
     slug = re.sub("[^a-zA-Z0-9$\-_\.+!*'(),]", "-", slug).lower()
     return slug
-if bf.config.slugify:
+
+if bf.config.site.slugify:
     # user has defined their own function, use it instead
     create_slug = config.slugify
 elif bf.config.blog.slugify:
     # for backwards compatibility
     create_slug = bf.config.blog.slugify
-elif bf.config.slug_unicode:
+elif bf.config.site.slug_unicode:
     # unicode slugs
     create_slug = create_slug_new
     _unidecode_func = lambda s: s
