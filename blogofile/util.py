@@ -274,24 +274,33 @@ def create_slug_old(title):
     slug = re.sub("[^a-zA-Z0-9$\-_\.+!*'(),]", "-", slug).lower()
     return slug
 
-if bf.config.site.slugify:
-    # user has defined their own function, use it instead
-    create_slug = bf.config.site.slugify
-elif bf.config.blog.slugify:
-    # for backwards compatibility
-    create_slug = bf.config.blog.slugify
-elif bf.config.site.slug_unicode:
-    # unicode slugs
-    create_slug = create_slug_new
-    _unidecode_func = lambda s: s
-else:
-    try:
-        # ASCII slugs, better unicode handling
-        from unidecode import unidecode
-        _unidecode_func = unidecode
-        create_slug = create_slug_new
-    except ImportError:
-        # fallback to old function
-        create_slug = create_slug_old
+_create_slug = None
+_unidecode_func = None
+def create_slug(title):
+    global _create_slug
+    global _unidecode_func
+    if _create_slug == None:
+        # first launch, deterimining what method to use
+        if bf.config.site.slugify:
+            # user has defined their own function, use it instead
+            _create_slug = bf.config.site.slugify
+        elif bf.config.blog.slugify:
+            # for backwards compatibility
+            _create_slug = bf.config.blog.slugify
+        elif bf.config.site.slug_unicode:
+            # unicode slugs
+            _create_slug = create_slug_new
+            _unidecode_func = lambda s: s
+        else:
+            try:
+                # ASCII slugs, better unicode handling
+                from unidecode import unidecode
+                _unidecode_func = unidecode
+                _create_slug = create_slug_new
+            except ImportError:
+                # fallback to old function
+                _create_slug = create_slug_old
+    print(_create_slug(title))
+    return _create_slug(title)
 _str_func = unicode if sys.version_info < (3,) else str
 
