@@ -300,7 +300,6 @@ def create_slug(title):
             except ImportError:
                 # fallback to old function
                 _create_slug = create_slug_old
-    print(_create_slug(title))
     return _create_slug(title)
 _str_func = unicode if sys.version_info < (3,) else str
 
