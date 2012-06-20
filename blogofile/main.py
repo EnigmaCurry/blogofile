@@ -34,6 +34,67 @@ logger = logging.getLogger("blogofile")
 bf.logger = logger
 
 
+def main(argv=[]):
+    """Blogofile entry point.
+
+    Set up command line parser, parse args, and dispatch to
+    appropriate function. Print help and exit if there are too few args.
+
+    :arg argv: List of command line arguments. Non-empty list facilitates
+               integration tests.
+    :type argv: list
+    """
+    do_debug()
+    argv = argv or sys.argv
+    parser, subparsers = setup_command_parser()
+    if len(argv) == 1:
+        parser.print_help()
+        parser.exit(2)
+    else:
+        args = parser.parse_args(argv[1:])
+        set_verbosity(args)
+        if args.func == do_help:
+            do_help(args, parser, subparsers)
+        else:
+            args.func(args)
+
+
+def do_debug():
+    """Run blogofile in debug mode depending on the BLOGOFILE_DEBUG environment
+    variable:
+    If set to "ipython" just start up an embeddable ipython shell at bf.ipshell
+    If set to anything else besides 0, setup winpdb environment
+    """
+    try:
+        if os.environ['BLOGOFILE_DEBUG'] == "ipython":
+            from IPython.Shell import IPShellEmbed
+            bf.ipshell = IPShellEmbed()
+        elif os.environ['BLOGOFILE_DEBUG'] != "0":
+            print("Running in debug mode, waiting for debugger to connect. "
+                  "Password is set to 'blogofile'")
+            import rpdb2
+            rpdb2.start_embedded_debugger("blogofile")
+    except KeyError:
+        # Not running in debug mode
+        pass
+
+
+def setup_command_parser():
+    """Set up the command line parser, and the parsers for the sub-commands.
+    """
+    parser_template = _setup_parser_template()
+    parser = argparse.ArgumentParser(parents=[parser_template])
+    subparsers = parser.add_subparsers(title='sub-commands')
+    _setup_help_parser(subparsers)
+    _setup_init_parser(subparsers)
+    _setup_build_parser(subparsers)
+    _setup_serve_parser(subparsers)
+    _setup_info_parser(subparsers)
+    _setup_plugins_parser(subparsers, parser_template)
+    _setup_filters_parser(subparsers)
+    return parser, subparsers
+
+
 def _setup_parser_template():
     """Return the parser template that other parser are based on.
     """
@@ -195,64 +256,6 @@ def _setup_filters_parser(subparsers):
     filters_list.set_defaults(func=_filter.list_filters)
 
 
-def setup_command_parser():
-    """Set up the command line parser, and the parsers for the sub-commands.
-    """
-    parser_template = _setup_parser_template()
-    parser = argparse.ArgumentParser(parents=[parser_template])
-    subparsers = parser.add_subparsers(title='sub-commands')
-    _setup_help_parser(subparsers)
-    _setup_init_parser(subparsers)
-    _setup_build_parser(subparsers)
-    _setup_serve_parser(subparsers)
-    _setup_info_parser(subparsers)
-    _setup_plugins_parser(subparsers, parser_template)
-    _setup_filters_parser(subparsers)
-    return parser, subparsers
-
-
-def find_src_root(path=os.curdir):
-    """Find the root src directory.
-
-    peel away directories until we find a _config.py.
-
-    Raises SourceDirectoryNotFound if we can't find one.
-    """
-    path = os.path.abspath(path)
-    while True:
-        if os.path.isfile(os.path.join(path, "_config.py")):
-            return path
-        parts = os.path.split(path)
-        if len(parts[1]) == 0:
-            raise SourceDirectoryNotFound
-        path = parts[0]
-
-
-def main(argv=[]):
-    """Blogofile entry point.
-
-    Set up command line parser, parse args, and dispatch to
-    appropriate function. Print help and exit if there are too few args.
-
-    :arg argv: List of command line arguments. Non-empty list facilitates
-               integration tests.
-    :type argv: list
-    """
-    do_debug()
-    argv = argv or sys.argv
-    parser, subparsers = setup_command_parser()
-    if len(argv) == 1:
-        parser.print_help()
-        parser.exit(2)
-    else:
-        args = parser.parse_args(argv[1:])
-        set_verbosity(args)
-        if args.func == do_help:
-            do_help(args, parser, subparsers)
-        else:
-            args.func(args)
-
-
 def set_verbosity(args):
     """Set verbosity level for logging as requested on command line.
     """
@@ -279,6 +282,23 @@ def set_src_dir(args, parser):
     # The src_dir, which is now the current working directory, should
     # already be on the sys.path, but let's make this explicit.
     sys.path.insert(0, os.curdir)
+
+
+def find_src_root(path=os.curdir):
+    """Find the root src directory.
+
+    peel away directories until we find a _config.py.
+
+    Raises SourceDirectoryNotFound if we can't find one.
+    """
+    path = os.path.abspath(path)
+    while True:
+        if os.path.isfile(os.path.join(path, "_config.py")):
+            return path
+        parts = os.path.split(path)
+        if len(parts[1]) == 0:
+            raise SourceDirectoryNotFound
+        path = parts[0]
 
 
 def do_help(args, parser, subparsers):
@@ -311,38 +331,6 @@ def do_help(args, parser, subparsers):
             # Perform any extra help tasks:
             if hasattr(parser, "extra_help"):
                 parser.extra_help()
-
-
-def do_serve(args):
-    config.init_interactive(args)
-    bfserver = server.Server(args.PORT, args.IP_ADDR)
-    bfserver.start()
-    while not bfserver.is_shutdown:
-        try:
-            time.sleep(0.5)
-        except KeyboardInterrupt:
-            bfserver.shutdown()
-
-
-def do_build(args, load_config=True):
-    if load_config:
-        config.init_interactive(args)
-    output_dir = util.path_join("_site", util.fs_site_path_helper())
-    writer = Writer(output_dir=output_dir)
-    logger.debug("Running user's pre_build() function...")
-    config.pre_build()
-    try:
-        writer.write_site()
-        logger.debug("Running user's post_build() function...")
-        config.post_build()
-    except:
-        logger.error(
-            "Fatal build error occured, calling bf.config.build_exception()")
-        config.build_exception()
-        raise
-    finally:
-        logger.debug("Running user's build_finally() function...")
-        config.build_finally()
 
 
 def do_init(args):
@@ -408,24 +396,36 @@ def _init_plugin_site(args):
           .format(args))
 
 
-def do_debug():
-    """Run blogofile in debug mode depending on the BLOGOFILE_DEBUG environment
-    variable:
-    If set to "ipython" just start up an embeddable ipython shell at bf.ipshell
-    If set to anything else besides 0, setup winpdb environment
-    """
+def do_build(args, load_config=True):
+    if load_config:
+        config.init_interactive(args)
+    output_dir = util.path_join("_site", util.fs_site_path_helper())
+    writer = Writer(output_dir=output_dir)
+    logger.debug("Running user's pre_build() function...")
+    config.pre_build()
     try:
-        if os.environ['BLOGOFILE_DEBUG'] == "ipython":
-            from IPython.Shell import IPShellEmbed
-            bf.ipshell = IPShellEmbed()
-        elif os.environ['BLOGOFILE_DEBUG'] != "0":
-            print("Running in debug mode, waiting for debugger to connect. "
-                  "Password is set to 'blogofile'")
-            import rpdb2
-            rpdb2.start_embedded_debugger("blogofile")
-    except KeyError:
-        # Not running in debug mode
-        pass
+        writer.write_site()
+        logger.debug("Running user's post_build() function...")
+        config.post_build()
+    except:
+        logger.error(
+            "Fatal build error occured, calling bf.config.build_exception()")
+        config.build_exception()
+        raise
+    finally:
+        logger.debug("Running user's build_finally() function...")
+        config.build_finally()
+
+
+def do_serve(args):
+    config.init_interactive(args)
+    bfserver = server.Server(args.PORT, args.IP_ADDR)
+    bfserver.start()
+    while not bfserver.is_shutdown:
+        try:
+            time.sleep(0.5)
+        except KeyboardInterrupt:
+            bfserver.shutdown()
 
 
 def do_info(args):
