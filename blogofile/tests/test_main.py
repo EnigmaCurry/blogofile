@@ -34,7 +34,8 @@ class TestEntryPoint(unittest.TestCase):
         mock_parser.exit = sys.exit
         with patch.object(main, 'sys') as mock_sys:
             mock_sys.argv = ['blogofile']
-            self.assertRaises(SystemExit, self._call_entry_point)
+            with self.assertRaises(SystemExit):
+                self._call_entry_point()
         mock_parser.print_help.assert_called_once()
 
     @patch.object(main, 'setup_command_parser', return_value=(Mock(), []))
@@ -141,8 +142,8 @@ class TestParserTemplate(unittest.TestCase):
         """
         from .. import __version__
         parser_template = self._call_fut()
-        self.assertRaises(
-            SystemExit, parser_template.parse_args, ['--version'])
+        with self.assertRaises(SystemExit):
+            parser_template.parse_args(['--version'])
         self.assertEqual(
             mock_stderr.getvalue(),
             'Blogofile {0} -- http://www.blogofile.com -- {1} {2}\n'
@@ -259,7 +260,8 @@ class TestDoInit(unittest.TestCase):
         """do_init won't overwrite existing src_dir and exits w/ msg
         """
         args = Mock(src_dir='foo/bar', plugin=None)
-        self.assertRaises(SystemExit, self._call_fut, args)
+        with self.assertRaises(SystemExit):
+            self._call_fut(args)
         self.assertEqual(
             mock_stderr.getvalue(),
             '{0.src_dir} already exists; initialization aborted\n'
