@@ -277,7 +277,7 @@ def set_src_dir(args, parser):
         except SourceDirectoryNotFound:
             args.src_dir = os.path.abspath(os.curdir)
     if not args.src_dir or not os.path.isdir(args.src_dir):
-        parser.exit(2, "source dir does not exit: {0.src_dir}\n".format(args))
+        parser.exit(2, "source dir does not exist: {0.src_dir}\n".format(args))
     os.chdir(args.src_dir)
     # The src_dir, which is now the current working directory, should
     # already be on the sys.path, but let's make this explicit.
