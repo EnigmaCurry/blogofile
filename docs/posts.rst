@@ -64,6 +64,15 @@ The `YAML`_ portion is between the two ``---`` lines, and it describes all of th
 
 This list is also defined in the blogofile source code under ``blogofile.post.reserved_field_names`` and can be accessed as a dictionary at runtime.
 
+Note that `YAML syntax rules`_ apply to header fields.
+For instance,
+if you want to include characters like colon (:),
+apostrophe or single quote('), etc.
+in your post title,
+you must enclose the entire title in double quotes (").
+
+.. _YAML syntax rules: http://pyyaml.org/wiki/PyYAMLDocumentation#YAMLsyntax
+
 .. _post-content:
 
 Post Content
