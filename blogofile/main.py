@@ -23,7 +23,6 @@ from . import util
 from . import filter as _filter
 from . import plugin
 from .cache import bf
-from .exception import SourceDirectoryNotFound
 from .writer import Writer
 
 
@@ -267,40 +266,6 @@ def set_verbosity(args):
         logger.info("Setting very verbose mode")
 
 
-def set_src_dir(args, parser):
-    # Find the right source directory location:
-    if args.func == do_init and not args.src_dir:
-        args.src_dir = os.curdir
-    elif not args.src_dir:
-        try:
-            args.src_dir = find_src_root()
-        except SourceDirectoryNotFound:
-            args.src_dir = os.path.abspath(os.curdir)
-    if not args.src_dir or not os.path.isdir(args.src_dir):
-        parser.exit(2, "source dir does not exist: {0.src_dir}\n".format(args))
-    os.chdir(args.src_dir)
-    # The src_dir, which is now the current working directory, should
-    # already be on the sys.path, but let's make this explicit.
-    sys.path.insert(0, os.curdir)
-
-
-def find_src_root(path=os.curdir):
-    """Find the root src directory.
-
-    peel away directories until we find a _config.py.
-
-    Raises SourceDirectoryNotFound if we can't find one.
-    """
-    path = os.path.abspath(path)
-    while True:
-        if os.path.isfile(os.path.join(path, "_config.py")):
-            return path
-        parts = os.path.split(path)
-        if len(parts[1]) == 0:
-            raise SourceDirectoryNotFound
-        path = parts[0]
-
-
 def do_help(args, parser, subparsers):
     if "commands" in args.command:
         args.command = sorted(subparsers.choices.keys())
@@ -397,6 +362,7 @@ def _init_plugin_site(args):
 
 
 def do_build(args, load_config=True):
+    _validate_src_dir(args.src_dir)
     if load_config:
         config.init_interactive(args)
     output_dir = util.path_join("_site", util.fs_site_path_helper())
@@ -417,7 +383,22 @@ def do_build(args, load_config=True):
         config.build_finally()
 
 
+def _validate_src_dir(src_dir):
+    """Confirm that `src_dir` exists, and contains a `_config.py` file.
+
+    If so, make `src_dir` the working directory.
+    """
+    if not os.path.isdir(src_dir):
+        print("source dir does not exist: {0}".format(src_dir))
+        sys.exit(1)
+    if not os.path.isfile(os.path.join(src_dir, "_config.py")):
+        print("source dir does not contain a _config.py file")
+        sys.exit(1)
+    os.chdir(src_dir)
+
+
 def do_serve(args):
+    _validate_src_dir(args.src_dir)
     config.init_interactive(args)
     bfserver = server.Server(args.PORT, args.IP_ADDR)
     bfserver.start()
@@ -440,7 +421,7 @@ def do_info(args):
     print("Blogofile is installed at: {0}".format(os.path.split(__file__)[0]))
     # Show _config.py paths
     print(("Default config file: {0}".format(config.default_config_path())))
-    if os.path.isfile("_config.py"):
+    if os.path.isfile(os.path.join(args.src_dir, "_config.py")):
         print("Found site _config.py: {0}"
               .format(os.path.abspath("_config.py")))
     else:
