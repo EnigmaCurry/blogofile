@@ -34,5 +34,5 @@ class TestBlogofileCommands(unittest.TestCase):
         self.addCleanup(shutil.rmtree, src_dir)
         os.rmdir(src_dir)
         self._call_entry_point(['blogofile', 'init', src_dir])
-        self._call_entry_point(['blogofile', '-s', src_dir, 'build'])
+        self._call_entry_point(['blogofile', 'build', '-s', src_dir])
         self.assertIn('_site', os.listdir(src_dir))

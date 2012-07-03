@@ -122,20 +122,6 @@ class TestParserTemplate(unittest.TestCase):
         """
         return main._setup_parser_template()
 
-    def test_parser_template_src_dir_default(self):
-        """parser template sets src_dir default to relative cwd
-        """
-        parser_template = self._call_fut()
-        args = parser_template.parse_args([])
-        self.assertEqual(args.src_dir, '.')
-
-    def test_parser_template_src_dir_value(self):
-        """parser template sets src_dir to arg value
-        """
-        parser_template = self._call_fut()
-        args = parser_template.parse_args('-s foo'.split())
-        self.assertEqual(args.src_dir, 'foo')
-
     @patch('sys.stderr', new_callable=six.StringIO)
     def test_parser_template_version(self, mock_stderr):
         """parser template version arg returns expected string and exits
@@ -475,6 +461,18 @@ class TestBuildParser(unittest.TestCase):
         main._setup_build_parser(subparsers)
         return parser.parse_args(*args)
 
+    def test_build_parser_src_dir_default(self):
+        """build parser sets src_dir default to relative cwd
+        """
+        args = self._parse_args(['build'])
+        self.assertEqual(args.src_dir, '.')
+
+    def test_build_parser_src_dir_value(self):
+        """build parser sets src_dir to arg value
+        """
+        args = self._parse_args('build -s foo'.split())
+        self.assertEqual(args.src_dir, 'foo')
+
     def test_build_parser_func_do_build(self):
         """build action function is do_build
         """
@@ -517,6 +515,18 @@ class TestServeParser(unittest.TestCase):
         args = self._parse_args('serve 8888'.split())
         self.assertEqual(args.PORT, '8888')
 
+    def test_serve_parser_src_dir_default(self):
+        """serve parser sets src_dir default to relative cwd
+        """
+        args = self._parse_args(['serve'])
+        self.assertEqual(args.src_dir, '.')
+
+    def test_serve_parser_src_dir_value(self):
+        """serve parser sets src_dir to arg value
+        """
+        args = self._parse_args('serve -s foo'.split())
+        self.assertEqual(args.src_dir, 'foo')
+
     def test_serve_parser_func_do_serve(self):
         """serve action function is do_serve
         """
@@ -534,6 +544,18 @@ class TestInfoParser(unittest.TestCase):
         subparsers = parser.add_subparsers()
         main._setup_info_parser(subparsers)
         return parser.parse_args(*args)
+
+    def test_info_parser_src_dir_default(self):
+        """info parser sets src_dir default to relative cwd
+        """
+        args = self._parse_args(['info'])
+        self.assertEqual(args.src_dir, '.')
+
+    def test_info_parser_src_dir_value(self):
+        """info parser sets src_dir to arg value
+        """
+        args = self._parse_args('info -s foo'.split())
+        self.assertEqual(args.src_dir, 'foo')
 
     def test_info_parser_func_do_info(self):
         """info action function is do_info

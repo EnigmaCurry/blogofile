@@ -104,9 +104,6 @@ def _setup_parser_template():
         .format(__version__, platform.python_implementation(),
                 platform.python_version()))
     parser_template.add_argument(
-        "-s", "--src-dir", dest="src_dir", metavar="DIR",
-        help="Your site's source directory (default is current directory)")
-    parser_template.add_argument(
         "-v", "--verbose", dest="verbose", action="store_true",
         help="Be verbose")
     parser_template.add_argument(
@@ -170,9 +167,16 @@ def _setup_build_parser(subparsers):
     """Set up the parser for the build sub-command.
     """
     parser = subparsers.add_parser(
-        "build", add_help=False,
+        "build",
         help="Build the site from source.")
-    parser.set_defaults(func=do_build)
+    parser.add_argument(
+        "-s", "--src-dir", dest="src_dir", metavar="DIR",
+        help="Your site's source directory (default is current directory)")
+    defaults = {
+        "src_dir": os.curdir,
+        "func": do_build,
+    }
+    parser.set_defaults(**defaults)
 
 
 def _setup_serve_parser(subparsers):
@@ -195,9 +199,13 @@ def _setup_serve_parser(subparsers):
             (%(default)s). 0.0.0.0 binds to all network interfaces,
             please be careful!.
             """)
+    parser.add_argument(
+        "-s", "--src-dir", dest="src_dir", metavar="DIR",
+        help="Your site's source directory (default is current directory)")
     defaults = {
         "PORT": "8080",
         "IP_ADDR": "127.0.0.1",
+        "src_dir": os.curdir,
         "func": do_serve,
     }
     parser.set_defaults(**defaults)
@@ -212,7 +220,14 @@ def _setup_info_parser(subparsers):
             Show information about the
             Blogofile installation and the current site.
             """)
-    parser.set_defaults(func=do_info)
+    parser.add_argument(
+        "-s", "--src-dir", dest="src_dir", metavar="DIR",
+        help="Your site's source directory (default is current directory)")
+    defaults = {
+        "src_dir": os.curdir,
+        "func": do_info,
+    }
+    parser.set_defaults(**defaults)
 
 
 def _setup_plugins_parser(subparsers, parser_template):
