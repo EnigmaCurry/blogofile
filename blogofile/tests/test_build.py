@@ -189,8 +189,3 @@ class TestBuild(unittest.TestCase):
         assert "index.html" in os.listdir(
             os.path.join(self.build_path, "_site", "some-crazy-blog",
                          "2009", "07", "24", "post-2"))
-
-    def testSimpleBlog(self):
-        """Just do a quick check to make sure simple_blog builds"""
-        main.main("init simple_blog")
-        main.main("build")
