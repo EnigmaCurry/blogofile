@@ -1,31 +1,49 @@
 A Quick Tutorial
 ****************
 
-Ok, if you're impatient, this is the short *short* [#f1]_ version of getting setup with blogofile.
+.. note::
+   This documents the 0.8 development version of Blogofile_
+   (also known as the *plugins* branch).
+   There are also `docs for 0.7.1`_, the current stable release.
 
-* Install Blogofile, (see :ref:`install-blogofile`):
+.. _Blogofile: http://blogofile.com/
+.. _docs for 0.7.1: http://blogofile.readthedocs.org/en/0.7.1docs/
 
- ``sudo easy_install blogofile``
+Ok, if you're impatient, this is the short *short* [#f1]_ version of
+getting setup with blogofile.
 
-* In a clean directory, initialize the bare bones sample site:
+* Install Blogofile and the blogofile_blog plugin,
+  (see :ref:`install-blogofile`).
+  Use a Python virtualenv_ or :command:`sudo` as you wish.
 
- ``blogofile init simple_blog``
+  ::
 
-* Or, for a more complete sample blog (requires git_):
+    git clone git://github.com/EnigmaCurry/blogofile.git
+    git clone git://github.com/EnigmaCurry/blogofile_blog.git
+    cd blogofile
+    python setup.py install
+    cd ../blogofile_blog
+    python setup.py install
 
- ``blogofile init blogofile.com``
+  .. _virtualenv: http://www.virtualenv.org/
 
-* Create some post files in the _posts directory. (see :ref:`posts`)
+* Initialize a blog site in a directory call :file:`mysite`::
 
-* Build the site:
+    blogofile init mysite blog
 
- ``blogofile build``
+* Build the site::
 
-* Serve the site:
+    blogofile build -s mysite
 
- ``blogofile serve 8080``
+* Serve the site::
 
-* Open your web browser to `http://localhost:8080 <http://localhost:8080>`_ to see the rendered site.
+    blogofile serve -s mysite
+
+* Open your web browser to http://localhost:8080 to see the rendered site.
+
+* Explore the :command:`blogofile` commands with :command:`blogofile help`.
+
+* Create some post files in the :file:`_posts` directory (see :ref:`posts`)
 
 The next chapters explain this process in more detail.
 

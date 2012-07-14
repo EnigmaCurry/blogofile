@@ -36,31 +36,67 @@ Why you should consider Blogofile
 * Blogofile is **file based**, so you can edit it with your favorite text editor, not some crappy web interface.
 * Seamless :ref:`Git Integration <vcs-integration>`. Publish to your blog with a simple ``git push``. This also makes **backups** dirt simple.
 
+.. _MIT License: http://www.blogofile.com/LICENSE.html
+
 .. _install-blogofile:
 
 Installing Blogofile
 ====================
-Blogofile is under active development, but strives to be usable and bug-free before the 1.0 release.
+
+Blogofile is under active development, but strives to be usable and
+bug-free before the 1.0 release.
+
 
 Prerequisites
 -------------
 
-Make sure you have `Python`_ and `Setuptools`_ installed. On Ubuntu you just need to run::
+Make sure you have `Python`_ and `Setuptools`_ installed.
+On Ubuntu you just need to run::
 
  sudo apt-get install python-setuptools
 
-Install
--------
+.. _Python: http://www.python.org
+.. _Setuptools: http://pypi.python.org/pypi/setuptools
+
+Using a Python virtualenv_ is strongly recommended to segregate
+Blogofile and the packages it depends on from your system Python
+installation.
+
+.. _virtualenv: http://www.virtualenv.org/
+
+
+Install the Stable Release
+--------------------------
+
 Download and install Blogofile with::
 
- easy_install Blogofile
+  easy_install Blogofile
 
-You can also get the latest development source code from github::
+then go to the documentation for `docs for 0.7.1`_, the current stable release.
 
- git clone git://github.com/EnigmaCurry/blogofile.git
+.. _docs for 0.7.1: http://blogofile.readthedocs.org/en/0.7.1docs/
 
-.. _MIT License: http://www.blogofile.com/LICENSE.html
 
-.. _Python: http://www.python.org
+Install the Latest Development Version
+--------------------------------------
 
-.. _Setuptools: http://pypi.python.org/pypi/setuptools
+These docs are for the latest development version, 0.8.dev, also known
+as the *plugins* branch.
+0.8.dev is not backward compatible with 0.7.x at this time,
+and it probably never will be,
+but migration docs and perhaps tools will be created.
+
+Grab the Blogofile core source code from github::
+
+  git clone git://github.com/EnigmaCurry/blogofile.git
+
+and then grab the blogofile_blog reference plugin source code::
+
+  git clone git://github.com/EnigmaCurry/blogofile_blog.git
+
+Install Blogofile and the blogofile_blog plugin from the cloned sources::
+
+  cd blogofile
+  python setup.py install
+  cd ../blogofile_blog
+  python setup.py install
