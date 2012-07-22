@@ -178,7 +178,7 @@ class JinjaTemplateLoader(jinja2.FileSystemLoader):
             with open(self.bf_base_template) as f:
                 return (f.read(), self.bf_base_template, lambda: False)
         else:
-            return (super(jinja2.FileSystemLoader, self)
+            return (super(JinjaTemplateLoader, self)
                     .get_source(environment, template))
 
 
