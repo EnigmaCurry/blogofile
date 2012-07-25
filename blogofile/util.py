@@ -6,9 +6,9 @@ import sys
 import logging
 import fileinput
 try:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse   # For Python 2
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse       # For Python 3; flake8 ignore # NOQA
 from markupsafe import Markup
 
 from .cache import bf
