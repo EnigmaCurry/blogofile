@@ -9,6 +9,7 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
+from markupsafe import Markup
 
 from .cache import bf
 bf.util = sys.modules['blogofile.util']
@@ -248,3 +249,57 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #p
         # SafeUnicode at the end.
         s = s.decode(encoding, errors)
     return s
+
+_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+def create_slug_new(title, delim='-'):
+    # Get rid of any html entities
+    slug = Markup(title).unescape()
+
+    result = []
+    for word in _punct_re.split(slug):
+        result.extend(_unidecode_func(word).split())
+    return _str_func(delim.join(result)).lower()
+
+def create_slug_old(title):
+    # Get rid of any html entities
+    slug = Markup(title).unescape()
+    # Try to convert non-ascii characters to their ascii equivalent:
+    # HACK: Until we do a proper six-based 2 & 3 implementation...
+    #       The slug shouldn't be encoded here; that should be done
+    #       where it is output (unicode internally, encode/decode at edges)
+    slug = _str_func(
+        unicodedata.normalize("NFKD", slug).encode("ascii", "ignore"), "utf-8")
+    # Replace any remaining non-valid URL characters with dashes
+    # (reference RFC 1738 section 2.2)
+    slug = re.sub("[^a-zA-Z0-9$\-_\.+!*'(),]", "-", slug).lower()
+    return slug
+
+_create_slug = None
+_unidecode_func = None
+def create_slug(title):
+    global _create_slug
+    global _unidecode_func
+    if _create_slug == None:
+        # first launch, deterimining what method to use
+        if bf.config.site.slugify:
+            # user has defined their own function, use it instead
+            _create_slug = bf.config.site.slugify
+        elif bf.config.blog.slugify:
+            # for backwards compatibility
+            _create_slug = bf.config.blog.slugify
+        elif bf.config.site.slug_unicode:
+            # unicode slugs
+            _create_slug = create_slug_new
+            _unidecode_func = lambda s: s
+        else:
+            try:
+                # ASCII slugs, better unicode handling
+                from unidecode import unidecode
+                _unidecode_func = unidecode
+                _create_slug = create_slug_new
+            except ImportError:
+                # fallback to old function
+                _create_slug = create_slug_old
+    return _create_slug(title)
+_str_func = unicode if sys.version_info < (3,) else str
+
