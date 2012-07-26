@@ -12,13 +12,16 @@ try:
 except ImportError:
     from urlparse import urlparse       # For Python 3; flake8 ignore # NOQA
 from markupsafe import Markup
-
+import six
+from unidecode import unidecode
 from .cache import bf
 bf.util = sys.modules['blogofile.util']
 
 
 logger = logging.getLogger("blogofile.util")
 
+# Word separators and punctuation for slug creation
+PUNCT_RE = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
 html_escape_table = {
     "&": "&amp;",
@@ -29,7 +32,7 @@ html_escape_table = {
     }
 
 
-def html_escape(text):  # pragma: no cover
+def html_escape(text):
     """Produce entities within text.
     """
     L = []
@@ -252,56 +255,29 @@ def force_unicode(s, encoding='utf-8', strings_only=False, errors='strict'):  #p
         s = s.decode(encoding, errors)
     return s
 
-_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-def create_slug_new(title, delim='-'):
-    # Get rid of any html entities
-    slug = Markup(title).unescape()
 
+def create_slug(title, delim='-'):
+    """Create a slug from `title`, with words lowercased, and
+    separated by `delim`.
+
+    User may provide their own function to do this via `config.site.slugify`.
+
+    `config.site.slug_unicode` controls whether Unicode characters are included
+    in the slug as is, or mapped to reasonable ASCII equivalents.
+    """
+    # Dispatch to user-supplied slug creation function, if one exists
+    if bf.config.site.slugify:
+        return bf.config.site.slugify(title)
+    elif bf.config.blog.slugify:
+        # For backward compatibility
+        return bf.config.blog.slugify(title)
+    # Get rid of any HTML entities
+    slug = Markup(title).unescape()
     result = []
-    for word in _punct_re.split(slug):
-        result.extend(_unidecode_func(word).split())
-    return _str_func(delim.join(result)).lower()
-
-def create_slug_old(title):
-    # Get rid of any html entities
-    slug = Markup(title).unescape()
-    # Try to convert non-ascii characters to their ascii equivalent:
-    # HACK: Until we do a proper six-based 2 & 3 implementation...
-    #       The slug shouldn't be encoded here; that should be done
-    #       where it is output (unicode internally, encode/decode at edges)
-    slug = _str_func(
-        unicodedata.normalize("NFKD", slug).encode("ascii", "ignore"), "utf-8")
-    # Replace any remaining non-valid URL characters with dashes
-    # (reference RFC 1738 section 2.2)
-    slug = re.sub("[^a-zA-Z0-9$\-_\.+!*'(),]", "-", slug).lower()
-    return slug
-
-_create_slug = None
-_unidecode_func = None
-def create_slug(title):
-    global _create_slug
-    global _unidecode_func
-    if _create_slug == None:
-        # first launch, deterimining what method to use
-        if bf.config.site.slugify:
-            # user has defined their own function, use it instead
-            _create_slug = bf.config.site.slugify
-        elif bf.config.blog.slugify:
-            # for backwards compatibility
-            _create_slug = bf.config.blog.slugify
-        elif bf.config.site.slug_unicode:
-            # unicode slugs
-            _create_slug = create_slug_new
-            _unidecode_func = lambda s: s
+    for word in PUNCT_RE.split(slug):
+        if not bf.config.site.slug_unicode:
+            result.extend(unidecode(word).split())
         else:
-            try:
-                # ASCII slugs, better unicode handling
-                from unidecode import unidecode
-                _unidecode_func = unidecode
-                _create_slug = create_slug_new
-            except ImportError:
-                # fallback to old function
-                _create_slug = create_slug_old
-    return _create_slug(title)
-_str_func = unicode if sys.version_info < (3,) else str
-
+            result.append(word)
+    slug = six.text_type(delim.join(result)).lower()
+    return slug
