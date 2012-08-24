@@ -1,13 +1,13 @@
 # Python packages required to run blogofile
 
 Jinja2==2.6
-Mako==0.7.0
-Markdown==2.1.1
+Mako==0.7.2
+Markdown==2.2.0
 MarkupSafe==0.15
 PyYAML==3.10
 Pygments==1.5
 docutils==0.9.1
-pytz==2012c
+pytz==2012d
 six==1.1.0
 textile==2.1.4
 Unidecode==0.04.9
