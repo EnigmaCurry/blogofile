@@ -435,7 +435,7 @@ def do_info(args):
         sys.executable))
     print("Blogofile is installed at: {0}".format(os.path.split(__file__)[0]))
     # Show _config.py paths
-    print(("Default config file: {0}".format(config.default_config_path())))
+    print(("Default config file: {0}".format(config.default_config_path)))
     if os.path.isfile(os.path.join(args.src_dir, "_config.py")):
         print("Found site _config.py: {0}"
               .format(os.path.abspath("_config.py")))

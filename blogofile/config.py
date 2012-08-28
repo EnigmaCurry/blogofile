@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""This loads the user's _config.py file and provides a standardized interface
-into it.
+"""Load the default config, and the user's _config.py file, and
+provides the interface to the config.
 """
 
 __author__ = "Ryan McGuire (ryan@enigmacurry.com)"
@@ -9,104 +9,52 @@ import os
 import logging
 import sys
 import re
-
 from . import cache
 from . import controller
 from . import plugin
-from . import site_init
+# from . import site_init
 from . import filter as _filter
 from .cache import HierarchicalCache as HC
 # TODO: This import MUST come after cache is imported; that's too brittle!
 import blogofile_bf as bf
 
 
-bf.config = sys.modules['blogofile.config']
-
-logger = logging.getLogger("blogofile.writer")
-
-
-class UnknownConfigSectionException(Exception):
-    pass
-
-
 class ConfigNotFoundException(Exception):
     pass
 
+logger = logging.getLogger("blogofile.config")
 
-# override config options (mostly from unit tests)
-override_options = {}
+bf.config = sys.modules['blogofile.config']
+
+site = cache.HierarchicalCache()
+controllers = cache.HierarchicalCache()
+filters = cache.HierarchicalCache()
+plugins = cache.HierarchicalCache()
+templates = cache.HierarchicalCache()
+
+default_config_path = os.path.join(
+    os.path.dirname(__file__), "default_config.py")
 
 
-def reset_config():
-    """Default config sections
+def init_interactive(args=None):
+    """Reset the blogofile cache objects, and load the configuration.
+
+    The user's _config.py is always loaded from the current directory
+    because we assume that the function/method that calls this has
+    already changed to the directory specified by the --src-dir
+    command line option.
     """
-    global site, controllers, filters, plugins, templates
-    site = cache.HierarchicalCache()
-    controllers = cache.HierarchicalCache()
-    filters = cache.HierarchicalCache()
-    plugins = cache.HierarchicalCache()
-    templates = cache.HierarchicalCache()
-reset_config()
+    cache.reset_bf()
+    try:
+        _init("_config.py")
+    except ConfigNotFoundException:
+        sys.stderr.write("No configuration found in source dir: {0}\n"
+                         .format(args.src_dir))
+        sys.stderr.write("Want to make a new site? Try `blogofile init`\n")
+        sys.exit(1)
 
 
-def default_config_path():
-    return os.path.join(os.path.split(site_init.__file__)[0], "_config.py")
-
-with open(default_config_path()) as dc:
-    default_config = dc.read()
-
-
-def recompile():
-    """Compile file_ignore_patterns
-    """
-    global site
-    site.compiled_file_ignore_patterns = []
-    for p in site.file_ignore_patterns:
-        if hasattr(p, "findall"):
-            # probably already a compiled regex.
-            site.compiled_file_ignore_patterns.append(p)
-        else:
-            site.compiled_file_ignore_patterns.append(
-                re.compile(p, re.IGNORECASE))
-
-
-def __load_config(path=None):
-    """Load the configuration.
-
-    Strategy:
-
-      1) Load the default config
-      2) Load the plugins
-      3) Load the site filters and controllers
-      4) Load the user's config.
-
-    This will ensure that we have good default values if the user's
-    config is missing something.
-    """
-    exec(default_config)
-    plugin.load_plugins()
-    _filter.preload_filters()
-    controller.load_controllers(namespace=bf.config.controllers)
-    if path:
-        with open(path) as pf:
-            exec(compile(pf.read(), path, 'exec'))
-    # config is now in locals() but needs to be in globals()
-    for k, v in list(locals().items()):
-        globals()[k] = v
-    # Override any options (from unit tests)
-    for k, v in list(override_options.items()):
-        if "." in k:
-            parts = k.split(".")
-            cache_object = ".".join(parts[:-1])
-            setting = parts[-1]
-            cache_object = eval(cache_object)
-            cache_object[setting] = v
-        else:
-            globals()[k] = v
-    recompile()
-
-
-def init(config_file_path=None):
+def _init(config_file_path=None):
     """Initialize the configuration.
 
     If config_file_path is None, just load the default config
@@ -115,23 +63,48 @@ def init(config_file_path=None):
     if config_file_path:
         if not os.path.isfile(config_file_path):
             raise ConfigNotFoundException
-        __load_config(config_file_path)
+        _load_config(config_file_path)
     else:
-        __load_config()
-    return globals()['__name__']
+        _load_config()
 
 
-def init_interactive(args=None):
-    if args is None:
-        args = cache.Cache()
-        args.src_dir = os.curdir
-    cache.reset_bf()
+def _load_config(user_config_path=None):
+    """Load the configuration.
+
+    Strategy:
+
+      1) Load the default config
+      2) Load the plugins
+      3) Load the site filters and controllers
+      4) Load the user's config.
+      5) Compile file ignore pattern regular expressions
+
+    This establishes sane defaults that the user can override as they
+    wish.
+
+    config is exec-ed from Python modules into locals(), then updated
+    into globals().
+    """
+    with open(default_config_path) as f:
+        exec(f.read())
+    plugin.load_plugins()
+    _filter.preload_filters()
+    controller.load_controllers(namespace=bf.config.controllers)
     try:
-        # Always load the _config.py from the current directory.
-        # We already changed to the directory specified with --src-dir
-        init("_config.py")
-    except ConfigNotFoundException:
-        sys.stderr.write("No configuration found in source dir: {0}\n"
-                         .format(args.src_dir))
-        sys.stderr.write("Want to make a new site? Try `blogofile init`\n")
-        sys.exit(1)
+        with open(user_config_path) as f:
+            exec(f.read())
+    except IOError:
+        pass
+    _compile_file_ignore_patterns()
+    globals().update(locals())
+
+
+def _compile_file_ignore_patterns():
+    site.compiled_file_ignore_patterns = []
+    for p in site.file_ignore_patterns:
+        if hasattr(p, "findall"):
+            # probably already a compiled regex.
+            site.compiled_file_ignore_patterns.append(p)
+        else:
+            site.compiled_file_ignore_patterns.append(
+                re.compile(p, re.IGNORECASE))
