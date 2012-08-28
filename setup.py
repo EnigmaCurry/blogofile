@@ -10,11 +10,11 @@ PY26 = py_version == (2, 6)
 if PY3:
     if py_version < (3, 2):
         raise RuntimeError(
-            'On Python 3, Blogofile requires Python 3.2 or better')
+            'On Python 3, Blogofile requires Python 3.2 or later')
 else:
     if py_version < (2, 6):
         raise RuntimeError(
-            'On Python 2, Blogofile requires Python 2.6 or better')
+            'On Python 2, Blogofile requires Python 2.6 or later')
 
 with open('README.rst', 'rt') as readme:
     long_description = readme.read()
@@ -57,8 +57,7 @@ setup(
     url="http://www.blogofile.com",
     license="MIT",
     classifiers=classifiers,
-    packages=["blogofile", "blogofile.site_init"],
-    package_data={"blogofile.site_init": ["*.zip"]},
+    packages=["blogofile"],
     install_requires=install_requires,
     dependency_links=dependency_links,
     entry_points={

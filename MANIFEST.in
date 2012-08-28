@@ -2,5 +2,4 @@ include README.rst
 include CHANGES.txt
 include LICENSE.txt
 include requirements/*.txt
-include blogofile/site_init/*.zip
 recursive-include converters *.py
