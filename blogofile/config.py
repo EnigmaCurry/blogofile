@@ -19,9 +19,6 @@ from .cache import HierarchicalCache as HC
 import blogofile_bf as bf
 
 
-class ConfigNotFoundException(Exception):
-    pass
-
 logger = logging.getLogger("blogofile.config")
 
 bf.config = sys.modules['blogofile.config']
@@ -47,7 +44,7 @@ def init_interactive(args=None):
     cache.reset_bf()
     try:
         _init("_config.py")
-    except ConfigNotFoundException:
+    except IOError:
         sys.stderr.write("No configuration found in source dir: {0}\n"
                          .format(args.src_dir))
         sys.stderr.write("Want to make a new site? Try `blogofile init`\n")
@@ -61,9 +58,10 @@ def _init(config_file_path=None):
     """
     logger.info("Loading config file : {0}".format(config_file_path))
     if config_file_path:
-        if not os.path.isfile(config_file_path):
-            raise ConfigNotFoundException
-        _load_config(config_file_path)
+        try:
+            _load_config(config_file_path)
+        except IOError:
+            raise
     else:
         _load_config()
 
@@ -94,7 +92,7 @@ def _load_config(user_config_path=None):
         with open(user_config_path) as f:
             exec(f.read())
     except IOError:
-        pass
+        raise
     _compile_file_ignore_patterns()
     globals().update(locals())
 
