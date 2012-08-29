@@ -53,7 +53,7 @@ def init_interactive(args=None):
         sys.exit(1)
 
 
-def _load_config(user_config_path=None):
+def _load_config(user_config_path):
     """Load the configuration.
 
     Strategy:

@@ -70,7 +70,7 @@ class TestConfigInitInteractive(unittest.TestCase):
     """Unit tests for init_interactive function.
     """
     def _call_fut(self, *args):
-        """Call the fuction under test.
+        """Call the function under test.
         """
         return config.init_interactive(*args)
 
@@ -89,3 +89,25 @@ class TestConfigInitInteractive(unittest.TestCase):
         args = MagicMock(src_dir='foo')
         with self.assertRaises(SystemExit):
             self._call_fut(args)
+
+
+class TestConfigLoadConfig(unittest.TestCase):
+    """Unit tests for _load_config function.
+    """
+    def _call_fut(self, *args):
+        """Call the function under test.
+        """
+        return config._load_config(*args)
+
+    def test_init_interactive_loads_default_config(self):
+        """init_interactive loads values from default_config.py
+        """
+        with patch.object(config, 'open', mock_open(), create=True):
+            self._call_fut('_config.py')
+        self.assertEqual(config.site.url, 'http://www.example.com')
+
+    def test_load_config_no_config_raises_IOError(self):
+        """_load_config raises IOError when no _config.py exists
+        """
+        with self.assertRaises(IOError):
+            self._call_fut('_config.py')
