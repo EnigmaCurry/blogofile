@@ -41,29 +41,16 @@ def init_interactive(args=None):
     already changed to the directory specified by the --src-dir
     command line option.
     """
+    # TODO: What purpose does cache.reset_bf() serve? Looks like a
+    # testing hook.
     cache.reset_bf()
     try:
-        _init("_config.py")
+        _load_config("_config.py")
     except IOError:
         sys.stderr.write("No configuration found in source dir: {0}\n"
                          .format(args.src_dir))
         sys.stderr.write("Want to make a new site? Try `blogofile init`\n")
         sys.exit(1)
-
-
-def _init(config_file_path=None):
-    """Initialize the configuration.
-
-    If config_file_path is None, just load the default config
-    """
-    logger.info("Loading config file : {0}".format(config_file_path))
-    if config_file_path:
-        try:
-            _load_config(config_file_path)
-        except IOError:
-            raise
-    else:
-        _load_config()
 
 
 def _load_config(user_config_path=None):
