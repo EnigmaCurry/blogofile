@@ -150,7 +150,7 @@ def load_controller(name, namespace, directory="_controllers", defaults={},
                         for part in parts[:-1]:
                             tail = tail[part]
                         tail[parts[-1]] = v
-                    if k == "enabled" and v == True:
+                    if k == "enabled" and v is True:
                         # Controller default value can't turn itself
                         # on, but it can turn itself off.
                         pass
@@ -205,7 +205,7 @@ def defined_controllers(namespaces, only_enabled=True):
     for namespace in namespaces:
         for c in list(namespace.controllers.values()):
             # Get only the ones that are enabled:
-            if "enabled" not in c or c['enabled'] == False:
+            if "enabled" not in c or c['enabled'] is False:
                 # The controller is disabled
                 if only_enabled:
                     continue
