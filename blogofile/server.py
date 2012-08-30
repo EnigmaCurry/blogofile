@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-# deal with python 3 and 2 differences in setting up server and handler
-# TODO: Clean this up using the six library
-try:
-    from http.server import HTTPServer as http_server
-except ImportError:
-    from SocketServer import TCPServer as http_server
-try:
-    from http.server import SimpleHTTPRequestHandler as http_handler
-except ImportError:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler as http_handler
 import logging
 import os
 import sys
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
 import threading
-
+try:
+    from urllib.parse import urlparse   # For Python 2
+except ImportError:
+    from urlparse import urlparse       # For Python 3; flake8 ignore # NOQA
+from six.moves import SimpleHTTPServer
+from six.moves import socketserver
 from blogofile import config
 from blogofile import util
 from .cache import bf
@@ -40,7 +31,7 @@ class Server(threading.Thread):
         server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
         HandlerClass.protocol_version = "HTTP/1.0"
-        ServerClass = http_server
+        ServerClass = socketserver.TCPServer
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
 
@@ -56,7 +47,7 @@ class Server(threading.Thread):
         self.is_shutdown = True
 
 
-class BlogofileRequestHandler(http_handler):
+class BlogofileRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     error_template = """
 <head>
@@ -71,7 +62,8 @@ for the root page? : <a href="{0}">{1}</a>
     def __init__(self, *args, **kwargs):
         path = urlparse(config.site.url).path
         self.BLOGOFILE_SUBDIR_ERROR = self.error_template.format(path, path)
-        http_handler.__init__(self, *args, **kwargs)
+        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(
+            self, *args, **kwargs)
 
     def translate_path(self, path):
         site_path = urlparse(config.site.url).path
@@ -80,8 +72,7 @@ for the root page? : <a href="{0}">{1}</a>
             self.error_message_format = self.BLOGOFILE_SUBDIR_ERROR
             # Results in a 404
             return ""
-
-        p = http_handler.translate_path(
+        p = SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(
             self, path)
         if len(site_path.strip("/")) > 0:
             build_path = os.path.join(
