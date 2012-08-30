@@ -361,7 +361,6 @@ def materialize_alternate_base_engine(template_name, location, attrs={},
     new_base_template = tempfile.mktemp(
         suffix="." + template_engine.name, prefix="bf_template",
         dir=bf.writer.temp_proc_dir)
-    new_base_template_name = os.path.split(new_base_template)[1]
     with open(new_base_template, "w") as f:
         logger.debug(
             "Writing intermediate base template: {0}"
