@@ -53,13 +53,13 @@ def check_plugin_config(module):
         raise AssertionError("Plugin {0} has no config HierarchicalCache"
                              .format(module))
     except AssertionError:
-        raise AssertionError("Plugin {0} config object must extend from "\
-            "HierarchicalCache".format(module))
+        raise AssertionError("Plugin {0} config object must extend from "
+                             "HierarchicalCache".format(module))
     try:
         module.__dist__
     except AttributeError:
-        raise AssertionError("Plugin {0} has no __dist__ dictionary, "\
-            "describing the plugins metadata.".format(module))
+        raise AssertionError("Plugin {0} has no __dist__ dictionary, "
+                             "describing the plugins metadata.".format(module))
     #TODO: Why does this fail in a test context? Not really *that* important..
     # for attr in reserved_attributes:
     #     if module.config.has_key(attr):
@@ -129,7 +129,7 @@ class PluginTools(object):
         """Just like the regular bf.writer.materialize_template,
         however, this uses the blog template lookup by default.
         """
-        if lookup == None:
+        if lookup is None:
             lookup = self.template_lookup
         bf.template.materialize_template(template_name, location, attrs=attrs,
                                          lookup=lookup, caller=self.module)
