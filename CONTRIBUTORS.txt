@@ -1,0 +1,47 @@
+-*- coding: utf-8 -*-
+
+Blogofile Contributors
+======================
+
+Blogofile and the blogofile_blog plugin were created by:
+
+Ryan McGuire <ryan@enigmacurry.com>
+
+
+Since May-2012 the project has been maintained and developed by:
+
+Doug Latornell <djl@douglatornell.ca>
+
+
+The following people have contributed code, documentation, bug
+reports, enlightened discussion, etc. to the project:
+
+Nick Craig-Wood
+Sean Davis
+Nicolas Dumazet
+Ron DuPlain
+John Feminella
+Thomas Gstädtner
+Seth de l'Isle
+Jaemok Jeong
+Tshepang Lekhonkhobe
+Macha
+Julian Melville
+Mike Pirnat
+Ravikiran Rajagopal
+Brandon Craig Rhodes
+Wasil Sergejczyk
+Klein Stéphane
+Manuel Strehl
+Ashish Tonse
+Thomas Weißschuh
+W. Matthew Wilson
+Peter Zsoldos
+Ant Zucaro
+
+Thank you, one and all!
+
+The above list is derived primarily from the git log. If you think
+your name should be there and its not, or you want it changed somehow
+(add your email address for example), please submit a pull request, or
+email Doug.

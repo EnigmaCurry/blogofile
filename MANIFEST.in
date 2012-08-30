@@ -1,5 +1,6 @@
 include README.rst
 include CHANGES.txt
 include LICENSE.txt
+include CONTRIBUTORS.txt
 include requirements/*.txt
 recursive-include converters *.py
