@@ -31,11 +31,13 @@ Mike Pirnat
 Ravikiran Rajagopal
 Brandon Craig Rhodes
 Wasil Sergejczyk
+Brandon Stafford
 Klein Stéphane
 Manuel Strehl
 Ashish Tonse
 Thomas Weißschuh
 W. Matthew Wilson
+David Wolever
 Peter Zsoldos
 Ant Zucaro
 
