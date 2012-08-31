@@ -1,16 +1,46 @@
 Next release
 ============
 
+Bug Fixes
+---------
+
+- Fix a typo in the README.
+  See  https://github.com/EnigmaCurry/blogofile/pull/127
+
+- Fix permalinks in RSS feeds for Apple Mail.
+  See https://github.com/EnigmaCurry/blogofile/pull/114
+
+- Fix a class name reference error in the Jinga2 template loader.
+  See https://github.com/EnigmaCurry/blogofile/issues/105
+
+
 Features
 --------
+
+- The documentation source files have been moved into the project
+  repository.
+  They are built and rendered at http://docs.blogofile.com/ thanks to
+  the readthedocs.org service.
 
 - The init sub-command syntax and functionality has changed; see
   blogofile help init.
 
-- The codebase has been unified for Python 2.6, 2.7 and 3.2 (no 2to3 or
-  3to2 conversion required).
+- The configuration system has been refactored.
+  The default configuration settings are now in the default_config.py
+  module.
+
+- As a result of the refactoring of the initialization function,
+  and the configuration system,
+  the site_init directory has been eliminated.
+
+- Improved Unicode handling in slugs.
+  See https://github.com/EnigmaCurry/blogofile/issues/124
+
+- The codebase has been unified for Python 2.6, 2.7 and 3.2
+  (no 2to3 or 3to2 conversion required).
 
 - The command line completion feature has been removed so as to avoid
-  maintaining a bundled version of the argparse library. argparse is included
-  in the standard library for Python 2.7 and 3.2+. setup.py will install it
-  from PyPI for Python 2.6, 3.0, and 3.1.
+  maintaining a bundled version of the argparse library.
+  argparse is included in the standard library for Python 2.7 and
+  3.2+.
+  setup.py will install it from PyPI for Python 2.6.
