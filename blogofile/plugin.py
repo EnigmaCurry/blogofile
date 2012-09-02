@@ -127,20 +127,23 @@ class PluginTools(object):
     def materialize_template(self, template_name, location, attrs={},
                              lookup=None):
         """Just like the regular bf.writer.materialize_template,
-        however, this uses the blog template lookup by default.
+        however, this uses the plugin's template_lookup method.
         """
         if lookup is None:
             lookup = self.template_lookup
         bf.template.materialize_template(template_name, location, attrs=attrs,
                                          lookup=lookup, caller=self.module)
 
-    def add_template_dir(self, path):
-        self.template_lookup.directories.append(path)
+    def add_template_dir(self, path, append=True):
+        if append:
+            self.template_lookup.directories.append(path)
+        else:
+            self.template_lookup.directories.insert(0, path)
 
     def __get_template_lookup(self):
         return TemplateLookup(
             directories=[
-                os.path.join(self.get_src_dir(), "_templates"), "_templates"],
+                "_templates", os.path.join(self.get_src_dir(), "_templates")],
             input_encoding='utf-8', output_encoding='utf-8',
             encoding_errors='replace')
 
