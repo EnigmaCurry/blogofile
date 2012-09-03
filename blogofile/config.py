@@ -12,7 +12,6 @@ import re
 from . import cache
 from . import controller
 from . import plugin
-# from . import site_init
 from . import filter as _filter
 from .cache import HierarchicalCache as HC
 # TODO: This import MUST come after cache is imported; that's too brittle!
