@@ -117,12 +117,12 @@ def init_plugins():
 class PluginTools(object):
     """Tools for a plugin to get information about it's runtime environment.
     """
-    def __init__(self, module_name):
-        self.module = sys.modules[module_name]
+    def __init__(self, module):
+        self.module = module
         self.namespace = self.module.config
         self.template_lookup = self.__get_template_lookup()
         self.logger = logging.getLogger(
-            "blogofile.plugins.{0}".format(module_name))
+            "blogofile.plugins.{0}".format(self.module.__name__))
 
     def materialize_template(self, template_name, location, attrs={},
                              lookup=None):
@@ -148,9 +148,7 @@ class PluginTools(object):
             encoding_errors='replace')
 
     def get_src_dir(self):
-        return os.path.join(
-            os.path.dirname(sys.modules[self.module.__name__].__file__),
-            "site_src")
+        return os.path.join(os.path.dirname(self.module.__file__), "site_src")
 
     def initialize_controllers(self):
         for name, controller in list(self.module.config.controllers.items()):
