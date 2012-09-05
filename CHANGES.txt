@@ -7,6 +7,10 @@ Bug Fixes
 - Fix a typo in the README.
   See  https://github.com/EnigmaCurry/blogofile/pull/127
 
+- Fix an issue with the template lookup order whereby user's templates
+  failed to override plugin site_src template of the same name.
+  See https://github.com/EnigmaCurry/blogofile/issues/126
+
 - Fix permalinks in RSS feeds for Apple Mail.
   See https://github.com/EnigmaCurry/blogofile/pull/114
 
