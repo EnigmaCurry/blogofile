@@ -96,9 +96,9 @@ blog.path
 +++++++++
 String
 
-This is the path of the blog off of the :ref:`config-site-url`. For example, if :ref:`config-site-url` is ``http://www.xkcd.com/stuff`` and blog.path is ``/blag`` your full URL to your blog will be ``http://www.xkcd.com/sfuff/blag``::
+This is the path of the blog off of the :ref:`config-site-url`. For example, if :ref:`config-site-url` is ``http://www.xkcd.com/stuff`` and blog.path is ``/blag`` your full URL to your blog will be ``http://www.xkcd.com/stuff/blag``::
 
-    blog.path = "/blog"
+    blog.path = "/blag"
 
 blog.name
 +++++++++
