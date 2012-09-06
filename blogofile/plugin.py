@@ -5,11 +5,11 @@ import os
 import os.path
 import pkg_resources
 import sys
-
 from mako.lookup import TemplateLookup
-
+import six
 from . import controller
 from . import filter as _filter
+from . import template
 from .cache import bf
 from .cache import HierarchicalCache
 
@@ -120,27 +120,11 @@ class PluginTools(object):
     def __init__(self, module):
         self.module = module
         self.namespace = self.module.config
-        self.template_lookup = self.__get_template_lookup()
+        self.template_lookup = self._template_lookup()
         self.logger = logging.getLogger(
             "blogofile.plugins.{0}".format(self.module.__name__))
 
-    def materialize_template(self, template_name, location, attrs={},
-                             lookup=None):
-        """Just like the regular bf.writer.materialize_template,
-        however, this uses the plugin's template_lookup method.
-        """
-        if lookup is None:
-            lookup = self.template_lookup
-        bf.template.materialize_template(template_name, location, attrs=attrs,
-                                         lookup=lookup, caller=self.module)
-
-    def add_template_dir(self, path, append=True):
-        if append:
-            self.template_lookup.directories.append(path)
-        else:
-            self.template_lookup.directories.insert(0, path)
-
-    def __get_template_lookup(self):
+    def _template_lookup(self):
         return TemplateLookup(
             directories=[
                 "_templates", os.path.join(self.get_src_dir(), "_templates")],
@@ -148,14 +132,60 @@ class PluginTools(object):
             encoding_errors='replace')
 
     def get_src_dir(self):
+        """Return the plugin's :file:`site_src directory path.
+
+        :returns: :file:`site_src` path for the plugin.
+        :rtype: str
+        """
         return os.path.join(os.path.dirname(self.module.__file__), "site_src")
 
+    def materialize_template(self, template_name, location, attrs={}):
+        """Materialize a template using the plugin's TemplateLookup
+        instance.
+
+        :arg template_name: File name of the template to materialize.
+        :type template_name: str
+
+        :arg location: Path and file name in the :file:`_site`
+                       directory to render the template to.
+        :type location: str
+
+        :arg attrs: Template variable names and values that will be
+                    used as the data context to render the template
+                    with.
+        :type attrs: dict
+        """
+        template.materialize_template(
+            template_name, location, attrs=attrs,
+            lookup=self.template_lookup, caller=self.module)
+
+    def add_template_dir(self, path, append=True):
+        """Add a template directory to the plugin's TemplateLookup
+        instance directories list.
+
+        :arg path: Template path to add to directories list.
+        :type path: str
+
+        :arg append: Add the template path to the end of the
+                     directories list when True (the default),
+                     otherwise, add it to the beginning of the list.
+        :type append: Boolean
+        """
+        if append:
+            self.template_lookup.directories.append(path)
+        else:
+            self.template_lookup.directories.insert(0, path)
+
     def initialize_controllers(self):
-        for name, controller in list(self.module.config.controllers.items()):
+        """Initialize the plugin's controllers.
+        """
+        for name, controller in six.iteritems(self.module.config.controllers):
             self.logger.info("Initializing controller: {0}".format(name))
             controller.mod.init()
 
     def run_controllers(self):
-        for name, controller in list(self.module.config.controllers.items()):
+        """Run the plugin's controllers.
+        """
+        for name, controller in six.iteritems(self.module.config.controllers):
             self.logger.info("Running controller: {0}".format(name))
             controller.mod.run()

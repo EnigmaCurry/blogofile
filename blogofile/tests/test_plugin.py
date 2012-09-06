@@ -73,3 +73,102 @@ class TestPluginTools(unittest.TestCase):
         self.assertEqual(
             tools.logger.name,
             'blogofile.plugins.{0}'.format(mock_plugin_module.__name__))
+
+    def test_template_lookup(self):
+        """_template_lookup calls mako.lookup.TemplateLookup w/ expected args
+        """
+        mock_plugin_module = MagicMock(
+            config={'name': 'foo'}, __name__='mock_plugin', __file__='./foo')
+        with patch.object(plugin, 'TemplateLookup') as mock_TemplateLookup:
+            self._make_one(mock_plugin_module)
+        mock_TemplateLookup.assert_called_once_with(
+            directories=['_templates', './site_src/_templates'],
+            input_encoding='utf-8', output_encoding='utf-8',
+            encoding_errors='replace')
+
+    def test_get_src_dir(self):
+        """get_src_dir method returns expected directory name
+        """
+        mock_plugin_module = MagicMock(
+            config={'name': 'foo'}, __name__='mock_plugin',
+            __file__='/foo/bar.py')
+        tools = self._make_one(mock_plugin_module)
+        src_dir = tools.get_src_dir()
+        self.assertEqual(src_dir, '/foo/site_src')
+
+    def test_add_template_dir_append(self):
+        """add_template_dir appends to template_lookup.directories by default
+        """
+        mock_plugin_module = MagicMock(
+            config={'name': 'foo'}, __name__='mock_plugin',
+            __file__='/foo/bar.py')
+        tools = self._make_one(mock_plugin_module)
+        tools.add_template_dir('baz')
+        self.assertEqual(
+            tools.template_lookup.directories,
+            ['_templates', '/foo/site_src/_templates', 'baz'])
+
+    def test_add_template_dir_prepend(self):
+        """add_template_dir prepends to template_lookup.directories
+        """
+        mock_plugin_module = MagicMock(
+            config={'name': 'foo'}, __name__='mock_plugin',
+            __file__='/foo/bar.py')
+        tools = self._make_one(mock_plugin_module)
+        tools.add_template_dir('baz', append=False)
+        self.assertEqual(
+            tools.template_lookup.directories,
+            ['baz', '_templates', '/foo/site_src/_templates'])
+
+    def test_materialize_template(self):
+        """materialize_template calls template.materialize_template w/ exp args
+        """
+        mock_plugin_module = MagicMock(
+            config={'name': 'foo'}, __name__='mock_plugin',
+            __file__='/foo/bar.py')
+        # nested contexts for Python 2.6 compatibility
+        with patch.object(plugin, 'TemplateLookup') as mock_TL:
+            tools = self._make_one(mock_plugin_module)
+            with patch.object(
+                plugin.template, 'materialize_template') as mock_mt:
+                tools.materialize_template(
+                    'foo.mako', 'bar.html', {'flip': 'flop'})
+        mock_mt.assert_called_once_with(
+            'foo.mako', 'bar.html', attrs={'flip': 'flop'},
+            caller=mock_plugin_module, lookup=mock_TL())
+
+    def test_initialize_controllers(self):
+        """initialize_controllers calls controller module init function
+        """
+        mock_controllers_module_init = MagicMock(name='mock_init')
+        mock_controller = MagicMock(
+            name='mock_controller',
+            mod=MagicMock(
+                name='mock_mod',
+                init=mock_controllers_module_init))
+        mock_plugin_module = MagicMock(
+            __name__='mock_plugin', __file__='/foo/bar.py',
+            config=MagicMock(
+                name='mock_config',
+                controllers={'blog': mock_controller}))
+        tools = self._make_one(mock_plugin_module)
+        tools.initialize_controllers()
+        mock_controllers_module_init.assert_called_once_with()
+
+    def test_run_controllers(self):
+        """run_controllers calls controller module run function
+        """
+        mock_controllers_module_run = MagicMock(name='mock_rub')
+        mock_controller = MagicMock(
+            name='mock_controller',
+            mod=MagicMock(
+                name='mock_mod',
+                run=mock_controllers_module_run))
+        mock_plugin_module = MagicMock(
+            __name__='mock_plugin', __file__='/foo/bar.py',
+            config=MagicMock(
+                name='mock_config',
+                controllers={'blog': mock_controller}))
+        tools = self._make_one(mock_plugin_module)
+        tools.run_controllers()
+        mock_controllers_module_run.assert_called_once_with()
