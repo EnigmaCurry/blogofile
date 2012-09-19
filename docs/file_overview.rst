@@ -100,11 +100,8 @@ When the Blogofile build process is invoked, it follows this conceptual order of
 Build Process Flowchart
 -----------------------
 
-Click for larger SVG view
+.. graphviz:: graphs/build_process.dot
 
-.. raw:: html
-   
-   <a href="/documentation/graphs/build_process.dot.svg"><img src="/documentation/graphs/build_process.dot.png"></a>
 
 .. _Mako: http://www.makotemplates.org
 
