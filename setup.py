@@ -44,7 +44,7 @@ classifiers.extend([
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: Implementation :: CPython',
     'Environment :: Console',
-    'Natural Language ::  English',
+    'Natural Language :: English',
 ])
 
 setup(
@@ -52,7 +52,7 @@ setup(
     version=blogofile.__version__,
     description="A static website compiler and blog engine",
     long_description=long_description,
-    author="Ryan McGuire",
+    author=blogofile.__author__,
     author_email="blogofile-discuss@googlegroups.com",
     url="http://www.blogofile.com",
     license="MIT",
@@ -60,6 +60,7 @@ setup(
     packages=["blogofile"],
     install_requires=install_requires,
     dependency_links=dependency_links,
+    zip_safe=False,
     entry_points={
         'console_scripts': ['blogofile = blogofile.main:main']},
 )

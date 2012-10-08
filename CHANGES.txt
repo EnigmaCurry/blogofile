@@ -1,5 +1,8 @@
-Next release
-============
+0.8b1
+=====
+
+If you've been using the ``plugins`` branch from GitHub but haven't updated
+in a while you should take note of the following.
 
 Bug Fixes
 ---------
@@ -27,15 +30,15 @@ Features
   the readthedocs.org service.
 
 - The init sub-command syntax and functionality has changed; see
-  blogofile help init.
+  ``blogofile help init``.
 
 - The configuration system has been refactored.
-  The default configuration settings are now in the default_config.py
+  The default configuration settings are now in the ``default_config.py``
   module.
 
 - As a result of the refactoring of the initialization function,
   and the configuration system,
-  the site_init directory has been eliminated.
+  the ``site_init`` directory has been eliminated.
 
 - Improved Unicode handling in slugs.
   See https://github.com/EnigmaCurry/blogofile/issues/124
@@ -44,7 +47,7 @@ Features
   (no 2to3 or 3to2 conversion required).
 
 - The command line completion feature has been removed so as to avoid
-  maintaining a bundled version of the argparse library.
-  argparse is included in the standard library for Python 2.7 and
+  maintaining a bundled version of the ``argparse`` library.
+  ``argparse`` is included in the standard library for Python 2.7 and
   3.2+.
-  setup.py will install it from PyPI for Python 2.6.
+  ``setup.py`` will install it from PyPI for Python 2.6.

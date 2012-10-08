@@ -68,23 +68,14 @@ installation.
 Install the Stable Release
 --------------------------
 
-Download and install Blogofile with::
+Download and install Blogofile and the blogofile_blog plugin with::
 
   easy_install Blogofile
-
-then go to the documentation for `docs for 0.7.1`_, the current stable release.
-
-.. _docs for 0.7.1: http://blogofile.readthedocs.org/en/0.7.1docs/
+  easy_install blogofile_blog
 
 
 Install the Latest Development Version
 --------------------------------------
-
-These docs are for the latest development version, 0.8.dev, also known
-as the *plugins* branch.
-0.8.dev is not backward compatible with 0.7.x at this time,
-and it probably never will be,
-but migration docs and perhaps tools will be created.
 
 Grab the Blogofile core source code from github::
 
@@ -97,6 +88,6 @@ and then grab the blogofile_blog reference plugin source code::
 Install Blogofile and the blogofile_blog plugin from the cloned sources::
 
   cd blogofile
-  python setup.py install
+  python setup.py develop
   cd ../blogofile_blog
-  python setup.py install
+  python setup.py develop
