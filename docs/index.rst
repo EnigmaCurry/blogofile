@@ -7,9 +7,8 @@ Blogofile Documentation
 #######################
 
 .. note::
-   This documents the 0.8 development version of Blogofile_.
-   Development of 0.8 is underway at http://github.com/EnigmaCurry/blogofile.
-   There are also `docs for 0.7.1`_, the current stable release.
+   This documents the 0.8 version of Blogofile_, the current stable release.
+   There are also `docs for 0.7.1`_.
 
    0.8 is not guaranteed to be backward compatible with 0.7.1.
 
