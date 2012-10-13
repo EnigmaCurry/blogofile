@@ -3,16 +3,16 @@ Releasing Blogofile
 
 Checklist for doing a release of Blogofile and the blogifile_blog plugin.
 
-* Do a platform test via tox:
+* Do a platform test via tox::
 
-  $ tox -r
+    $ tox -r
 
 * Ensure that all features of the release are documented (audit CHANGES.txt).
 
-* Ensure that the docs build:
+* Ensure that the docs build::
 
-  $ cd docs
-  $ make clean html
+    $ cd docs
+    $ make clean html
 
 * Write a release post for blogofile.com.
 
@@ -32,27 +32,32 @@ Checklist for doing a release of Blogofile and the blogifile_blog plugin.
 
     * _config.py
 
-* Test upload to PyPI:
+* Test upload to PyPI::
 
-  $ python setup.py sdist register -r testpypi upload -r testpypi
+    $ python setup.py sdist register -r testpypi upload -r testpypi
 
   for both Blogofile and blogofile_blog.
 
-* Test installation in a pristine virtualenv:
+* Test installation in a pristine virtualenv::
 
-  $ pip install --extra-index-url http://testpypi.python.org/pypi \
-        "Blogofile==<version>"
-  $ pip install --extra-index-url http://testpypi.python.org/pypi \
-        "blogofile_blog==<version>"
+    $ virtualenv --python=python3.2 blogofile-testrel
+    $ cd blogofile-testrel
+    $ source bin/activate
+    $ pip install --extra-index-url http://testpypi.python.org/pypi \
+          "Blogofile==<version>"
+    $ pip install --extra-index-url http://testpypi.python.org/pypi \
+          "blogofile_blog==<version>"
 
-  and then test building a site, even if it's the sample blog via:
+  and then test building a site, even if it's the sample blog via::
 
-  $ blogofile init test_blog blog
-  $ blogofile build -s test_blog
+    $ blogofile init test_blog blog
+    $ blogofile build -s test_blog
 
-* Release to PyPI:
+* Create release tags in Blogofile and blogofile_blog repos.
 
-  $ python setup.py sdist register upload
+* Release to PyPI::
+
+    $ python setup.py sdist register upload
 
   for both Blogofile and blogofile_blog.
 
