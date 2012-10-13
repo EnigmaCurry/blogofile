@@ -21,7 +21,7 @@ Checklist for doing a release of Blogofile and the blogifile_blog plugin.
   * Blogofile:
 
     * blogofile/__init__.py
-    * blogofile/docs/conf.py
+    * docs/conf.py
     * CHANGES.txt
 
   * blogofile_blog:
