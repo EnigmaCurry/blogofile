@@ -25,6 +25,7 @@ Blogofile Documentation
    filters
    vcs_integration
    migrating_blogs
+   developers
 
-.. _Blogofile: http://blogofile.com/
+.. _Blogofile: http://www.blogofile.com/
 .. _docs for 0.7.1: http://blogofile.readthedocs.org/en/0.7.1docs/

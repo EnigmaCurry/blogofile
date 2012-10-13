@@ -43,51 +43,47 @@ Why you should consider Blogofile
 Installing Blogofile
 ====================
 
-Blogofile is under active development, but strives to be usable and
-bug-free before the 1.0 release.
+Python Versions
+---------------
+
+Blogofile is being developed under Python_ 3.2
+and tested with Python 2.6, 2.7, and 3.2.
+
+.. _Python: http://www.python.org/
 
 
 Prerequisites
 -------------
 
-Make sure you have `Python`_ and `Setuptools`_ installed.
-On Ubuntu you just need to run::
+Apart from one of the Python versions listed above,
+you will also need one of the Python packaging libraries that supports
+:mod:`setuptools` style entry points; i.e. distribute_ or setuptools_.
 
- sudo apt-get install python-setuptools
-
-.. _Python: http://www.python.org
-.. _Setuptools: http://pypi.python.org/pypi/setuptools
+.. _distribute: http://pypi.python.org/pypi/distribute
+.. _setuptools: http://pypi.python.org/pypi/setuptools
 
 Using a Python virtualenv_ is strongly recommended to segregate
 Blogofile and the packages it depends on from your system Python
 installation.
+It has the added advantage of taking are of the packaging library issue
+for you too.
 
 .. _virtualenv: http://www.virtualenv.org/
 
 
-Install the Stable Release
---------------------------
+Installing the Stable Release
+-----------------------------
 
 Download and install Blogofile and the blogofile_blog plugin with::
 
   easy_install Blogofile
   easy_install blogofile_blog
 
+or use your favourite :command:`pip` or :command:`python setup.py` incantation.
+The releases are hosted on PyPI and can be downloaded from
+http://pypi.python.org/pypi/blogofile
+and http://pypi.python.org/pypi/blogofile_blog.
 
-Install the Latest Development Version
---------------------------------------
-
-Grab the Blogofile core source code from github::
-
-  git clone git://github.com/EnigmaCurry/blogofile.git
-
-and then grab the blogofile_blog reference plugin source code::
-
-  git clone git://github.com/EnigmaCurry/blogofile_blog.git
-
-Install Blogofile and the blogofile_blog plugin from the cloned sources::
-
-  cd blogofile
-  python setup.py develop
-  cd ../blogofile_blog
-  python setup.py develop
+If you prefer to use the development repos from Github,
+or want to hack on Blogofile and blogofile_blog,
+please see the :ref:`ForDevelopers-section` section.
