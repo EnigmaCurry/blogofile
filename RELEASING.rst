@@ -61,7 +61,9 @@ Checklist for doing a release of Blogofile and the blogifile_blog plugin.
 
   for both Blogofile and blogofile_blog.
 
-* Publish the release post for blogofile.com.
+* Publish the release post for blogofile.com::
+
+    $ git push publish
 
 * Announce to blogofile-discuss group/maillist.
 
