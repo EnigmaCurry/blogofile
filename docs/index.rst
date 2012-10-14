@@ -25,6 +25,7 @@ Blogofile Documentation
    filters
    vcs_integration
    migrating_blogs
+   migrating_to_0.8
    developers
 
 .. _Blogofile: http://www.blogofile.com/
