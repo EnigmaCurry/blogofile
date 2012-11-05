@@ -1,4 +1,6 @@
 # Packages required to hack on blogofile
+#
+# Versions shown are those tested at the time of the last release.
 
 -r production.txt
 Sphinx==1.1.3

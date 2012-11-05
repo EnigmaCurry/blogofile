@@ -1,4 +1,9 @@
 # Python packages required to run blogofile
+#
+# Versions shown are those tested at the time of the last release.
+# setup.py does not use pinned versions (other than `textile==2.1.4-py3k`
+# for Python 3.2) so later versions may be installed, but you should drop
+# back to the versions listed here if you have problems.
 
 Jinja2==2.6
 Mako==0.7.2

@@ -20,19 +20,27 @@ with open('README.rst', 'rt') as readme:
     long_description = readme.read()
 with open('CHANGES.txt', 'rt') as changes:
     long_description += '\n\n' + changes.read()
-with open('requirements/production.txt', 'rt') as reqs:
-    requirements = reqs.read()
-install_requires = [line for line in requirements.split('\n')
-                    if line and not line.startswith('#')]
-# TODO: There has to be a better way...
+
+install_requires = [
+    'docutils',
+    'Jinja2',
+    'Mako',
+    'Markdown',
+    'MarkupSafe',
+    'Pygments',
+    'pytz',
+    'PyYAML',
+    'six',
+    'Unidecode',
+]
 dependency_links = []
 if PY3:
-    textile_index = [i for i, item in enumerate(install_requires)
-                     if item.startswith('textile')][0]
-    install_requires[textile_index] += '-py3k'
+    install_requires.append('textile==2.1.4-py3k')
     dependency_links = [
         'http://github.com/EnigmaCurry/textile-py3k/tarball/2.1.4'
         '#egg=textile-2.1.4-py3k']
+else:
+    install_requires.append('textile')
 if PY26:
     install_requires.append('argparse')
 
