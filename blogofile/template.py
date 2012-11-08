@@ -89,31 +89,26 @@ class MakoTemplate(Template):
     template_lookup = None
 
     def __init__(self, template_name, caller=None, lookup=None, src=None):
+        """Templates can be provided in 2 ways:
+
+             1) Pass template_name to Mako for lookup
+             2) Construct a Mako Template object from the src string
+        """
         Template.__init__(self, template_name, caller)
         self.create_lookup()
         if lookup:
-            #M ake sure it's a mako environment:
+            # Make sure it's a mako environment:
             if type(lookup) != mako.lookup.TemplateLookup:
                 raise TemplateEngineError(
                     "MakoTemplate was passed a non-mako lookup environment:"
                     " {0}".format(lookup))
             self.template_lookup = lookup
         self.add_template_path(bf.writer.temp_proc_dir)
-        # Templates can be provided three ways:
-        #  1) src is a template passed via string
-        #  2) template_name can be a path to a file
-        #  3) template_name can be a name to lookup
         if src:
             self.mako_template = mako.template.Template(
                 src,
                 output_encoding="utf-8",
                 lookup=self.template_lookup)
-        elif os.path.isfile(template_name):
-            with open(self.template_name) as t_file:
-                self.mako_template = mako.template.Template(
-                    t_file.read(),
-                    output_encoding="utf-8",
-                    lookup=self.template_lookup)
         else:
             self.mako_template = self.template_lookup.get_template(
                 template_name)
@@ -174,6 +169,7 @@ class JinjaTemplateLoader(jinja2.FileSystemLoader):
             "_templates", bf.config.site.base_template)
 
     def get_source(self, environment, template):
+        print(template)
         if template == "bf_base_template":
             with open(self.bf_base_template) as f:
                 return (f.read(), self.bf_base_template, lambda: False)
@@ -187,6 +183,11 @@ class JinjaTemplate(Template):
     template_lookup = None
 
     def __init__(self, template_name, caller=None, lookup=None, src=None):
+        """Templates can be provided in 2 ways:
+
+             1) Pass template_name to Jinja2 for loading
+             2) Construct a template object from the src string
+        """
         Template.__init__(self, template_name, caller)
         self.create_lookup()
         if lookup:
@@ -197,14 +198,9 @@ class JinjaTemplate(Template):
                     " {0}".format(lookup))
             self.template_lookup = lookup
         self.add_template_path(bf.writer.temp_proc_dir)
-        # Templates can be provided three ways:
-        #  1) src is a template passed via string
-        #  2) template_name can be a path to a file
-        #  3) template_name can be a name to lookup
-
-        # Jinja needs to save the loading of the source until render
-        # time in order to get the attrs into the loader.
-        # Just save the params for later use:
+        # Jinja needs to delay the loading of the source until render
+        # time in order to get the attrs into the loader,
+        # so just save src until then.
         self.src = src
 
     @classmethod
@@ -236,10 +232,10 @@ class JinjaTemplate(Template):
                 self.template_lookup.loader.bf_base_template)
         if self.src:
             self.jinja_template = self.template_lookup.from_string(self.src)
-        elif os.path.isfile(self.template_name):
-            with open(self.template_name) as t_file:
-                self.jinja_template = self.template_lookup.from_string(
-                    t_file.read())
+        # elif os.path.isfile(self.template_name):
+        #     with open(self.template_name) as t_file:
+        #         self.jinja_template = self.template_lookup.from_string(
+        #             t_file.read())
         else:
             self.jinja_template = self.template_lookup.get_template(
                 self.template_name)

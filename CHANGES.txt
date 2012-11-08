@@ -1,3 +1,14 @@
+Next Release
+============
+
+- Fix a template content encoding issue by letting template libraries
+  (i.e. Mako and Jinja2) handle template reading.
+  See https://github.com/EnigmaCurry/blogofile/issues/134
+  and https://github.com/EnigmaCurry/blogofile/issues/135
+
+- Remove version pinning from dependency packages that Blogofile installs.
+
+
 0.8b1
 =====
 
