@@ -32,6 +32,7 @@ Mike Pirnat
 QuickeneR
 Ravikiran Rajagopal
 Brandon Craig Rhodes
+Matthew R. Scott
 Wasil Sergejczyk
 Brandon Stafford
 Michael Stapelberg
