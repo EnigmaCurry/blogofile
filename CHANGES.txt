@@ -1,6 +1,10 @@
 Next Release
 ============
 
+- Add a ``trailing_slash`` argument to ``blogofile.util.site_path_helper()``.
+  When ``True`` a slash is appended to the path. The default is ``False``.
+  See https://github.com/EnigmaCurry/blogofile_blog/issues/5
+
 - Fix a template content encoding issue by letting template libraries
   (i.e. Mako and Jinja2) handle template reading.
   See https://github.com/EnigmaCurry/blogofile/issues/134

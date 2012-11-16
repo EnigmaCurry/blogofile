@@ -61,3 +61,47 @@ class TestCreateSlug(unittest.TestCase):
         mock_config.blog = MagicMock(slugify=lambda s: 'deprecated')
         slug = self._call_fut('Foo Bar!')
         self.assertEqual(slug, 'deprecated')
+
+
+@patch.object(util.bf, 'config')
+class TestSitePathHelper(unittest.TestCase):
+    """Unit tests for site_path_helper function."""
+    def _call_fut(self, *args, **kwargs):
+        """Call the fuction under test.
+        """
+        return util.site_path_helper(*args, **kwargs)
+
+    def test_site_path_helper_root_path(self, mock_config):
+        """site_path_helper returns expected path in site root
+        """
+        mock_config.site.url = 'http://www.blogofile.com'
+        path = self._call_fut('blog')
+        self.assertEqual(path, '/blog')
+
+    def test_site_path_helper_subdir_path(self, mock_config):
+        """site_path_helper returns expected path in site subdir
+        """
+        mock_config.site.url = 'http://www.blogofile.com/~ryan/site1'
+        path = self._call_fut('blog')
+        self.assertEqual(path, '/~ryan/site1/blog')
+
+    def test_site_path_helper_leading_slash(self, mock_config):
+        """site_path_helper returns expected path when arg has leading slash
+        """
+        mock_config.site.url = 'http://www.blogofile.com/~ryan/site1'
+        path = self._call_fut('/blog')
+        self.assertEqual(path, '/~ryan/site1/blog')
+
+    def test_site_path_helper_multiple_args(self, mock_config):
+        """site_path_helper returns expected path for multiple args
+        """
+        mock_config.site.url = 'http://www.blogofile.com/~ryan/site1'
+        path = self._call_fut('blog', 'category1')
+        self.assertEqual(path, '/~ryan/site1/blog/category1')
+
+    def test_site_path_helper_trailing_slash(self, mock_config):
+        """site_path_helper returns path w/ trailing slash when requested
+        """
+        mock_config.site.url = 'http://www.blogofile.com'
+        path = self._call_fut('blog', trailing_slash=True)
+        self.assertEqual(path, '/blog/')

@@ -103,25 +103,23 @@ def url_path_helper(*parts):
         return "/"
 
 
-def site_path_helper(*parts):
-    """Make an absolute path on the site, appending a sequence of path parts to
-    the site path.
+def site_path_helper(*parts, **kwargs):
+    """Make an absolute path on the site, appending a sequence of path parts
+    to the site path.
 
-    >>> bf.config.site.url = "http://www.blogofile.com"
-    >>> site_path_helper("blog")
-    '/blog'
-    >>> bf.config.site.url = "http://www.blgofile.com/~ryan/site1"
-    >>> site_path_helper("blog")
-    '/~ryan/site1/blog'
-    >>> site_path_helper("/blog")
-    '/~ryan/site1/blog'
-    >>> site_path_helper("blog","/category1")
-    '/~ryan/site1/blog/category1'
+    Use ``trailing_slash=True`` as the final argument to get a slash appended
+    to the path.
     """
+    try:
+        trailing_slash = kwargs["trailing_slash"]
+    except KeyError:
+        trailing_slash = False
     site_path = urlparse(bf.config.site.url).path
     path = url_path_helper(site_path, *parts)
     if not path.startswith("/"):
         path = "/" + path
+    if trailing_slash and not path.endswith("/"):
+        path += "/"
     return path
 
 
