@@ -16,3 +16,5 @@ docs/_build
 /.coverage
 /blogofile/tests/plugin/plugin_test/blogofile_plugin_test.egg-info/*
 /blogofile/tests/plugin/plugin_test/build/*
+blogofile.sublime-project
+blogofile.sublime-workspace
