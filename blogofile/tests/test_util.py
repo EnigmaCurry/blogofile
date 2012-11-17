@@ -105,3 +105,8 @@ class TestSitePathHelper(unittest.TestCase):
         mock_config.site.url = 'http://www.blogofile.com'
         path = self._call_fut('blog', trailing_slash=True)
         self.assertEqual(path, '/blog/')
+
+    def test_root_slash(self, mock_config):
+        mock_config.site.url = 'http://www.blogofile.com'
+        path = self._call_fut(trailing_slash=True)
+        self.assertEqual(path, '/')
