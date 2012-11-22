@@ -108,11 +108,13 @@ class MakoTemplate(Template):
             self.mako_template = mako.template.Template(
                 src,
                 output_encoding="utf-8",
+                strict_undefined=True,
                 lookup=self.template_lookup)
         else:
             self.mako_template = self.template_lookup.get_template(
                 template_name)
             self.mako_template.output_encoding = "utf-8"
+            self.mako_template.strict_undefined = True
 
     @classmethod
     def create_lookup(cls):
