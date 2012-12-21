@@ -18,6 +18,9 @@ bf.server = sys.modules['blogofile.server']
 
 logger = logging.getLogger("blogofile.server")
 
+class TCPServer(socketserver.TCPServer):
+    """TCP Server that allows address reuse"""
+    allow_reuse_address = True
 
 class Server(threading.Thread):
     def __init__(self, port, address="127.0.0.1"):
@@ -31,7 +34,7 @@ class Server(threading.Thread):
         server_address = (address, self.port)
         HandlerClass = BlogofileRequestHandler
         HandlerClass.protocol_version = "HTTP/1.0"
-        ServerClass = socketserver.TCPServer
+        ServerClass = TCPServer
         self.httpd = ServerClass(server_address, HandlerClass)
         self.sa = self.httpd.socket.getsockname()
 
