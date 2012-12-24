@@ -1,8 +1,13 @@
 Next Release
 ============
 
+- Add ``allow_reuse_address`` to server to stop occasional
+  "Address already in use" errors.
+  See https://github.com/EnigmaCurry/blogofile/pull/140
+
 - Add a ``trailing_slash`` argument to ``blogofile.util.site_path_helper()``.
-  When ``True`` a slash is appended to the path. The default is ``False``.
+  When ``True`` a slash is appended to the path.
+  The default is ``False``.
   See https://github.com/EnigmaCurry/blogofile_blog/issues/5
 
 - Fix a template content encoding issue by letting template libraries
