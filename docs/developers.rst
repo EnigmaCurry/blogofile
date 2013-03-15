@@ -22,7 +22,7 @@ Python Versions
 ---------------
 
 Blogofile is developed under Python_ 3.2
-and tested with Python 2.6, 2.7, and 3.2.
+and tested with Python 2.6, 2.7, 3.2, and 3.3.
 
 .. _Python: http://www.python.org/
 
