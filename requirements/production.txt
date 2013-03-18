@@ -6,13 +6,13 @@
 # back to the versions listed here if you have problems.
 
 Jinja2==2.6
-Mako==0.7.2
-Markdown==2.2.0
+Mako==0.7.3
+Markdown==2.3
 MarkupSafe==0.15
 PyYAML==3.10
-Pygments==1.5
-docutils==0.9.1
-pytz==2012d
-six==1.1.0
+Pygments==1.6
+docutils==0.10
+pytz==2013b
+six==1.2.0
 textile==2.1.4
-Unidecode==0.04.9
+Unidecode==0.04.12
