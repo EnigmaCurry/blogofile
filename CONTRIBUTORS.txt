@@ -19,6 +19,7 @@ reports, enlightened discussion, etc. to the project:
 Michael Bayer
 Nick Craig-Wood
 Sean Davis
+dongrui
 Nicolas Dumazet
 Ron DuPlain
 John Feminella
