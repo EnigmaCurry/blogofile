@@ -7,4 +7,4 @@ Please take a moment to read LICENSE.txt. It's short.
 """
 
 __author__ = "Ryan McGuire, Doug Latornell, and the Blogofile Contributors"
-__version__ = '0.8.2'
+__version__ = '0.8.3'
