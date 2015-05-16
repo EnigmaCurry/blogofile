@@ -5,7 +5,7 @@ import os
 import logging
 import imp
 import uuid
-
+import inspect
 
 logger = logging.getLogger("blogofile.filter")
 
@@ -21,7 +21,7 @@ default_filter_config = {"name": None,
                          "url": None}
 
 
-def run_chain(chain, content):
+def run_chain(chain, content, context=None):
     """Run content through a filter chain.
 
     Works with either a string or a sequence of filters
@@ -39,7 +39,10 @@ def run_chain(chain, content):
     for fn in chain:
         f = get_filter(fn)
         logger.debug("Applying filter: " + fn)
-        content = f.run(content)
+        if 'context' not in inspect.getargs(f.run.func_code).args:
+            content = f.run(content)
+        else:
+            content = f.run(content, context)
     logger.debug("Content: " + content)
     return content
 
