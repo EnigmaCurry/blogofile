@@ -32,15 +32,9 @@ install_requires = [
     'PyYAML',
     'six',
     'Unidecode',
+    'textile'
 ]
 dependency_links = []
-if PY3:
-    install_requires.append('textile==2.1.4-py3k')
-    dependency_links = [
-        'http://github.com/EnigmaCurry/textile-py3k/tarball/2.1.4'
-        '#egg=textile-2.1.4-py3k']
-else:
-    install_requires.append('textile')
 if PY26:
     install_requires.append('argparse')
 
