@@ -39,7 +39,8 @@ def run_chain(chain, content, context=None):
     for fn in chain:
         f = get_filter(fn)
         logger.debug("Applying filter: " + fn)
-        if 'context' not in inspect.getargs(f.run.func_code).args:
+        code_obj = getattr(f.run, 'func_code', f.run.__code__)
+        if 'context' not in inspect.getargs(code_obj).args:
             content = f.run(content)
         else:
             content = f.run(content, context)
