@@ -10,7 +10,7 @@ Blogofile makes a distinction between two basic kinds of templates:
 * **Page** templates
 * **Reusable** templates
 
-Page templates represent a single unique page (or URL) on your site. These are files somwhere in your source directory that end in ``.mako`` and never reside in a directory starting with an underscore. Page templates are rendered to HTML and copied to the ``_site`` directory in the same location where they reside in the source directory. Examples: an index page, a contact page, or an "about us" page.
+Page templates represent a single unique page (or URL) on your site. These are files somewhere in your source directory that end in ``.mako`` and never reside in a directory starting with an underscore. Page templates are rendered to HTML and copied to the ``_site`` directory in the same location where they reside in the source directory. Examples: an index page, a contact page, or an "about us" page.
 
 Reusable templates are contained in the _templates directory. These are features that you want to include on many pages. Examples: headers, footers, sidebars, blog post layouts etc. Reusable templates do not represent any particular page (or URL) but are rather `inherrited`_ or `included`_ inside other templates or :ref:`controllers` and usually reused on many diverse pages.
 
