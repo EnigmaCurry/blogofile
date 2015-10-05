@@ -11,7 +11,7 @@ Introduction
 Welcome to Blogofile
 ====================
 
-Blogofile is a static website compiler, primarily (though not exclusively) designed to be a simple blogging engine. It requires no database and no special hosting environment. You customize a set of templates with `Mako <http://www.maktotemplates.org>`_, create posts in a markup language of your choice (see :ref:`post-content`) and Blogofile renders your entire website as static HTML and Atom/RSS feeds which you can then upload to any old web server you like. 
+Blogofile is a static website compiler, primarily (though not exclusively) designed to be a simple blogging engine. It requires no database and no special hosting environment. You customize a set of templates with `Mako <http://www.makotemplates.org>`_, create posts in a markup language of your choice (see :ref:`post-content`) and Blogofile renders your entire website as static HTML and Atom/RSS feeds which you can then upload to any old web server you like. 
 
 Why you should consider Blogofile
 =================================
